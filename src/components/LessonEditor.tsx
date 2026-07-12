@@ -9,10 +9,16 @@ import {
 } from '@dnd-kit/core'
 import { SortableContext, useSortable, verticalListSortingStrategy } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
-import { GripVertical, Plus, Copy, Trash2, ArrowUp, ArrowDown, PaintBucket } from 'lucide-react'
+import {
+  GripVertical, Plus, Copy, Trash2, ArrowUp, ArrowDown, PaintBucket, BookmarkPlus,
+  Palette, ClipboardPaste,
+} from 'lucide-react'
 import { useStore } from '../store'
-import type { Block, BlockType } from '../types'
-import InsertMenu, { createBlock } from './InsertMenu'
+import type { Asset, Block } from '../types'
+import InsertMenu from './InsertMenu'
+import SaveTemplateDialog from './SaveTemplateDialog'
+import ImportContentDialog from './ImportContentDialog'
+import LessonStyleDialog from './LessonStyleDialog'
 import BlockEditor from './blocks/BlockEditor'
 import { blockDefs } from '../blockDefaults'
 
@@ -92,8 +98,10 @@ function BlockShell({
   const deleteBlock = useStore((s) => s.deleteBlock)
   const duplicateBlock = useStore((s) => s.duplicateBlock)
   const moveBlock = useStore((s) => s.moveBlock)
+  const saveBlockTemplate = useStore((s) => s.saveBlockTemplate)
   const accent = useStore((s) => s.course!.theme.primaryColor)
   const [bgOpen, setBgOpen] = useState(false)
+  const [savingTpl, setSavingTpl] = useState(false)
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
     id: block.id,
   })
@@ -138,6 +146,13 @@ function BlockShell({
           <Copy size={14} />
         </button>
         <button
+          className="icon-btn"
+          title="Save to block library"
+          onClick={() => setSavingTpl(true)}
+        >
+          <BookmarkPlus size={14} />
+        </button>
+        <button
           className="icon-btn danger"
           title="Delete block"
           onClick={() => deleteBlock(block.id)}
@@ -149,6 +164,17 @@ function BlockShell({
       <div className="block-inner" style={{ background: editorBg(block.bg, accent) }}>
         <BlockEditor block={block} />
       </div>
+      {savingTpl && (
+        <div onClick={(e) => e.stopPropagation()}>
+          <SaveTemplateDialog
+            heading={`Save ${label.toLowerCase()} to library`}
+            hint="Saved blocks appear at the top of the Add-a-block menu in every course, content and styling included."
+            defaultName={label}
+            onSave={(name) => saveBlockTemplate(name, block)}
+            onClose={() => setSavingTpl(false)}
+          />
+        </div>
+      )}
     </div>
   )
 }
@@ -172,6 +198,8 @@ export default function LessonEditor() {
   const moveBlock = useStore((s) => s.moveBlock)
   const [insertAt, setInsertAt] = useState<number | null>(null)
   const [selectedId, setSelectedId] = useState<string | null>(null)
+  const [showImport, setShowImport] = useState(false)
+  const [showStyle, setShowStyle] = useState(false)
   const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 6 } }))
 
   const lesson = course.lessons.find((l) => l.id === lessonId)
@@ -185,12 +213,13 @@ export default function LessonEditor() {
     if (from >= 0 && to >= 0) moveBlock(from, to)
   }
 
-  function handleInsert(type: BlockType) {
-    const block = createBlock(type)
-    addBlock(block, insertAt ?? undefined)
+  function handleInsert(block: Block, assets?: Asset[]) {
+    addBlock(block, insertAt ?? undefined, assets)
     setInsertAt(null)
     setSelectedId(block.id)
   }
+
+  const styled = !!lesson.theme && Object.keys(lesson.theme).length > 0
 
   return (
     <main className="canvas" onClick={() => setSelectedId(null)}>
@@ -203,6 +232,26 @@ export default function LessonEditor() {
             onClick={(e) => e.stopPropagation()}
             onChange={(e) => updateLesson(lesson.id, { title: e.target.value })}
           />
+          <button
+            className={'btn sm' + (styled ? ' primary' : '')}
+            title="Style overrides for this lesson"
+            onClick={(e) => {
+              e.stopPropagation()
+              setShowStyle(true)
+            }}
+          >
+            <Palette size={13} /> {styled ? 'Styled' : 'Lesson style'}
+          </button>
+          <button
+            className="btn sm"
+            title="Paste Markdown or HTML and turn it into blocks"
+            onClick={(e) => {
+              e.stopPropagation()
+              setShowImport(true)
+            }}
+          >
+            <ClipboardPaste size={13} /> Import content
+          </button>
         </div>
         <p className="canvas-hint">
           {lesson.blocks.length === 0
@@ -237,6 +286,16 @@ export default function LessonEditor() {
 
       {insertAt !== null && (
         <InsertMenu onInsert={handleInsert} onClose={() => setInsertAt(null)} />
+      )}
+      {showImport && (
+        <div onClick={(e) => e.stopPropagation()}>
+          <ImportContentDialog onClose={() => setShowImport(false)} />
+        </div>
+      )}
+      {showStyle && (
+        <div onClick={(e) => e.stopPropagation()}>
+          <LessonStyleDialog lesson={lesson} onClose={() => setShowStyle(false)} />
+        </div>
       )}
     </main>
   )

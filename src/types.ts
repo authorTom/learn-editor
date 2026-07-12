@@ -19,6 +19,9 @@ export type BlockType =
   | 'accordion'
   | 'tabs'
   | 'flashcards'
+  | 'sorting'
+  | 'matching'
+  | 'hotspot'
   | 'quiz'
   | 'html'
 
@@ -147,6 +150,34 @@ export interface FlashcardsBlock extends BlockBase {
   cards: { id: string; front: string; back: string; frontImage?: string }[]
 }
 
+/** Put the steps in the right order. `items` is stored in the correct order;
+    the player shuffles for display. */
+export interface SortingBlock extends BlockBase {
+  type: 'sorting'
+  title: string
+  items: { id: string; text: string }[]
+  feedbackCorrect: string
+  feedbackIncorrect: string
+}
+
+/** Match each prompt to its partner. The player shuffles the right-hand column. */
+export interface MatchingBlock extends BlockBase {
+  type: 'matching'
+  title: string
+  pairs: { id: string; left: string; right: string }[]
+  feedbackCorrect: string
+  feedbackIncorrect: string
+}
+
+/** Explore an image: markers positioned as percentages of the image box. */
+export interface HotspotBlock extends BlockBase {
+  type: 'hotspot'
+  src: string
+  alt: string
+  title: string
+  spots: { id: string; x: number; y: number; label: string; html: string }[]
+}
+
 export type QuestionType = 'choice' | 'multiple' | 'truefalse' | 'fillin'
 
 export interface QuizQuestion {
@@ -192,14 +223,25 @@ export type Block =
   | AccordionBlock
   | TabsBlock
   | FlashcardsBlock
+  | SortingBlock
+  | MatchingBlock
+  | HotspotBlock
   | QuizBlock
   | HtmlBlock
+
+/** Per-lesson look overrides. Any field left out inherits the course theme. */
+export interface LessonTheme {
+  primaryColor?: string
+  scheme?: SchemeId
+  hero?: 'gradient' | 'solid' | 'minimal'
+}
 
 export interface Lesson {
   id: string
   title: string
   icon: string // emoji or short label shown in outline
   blocks: Block[]
+  theme?: LessonTheme
 }
 
 export type FontPackId = 'modern' | 'elegant' | 'friendly' | 'classic' | 'technical'
@@ -216,6 +258,9 @@ export interface CourseTheme {
   width: 'narrow' | 'normal' | 'wide'
   corners: 'soft' | 'sharp'
   headingWeight: 'bold' | 'extrabold'
+  fontScale: 'small' | 'normal' | 'large'
+  spacing: 'compact' | 'normal' | 'airy'
+  logo: string // asset ref or data URL, shown in the player's course header
 }
 
 export interface FontPack {
@@ -310,6 +355,49 @@ export function normalizeTheme(t?: Partial<CourseTheme> & { font?: string }): Co
   return merged
 }
 
+// ---------- Media assets ----------
+
+/** An uploaded file, stored once per course and referenced by blocks as
+    `asset:<id>` — so reusing an image doesn't re-embed its bytes. */
+export interface Asset {
+  id: string
+  name: string
+  kind: 'image' | 'audio'
+  src: string // data URL
+  size: number // bytes of the data URL payload
+  createdAt: number
+}
+
+export const ASSET_REF = 'asset:'
+
+/** Resolve a block's src, which may be an `asset:<id>` reference or a plain URL. */
+export function resolveAssetSrc(src: string, assets: Asset[] | undefined): string {
+  if (!src || !src.startsWith(ASSET_REF)) return src
+  const a = (assets ?? []).find((x) => x.id === src.slice(ASSET_REF.length))
+  return a ? a.src : ''
+}
+
+// ---------- Completion ----------
+
+/** What the player must see before it reports the course complete to the LMS. */
+export interface CompletionRules {
+  allLessons: boolean // every lesson finished
+  quizPass: boolean // every quiz passed at its own pass mark
+  minScore: number // 0 = off; otherwise average quiz score must reach this
+  minMinutes: number // 0 = off; otherwise time in the course must reach this
+}
+
+export const defaultCompletion: CompletionRules = {
+  allLessons: true,
+  quizPass: false,
+  minScore: 0,
+  minMinutes: 0,
+}
+
+export function normalizeCompletion(c?: Partial<CompletionRules>): CompletionRules {
+  return { ...defaultCompletion, ...(c ?? {}) }
+}
+
 export interface Course {
   id: string
   title: string
@@ -318,6 +406,8 @@ export interface Course {
   coverImage: string // data URL, optional ''
   lessons: Lesson[]
   theme: CourseTheme
+  assets: Asset[]
+  completion: CompletionRules
   createdAt: number
   updatedAt: number
 }
@@ -331,6 +421,40 @@ export interface CourseMeta {
   updatedAt: number
 }
 
+// ---------- Reusable templates ----------
+
+/** A single block saved to the library, reusable in any course. It carries the
+    media it references, so it still renders in a course that never had them. */
+export interface BlockTemplate {
+  id: string
+  name: string
+  blockType: BlockType
+  block: Block
+  assets: Asset[]
+  createdAt: number
+}
+
+/** A course skeleton — lessons, blocks, media and theme — used to start new courses. */
+export interface CourseTemplate {
+  id: string
+  name: string
+  description: string
+  coverImage: string
+  theme: CourseTheme
+  lessons: Lesson[]
+  assets: Asset[]
+  completion: CompletionRules
+  createdAt: number
+}
+
+/** Shape of an exported/imported template library file. */
+export interface TemplateLibraryFile {
+  kind: 'learn-editor-templates'
+  version: 1
+  blockTemplates: BlockTemplate[]
+  courseTemplates: CourseTemplate[]
+}
+
 export const defaultTheme: CourseTheme = {
   primaryColor: '#4f46e5',
   scheme: 'light',
@@ -340,4 +464,10 @@ export const defaultTheme: CourseTheme = {
   width: 'normal',
   corners: 'soft',
   headingWeight: 'extrabold',
+  fontScale: 'normal',
+  spacing: 'normal',
+  logo: '',
 }
+
+export const FONT_SCALES = { small: 15, normal: 16.5, large: 18.5 } as const
+export const SPACING_SCALES = { compact: 0.75, normal: 1, airy: 1.35 } as const

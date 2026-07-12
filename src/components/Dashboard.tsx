@@ -1,6 +1,10 @@
 import { useRef, useState } from 'react'
-import { BookOpen, Plus, Upload, Copy, Trash2, GraduationCap } from 'lucide-react'
+import {
+  BookOpen, Plus, Upload, Copy, Trash2, GraduationCap, LayoutTemplate, FilePlus2, Check,
+} from 'lucide-react'
 import { useStore } from '../store'
+import SaveTemplateDialog from './SaveTemplateDialog'
+import TemplateLibrary from './TemplateLibrary'
 import type { Course } from '../types'
 
 function timeAgo(ts: number): string {
@@ -12,10 +16,23 @@ function timeAgo(ts: number): string {
 }
 
 export default function Dashboard() {
-  const { courses, loaded, createCourse, openCourse, deleteCourse, duplicateCourse, importCourse } =
-    useStore()
+  const {
+    courses,
+    loaded,
+    courseTemplates,
+    createCourse,
+    createCourseFromTemplate,
+    openCourse,
+    deleteCourse,
+    duplicateCourse,
+    importCourse,
+    saveCourseTemplateById,
+  } = useStore()
   const [showNew, setShowNew] = useState(false)
+  const [showLibrary, setShowLibrary] = useState(false)
+  const [templateId, setTemplateId] = useState<string | null>(null) // null = blank course
   const [title, setTitle] = useState('')
+  const [savingTplFor, setSavingTplFor] = useState<string | null>(null) // course id
   const fileRef = useRef<HTMLInputElement>(null)
 
   async function handleImport(file: File) {
@@ -27,6 +44,21 @@ export default function Dashboard() {
     } catch {
       alert('Could not import: this is not a valid Learn Editor course file.')
     }
+  }
+
+  function openNew(fromTemplate: string | null = null) {
+    setTemplateId(fromTemplate)
+    setTitle('')
+    setShowNew(true)
+  }
+
+  function create() {
+    if (!title.trim()) return
+    if (templateId) createCourseFromTemplate(title.trim(), templateId)
+    else createCourse(title.trim())
+    setShowNew(false)
+    setTitle('')
+    setTemplateId(null)
   }
 
   return (
@@ -42,10 +74,13 @@ export default function Dashboard() {
           </div>
         </div>
         <div className="dash-actions">
+          <button className="btn" onClick={() => setShowLibrary(true)}>
+            <LayoutTemplate size={15} /> Templates
+          </button>
           <button className="btn" onClick={() => fileRef.current?.click()}>
             <Upload size={15} /> Import
           </button>
-          <button className="btn primary" onClick={() => setShowNew(true)}>
+          <button className="btn primary" onClick={() => openNew()}>
             <Plus size={15} /> New course
           </button>
           <input
@@ -67,7 +102,7 @@ export default function Dashboard() {
           <div className="big">🎓</div>
           <h2>Create your first course</h2>
           <p>Build beautiful, responsive e-learning and export it as SCORM for any LMS.</p>
-          <button className="btn primary" onClick={() => setShowNew(true)}>
+          <button className="btn primary" onClick={() => openNew()}>
             <Plus size={15} /> New course
           </button>
         </div>
@@ -88,6 +123,13 @@ export default function Dashboard() {
                     {c.lessonCount === 1 ? '' : 's'} · {timeAgo(c.updatedAt)}
                   </span>
                   <span className="card-menu" onClick={(e) => e.stopPropagation()}>
+                    <button
+                      className="icon-btn"
+                      title="Save as course template"
+                      onClick={() => setSavingTplFor(c.id)}
+                    >
+                      <LayoutTemplate size={14} />
+                    </button>
                     <button
                       className="icon-btn"
                       title="Duplicate"
@@ -128,33 +170,93 @@ export default function Dashboard() {
                   value={title}
                   onChange={(e) => setTitle(e.target.value)}
                   onKeyDown={(e) => {
-                    if (e.key === 'Enter' && title.trim()) {
-                      createCourse(title.trim())
-                      setShowNew(false)
-                      setTitle('')
-                    }
+                    if (e.key === 'Enter') create()
                   }}
                 />
+              </div>
+
+              <div className="field">
+                <label>Start from</label>
+                <div className="tpl-choice">
+                  <button
+                    className={'tpl-option' + (templateId === null ? ' sel' : '')}
+                    onClick={() => setTemplateId(null)}
+                  >
+                    <span className="to-icon">
+                      <FilePlus2 size={16} />
+                    </span>
+                    <span className="tpl-text">
+                      <div className="tpl-name">Blank course</div>
+                      <div className="tpl-meta">One empty lesson, default theme</div>
+                    </span>
+                    {templateId === null && <Check size={15} className="to-check" />}
+                  </button>
+
+                  {courseTemplates.map((t) => (
+                    <button
+                      key={t.id}
+                      className={'tpl-option' + (templateId === t.id ? ' sel' : '')}
+                      onClick={() => setTemplateId(t.id)}
+                    >
+                      <span
+                        className="to-icon"
+                        style={{ background: t.theme.primaryColor, color: '#fff' }}
+                      >
+                        <LayoutTemplate size={16} />
+                      </span>
+                      <span className="tpl-text">
+                        <div className="tpl-name">{t.name}</div>
+                        <div className="tpl-meta">
+                          {t.lessons.length} lesson{t.lessons.length === 1 ? '' : 's'} ·{' '}
+                          {t.lessons.reduce((n, l) => n + l.blocks.length, 0)} blocks
+                        </div>
+                      </span>
+                      {templateId === t.id && <Check size={15} className="to-check" />}
+                    </button>
+                  ))}
+                </div>
+                {courseTemplates.length === 0 && (
+                  <p className="drop-hint">
+                    Tip: save any course as a template to reuse its lessons and theme here.
+                  </p>
+                )}
               </div>
             </div>
             <div className="modal-foot">
               <button className="btn" onClick={() => setShowNew(false)}>
                 Cancel
               </button>
-              <button
-                className="btn primary"
-                disabled={!title.trim()}
-                onClick={() => {
-                  createCourse(title.trim())
-                  setShowNew(false)
-                  setTitle('')
-                }}
-              >
+              <button className="btn primary" disabled={!title.trim()} onClick={create}>
                 Create course
               </button>
             </div>
           </div>
         </div>
+      )}
+
+      {savingTplFor && (
+        <SaveTemplateDialog
+          heading="Save as course template"
+          hint="The template copies this course's lessons, blocks and theme. New courses started from it get their own copy — later edits to either side stay separate."
+          defaultName={
+            (courses.find((c) => c.id === savingTplFor)?.title || 'Untitled course') + ' template'
+          }
+          withDescription
+          onSave={(name, description) =>
+            saveCourseTemplateById(name, description, savingTplFor)
+          }
+          onClose={() => setSavingTplFor(null)}
+        />
+      )}
+
+      {showLibrary && (
+        <TemplateLibrary
+          onClose={() => setShowLibrary(false)}
+          onUseCourseTemplate={(id) => {
+            setShowLibrary(false)
+            openNew(id)
+          }}
+        />
       )}
     </div>
   )

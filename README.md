@@ -30,12 +30,34 @@ Production build: `npm run build` (output in `dist/`, host it as any static site
     with a sandboxed live preview in the editor
   - Dividers, buttons, multi-column layouts
   - Accordions, tabs, flashcards (flip cards, optional images)
+  - **Sequence** — learners restore the correct order of shuffled steps
+  - **Matching** — pair prompts with their partners (click-to-link, so it works
+    on touch and with a keyboard)
+  - **Hotspots** — clickable markers dropped on an image, each revealing rich text
   - **Quizzes** — multiple choice, multiple response, true/false, fill-in-the-blank;
     per-question feedback, pass mark, shuffle; gates lesson progression
 - **Per-block backgrounds** — none, theme panel, accent tint, preset pastels or
   any custom colour (text colour auto-adjusts for contrast).
 - **Reorder** lessons and blocks by dragging or with move up/down arrows;
   hover between blocks to insert.
+- **Undo / redo** across the whole course (⌘Z / ⇧⌘Z, or the toolbar), 60 steps deep.
+  Rapid typing collapses into one step; inside a rich-text block TipTap's own
+  history takes over.
+- **Media library** — every upload is stored once per course and referenced by
+  blocks (`asset:<id>`), so reusing an image doesn't re-embed it. Browse, rename,
+  see per-file usage counts, and pick existing media from any media block.
+- **Bulk import** — paste Markdown or HTML and it becomes blocks: headings,
+  paragraphs, lists, quotes, images, rules and tables. Optionally split into one
+  lesson per top-level heading.
+- **Template library** — reuse work across courses:
+  - **Saved blocks** — bookmark any block (content, styling and background included)
+    from the block toolbar; it then appears under "Saved blocks" at the top of the
+    Add-a-block menu in *every* course. Inserting one drops in an independent copy.
+  - **Course templates** — save a whole course (lessons, blocks and theme) as a
+    template from Settings → Reuse, or from its dashboard card. New courses can
+    then start from any template instead of blank.
+  - Manage both from **Templates** on the dashboard, and export/import the whole
+    library as JSON to move it between browsers or share it with colleagues.
 - **Preview** — phone / tablet / desktop frames rendering the *actual* exported
   player, so preview is pixel-identical to what the LMS shows.
 - **Theming** — applied across the whole course player:
@@ -47,6 +69,15 @@ Production build: `npm run build` (output in `dist/`, host it as any static site
     Friendly (Nunito), Classic (Georgia), Technical (Space Grotesk + IBM Plex Sans)
   - Layout: sidebar or top-bar navigation, gradient/solid/minimal lesson headers,
     narrow/normal/wide content width, rounded or square corners, heading weight
+  - Global styles: text size (small/normal/large), block spacing
+    (compact/normal/airy) and a course logo in the player header
+  - **Per-lesson overrides** — any lesson can override the accent colour, colour
+    scheme and header style; the player swaps the CSS variables at lesson
+    boundaries. Untouched lessons inherit the course theme.
+- **Completion rules** — choose what the learner must do before the course reports
+  complete to the LMS: finish every lesson, pass every quiz, reach a minimum
+  average quiz score, and/or spend a minimum time in the course. The player tells
+  the learner exactly what is still outstanding.
 - **Export**:
   - **SCORM 1.2** zip — works in virtually every LMS
   - **SCORM 2004 (4th Ed.)** zip
@@ -57,10 +88,12 @@ Production build: `npm run build` (output in `dist/`, host it as any static site
 
 The exported package is a single self-contained SCO. It reports:
 
-- `lesson_status` / `completion_status`: `incomplete` on launch, `completed`
-  when all lessons are finished, `passed`/`failed` when the course contains quizzes
+- `lesson_status` / `completion_status`: `incomplete` on launch, then `completed`
+  (or `passed`/`failed` for a course with quizzes) once the course's **completion
+  rules** are all satisfied — not merely when the last page is reached
 - `score.raw` (0–100, average across quizzes; plus `score.scaled` in 2004)
-- `suspend_data`: resume position, completed lessons, quiz scores
+- `session_time` in the version's own format (`hh:mm:ss` for 1.2, ISO 8601 for 2004)
+- `suspend_data`: resume position, completed lessons, quiz scores, time on task
 - `masteryscore` in the manifest when a quiz exists
 
 Learners must submit all quizzes in a lesson before they can continue past it.
@@ -69,9 +102,11 @@ Learners must submit all quizzes in a lesson before they can continue past it.
 
 ```
 src/
-  types.ts               course → lessons → blocks data model
-  store.ts               Zustand store, debounced autosave to IndexedDB
-  blockDefaults.ts       block registry + factories
+  types.ts               course → lessons → blocks data model, themes, completion
+  store.ts               Zustand store, undo/redo history, debounced IndexedDB autosave
+  blockDefaults.ts       block registry + factories + deep clone
+  utils/assets.ts        media asset refs: one visitor teaches every block about media
+  utils/importContent.ts Markdown/HTML → blocks (bulk import)
   components/            editor UI (dashboard, outline, canvas, block editors, dialogs)
   scorm/
     player/player.js     self-contained vanilla-JS course player + SCORM adapter

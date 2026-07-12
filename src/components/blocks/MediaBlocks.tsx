@@ -1,69 +1,115 @@
 import { useRef, useState } from 'react'
-import { ImageUp, Plus, RefreshCw, Trash2, X, Link2 } from 'lucide-react'
+import { ImageUp, Plus, RefreshCw, Trash2, X, Link2, FolderOpen } from 'lucide-react'
 import type {
   ImageBlock, ImageTextBlock, GalleryBlock, VideoBlock, EmbedBlock, AudioBlock,
 } from '../../types'
+import { resolveAssetSrc } from '../../types'
+import { useStore } from '../../store'
 import { readImageFile, readFileAsDataURL } from '../../utils/file'
 import { parseVideoUrl } from '../../utils/embed'
 import { uid } from '../../utils/id'
+import MediaLibrary from '../MediaLibrary'
 import RichText from '../RichText'
 import { usePatch, Seg } from './SimpleBlocks'
 
-/* ---------- shared image upload zone ---------- */
+/** Turn a stored src (an `asset:<id>` ref or a plain URL) into something an
+    <img>/<audio> tag can display. */
+export function useAssetSrc(src: string): string {
+  const assets = useStore((s) => s.course?.assets)
+  return resolveAssetSrc(src, assets)
+}
+
+function AssetImg({ src, alt, style }: { src: string; alt: string; style?: React.CSSProperties }) {
+  const resolved = useAssetSrc(src)
+  if (!resolved) return <div className="asset-missing">Media missing — it was deleted from the library</div>
+  return <img src={resolved} alt={alt} style={style} />
+}
+
+/* ---------- shared upload zone: uploads land in the course media library ---------- */
 export function UploadZone({
   onImage,
   label = 'Drop an image here, or click to browse',
   accept = 'image/*',
   compact,
+  raw = false, // keep the data URL instead of creating an asset (course cover)
 }: {
-  onImage: (dataUrl: string) => void
+  onImage: (src: string) => void
   label?: string
   accept?: string
   compact?: boolean
+  raw?: boolean
 }) {
+  const addAsset = useStore((s) => s.addAsset)
   const inputRef = useRef<HTMLInputElement>(null)
   const [over, setOver] = useState(false)
+  const [picking, setPicking] = useState(false)
+  const isImage = accept.startsWith('image')
 
   async function handleFiles(files: FileList | null) {
     const f = files?.[0]
     if (!f) return
-    const dataUrl = accept.startsWith('image')
-      ? await readImageFile(f)
-      : await readFileAsDataURL(f)
-    onImage(dataUrl)
+    if (raw) {
+      onImage(isImage ? await readImageFile(f) : await readFileAsDataURL(f))
+      return
+    }
+    const asset = await addAsset(f)
+    if (asset) onImage('asset:' + asset.id)
   }
 
   return (
-    <div
-      className={'upload-zone' + (over ? ' over' : '')}
-      style={compact ? { padding: '18px 14px' } : undefined}
-      onClick={() => inputRef.current?.click()}
-      onDragOver={(e) => {
-        e.preventDefault()
-        setOver(true)
-      }}
-      onDragLeave={() => setOver(false)}
-      onDrop={(e) => {
-        e.preventDefault()
-        setOver(false)
-        handleFiles(e.dataTransfer.files)
-      }}
-    >
-      <div className="up-icon">
-        <ImageUp size={compact ? 18 : 26} />
-      </div>
-      {label}
-      <input
-        ref={inputRef}
-        type="file"
-        accept={accept}
-        hidden
-        onChange={(e) => {
-          handleFiles(e.target.files)
-          e.target.value = ''
+    <>
+      <div
+        className={'upload-zone' + (over ? ' over' : '')}
+        style={compact ? { padding: '18px 14px' } : undefined}
+        onClick={() => inputRef.current?.click()}
+        onDragOver={(e) => {
+          e.preventDefault()
+          setOver(true)
         }}
-      />
-    </div>
+        onDragLeave={() => setOver(false)}
+        onDrop={(e) => {
+          e.preventDefault()
+          setOver(false)
+          handleFiles(e.dataTransfer.files)
+        }}
+      >
+        <div className="up-icon">
+          <ImageUp size={compact ? 18 : 26} />
+        </div>
+        {label}
+        {!raw && (
+          <button
+            className="btn sm"
+            style={{ marginTop: 10 }}
+            onClick={(e) => {
+              e.stopPropagation()
+              setPicking(true)
+            }}
+          >
+            <FolderOpen size={13} /> Choose from library
+          </button>
+        )}
+        <input
+          ref={inputRef}
+          type="file"
+          accept={accept}
+          hidden
+          onChange={(e) => {
+            handleFiles(e.target.files)
+            e.target.value = ''
+          }}
+        />
+      </div>
+      {picking && (
+        <div onClick={(e) => e.stopPropagation()}>
+          <MediaLibrary
+            kind={isImage ? 'image' : 'audio'}
+            onPick={onImage}
+            onClose={() => setPicking(false)}
+          />
+        </div>
+      )}
+    </>
   )
 }
 
@@ -74,7 +120,7 @@ export function ImageEditor({ block }: { block: ImageBlock }) {
     <div>
       {block.src ? (
         <div className="img-preview">
-          <img src={block.src} alt={block.alt} />
+          <AssetImg src={block.src} alt={block.alt} />
           <div className="img-replace">
             <button className="btn sm" onClick={() => patch({ src: '' })}>
               <RefreshCw size={12} /> Replace
@@ -119,7 +165,7 @@ export function ImageTextEditor({ block }: { block: ImageTextBlock }) {
         <div style={{ width: '42%', flexShrink: 0 }}>
           {block.src ? (
             <div className="img-preview">
-              <img src={block.src} alt={block.alt} />
+              <AssetImg src={block.src} alt={block.alt} />
               <div className="img-replace">
                 <button className="btn sm" onClick={() => patch({ src: '' })}>
                   <RefreshCw size={12} />
@@ -161,14 +207,17 @@ export function ImageTextEditor({ block }: { block: ImageTextBlock }) {
 /* ---------- Gallery ---------- */
 export function GalleryEditor({ block }: { block: GalleryBlock }) {
   const patch = usePatch(block)
+  const addAsset = useStore((s) => s.addAsset)
   const inputRef = useRef<HTMLInputElement>(null)
+  const [picking, setPicking] = useState(false)
 
   async function addFiles(files: FileList | null) {
     if (!files) return
     const added = [...block.images]
     for (const f of Array.from(files)) {
       if (!f.type.startsWith('image/')) continue
-      added.push({ id: uid(), src: await readImageFile(f, 1280), alt: '', caption: '' })
+      const asset = await addAsset(f)
+      if (asset) added.push({ id: uid(), src: 'asset:' + asset.id, alt: '', caption: '' })
     }
     patch({ images: added })
   }
@@ -178,7 +227,7 @@ export function GalleryEditor({ block }: { block: GalleryBlock }) {
       <div className="gallery-edit-grid">
         {block.images.map((im) => (
           <div key={im.id} className="g-item">
-            <img src={im.src} alt={im.alt} />
+            <AssetImg src={im.src} alt={im.alt} />
             <button
               className="g-del"
               title="Remove"
@@ -223,7 +272,17 @@ export function GalleryEditor({ block }: { block: GalleryBlock }) {
           options={[{ v: '2', label: '2' }, { v: '3', label: '3' }, { v: '4', label: '4' }]}
           onChange={(v) => patch({ columns: Number(v) as 2 | 3 | 4 })}
         />
+        <button className="btn sm" onClick={() => setPicking(true)}>
+          <FolderOpen size={13} /> From library
+        </button>
       </div>
+      {picking && (
+        <MediaLibrary
+          kind="image"
+          onPick={(src) => patch({ images: [...block.images, { id: uid(), src, alt: '', caption: '' }] })}
+          onClose={() => setPicking(false)}
+        />
+      )}
     </div>
   )
 }
@@ -345,6 +404,7 @@ export function EmbedEditor({ block }: { block: EmbedBlock }) {
 /* ---------- Audio ---------- */
 export function AudioEditor({ block }: { block: AudioBlock }) {
   const patch = usePatch(block)
+  const audioSrc = useAssetSrc(block.src)
   return (
     <div>
       <input
@@ -356,7 +416,7 @@ export function AudioEditor({ block }: { block: AudioBlock }) {
       />
       {block.src ? (
         <div className="blk-row">
-          <audio controls src={block.src} style={{ flex: 1 }} />
+          <audio controls src={audioSrc} style={{ flex: 1 }} />
           <button className="icon-btn danger" title="Remove audio" onClick={() => patch({ src: '' })}>
             <Trash2 size={15} />
           </button>

@@ -6,7 +6,9 @@ import {
 import {
   ImageEditor, ImageTextEditor, GalleryEditor, VideoEditor, EmbedEditor, AudioEditor,
 } from './MediaBlocks'
-import { AccordionEditor, TabsEditor, FlashcardsEditor } from './InteractiveBlocks'
+import {
+  AccordionEditor, TabsEditor, FlashcardsEditor, SortingEditor, MatchingEditor, HotspotEditor,
+} from './InteractiveBlocks'
 import QuizEditor from './QuizEditor'
 
 export default function BlockEditor({ block }: { block: Block }) {
@@ -29,6 +31,9 @@ export default function BlockEditor({ block }: { block: Block }) {
     case 'accordion': return <AccordionEditor block={block} />
     case 'tabs': return <TabsEditor block={block} />
     case 'flashcards': return <FlashcardsEditor block={block} />
+    case 'sorting': return <SortingEditor block={block} />
+    case 'matching': return <MatchingEditor block={block} />
+    case 'hotspot': return <HotspotEditor block={block} />
     case 'quiz': return <QuizEditor block={block} />
     case 'html': return <HtmlEditor block={block} />
   }

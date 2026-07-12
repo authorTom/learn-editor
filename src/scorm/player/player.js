@@ -1,10 +1,40 @@
-/* Learn Editor course player. Expects window.COURSE (course JSON) and
-   window.SCORM_VERSION ('1.2' | '2004' | 'preview'). */
+/* Learn Editor course player. Expects window.COURSE (course JSON),
+   window.SCORM_VERSION ('1.2' | '2004' | 'preview') and window.LESSON_THEMES
+   (lessonId -> CSS custom properties, for per-lesson style overrides). */
 (function () {
   'use strict';
 
   var COURSE = window.COURSE;
   var SCORM_VERSION = window.SCORM_VERSION || 'preview';
+  var LESSON_THEMES = window.LESSON_THEMES || {};
+  var COMPLETION = COURSE.completion ||
+    { allLessons: true, quizPass: false, minScore: 0, minMinutes: 0 };
+  var startedAt = Date.now();
+  var priorMins = 0; // minutes from earlier sessions, restored from suspend data
+
+  /* Media lives once in COURSE.assets; blocks point at it with `asset:<id>`. */
+  var ASSETS = {};
+  (COURSE.assets || []).forEach(function (a) { ASSETS[a.id] = a.src; });
+
+  function src(s) {
+    if (!s) return '';
+    return s.indexOf('asset:') === 0 ? (ASSETS[s.slice(6)] || '') : s;
+  }
+
+  /** Total minutes in the course: this session plus any earlier ones. */
+  function elapsedMinutes() {
+    return priorMins + (Date.now() - startedAt) / 60000;
+  }
+
+  function scormTime(totalSeconds) {
+    var h = Math.floor(totalSeconds / 3600);
+    var m = Math.floor((totalSeconds % 3600) / 60);
+    var s = Math.floor(totalSeconds % 60);
+    function pad(n) { return (n < 10 ? '0' : '') + n; }
+    return SCORM_VERSION === '1.2'
+      ? pad(h) + ':' + pad(m) + ':' + pad(s)
+      : 'PT' + h + 'H' + m + 'M' + s + 'S';
+  }
 
   /* ================= SCORM adapter ================= */
 
@@ -74,6 +104,8 @@
         if (SCORM_VERSION === '1.2') {
           this.api.LMSSetValue('cmi.suspend_data', raw);
           this.api.LMSSetValue('cmi.core.lesson_location', state.cur || '');
+          this.api.LMSSetValue('cmi.core.session_time',
+            scormTime((Date.now() - startedAt) / 1000));
           if (progress.scored) {
             this.api.LMSSetValue('cmi.core.score.min', '0');
             this.api.LMSSetValue('cmi.core.score.max', '100');
@@ -87,6 +119,7 @@
         } else {
           this.api.SetValue('cmi.suspend_data', raw);
           this.api.SetValue('cmi.location', state.cur || '');
+          this.api.SetValue('cmi.session_time', scormTime((Date.now() - startedAt) / 1000));
           if (progress.scored) {
             this.api.SetValue('cmi.score.min', '0');
             this.api.SetValue('cmi.score.max', '100');
@@ -115,48 +148,68 @@
   var state = {
     cur: '',            // current lesson id
     done: {},           // lessonId -> true
-    quiz: {}            // quizBlockId -> { score: 0-100, passed: bool }
+    quiz: {},           // quizBlockId -> { score: 0-100, passed: bool }
+    mins: 0             // minutes carried over from previous sessions
   };
 
   var saved = null;
 
-  function totalQuizzes() {
-    var n = 0;
-    COURSE.lessons.forEach(function (l) {
-      l.blocks.forEach(function (b) { if (b.type === 'quiz') n++; });
-    });
-    return n;
-  }
-
+  /** Evaluate the author's completion rules. `outstanding` explains, in the
+      learner's words, whatever is still missing. */
   function computeProgress() {
     var doneCount = 0;
     COURSE.lessons.forEach(function (l) { if (state.done[l.id]) doneCount++; });
-    var finished = doneCount === COURSE.lessons.length;
+    var allLessonsDone = doneCount === COURSE.lessons.length;
+
     var quizIds = [];
     COURSE.lessons.forEach(function (l) {
       l.blocks.forEach(function (b) { if (b.type === 'quiz') quizIds.push(b.id); });
     });
     var scored = quizIds.length > 0;
-    var score = 0, passed = true;
+    var score = 0, allQuizzesPassed = true;
     if (scored) {
       var sum = 0;
       quizIds.forEach(function (id) {
         var q = state.quiz[id];
         sum += q ? q.score : 0;
-        if (!q || !q.passed) passed = false;
+        if (!q || !q.passed) allQuizzesPassed = false;
       });
       score = Math.round(sum / quizIds.length);
     }
+
+    var mins = elapsedMinutes();
+    var outstanding = [];
+    if (COMPLETION.allLessons && !allLessonsDone) {
+      outstanding.push('finish all ' + COURSE.lessons.length + ' lessons (' +
+        doneCount + ' done)');
+    }
+    if (COMPLETION.quizPass && scored && !allQuizzesPassed) {
+      outstanding.push('pass every quiz');
+    }
+    if (COMPLETION.minScore > 0 && scored && score < COMPLETION.minScore) {
+      outstanding.push('reach ' + COMPLETION.minScore + '% average quiz score (now ' + score + '%)');
+    }
+    if (COMPLETION.minMinutes > 0 && mins < COMPLETION.minMinutes) {
+      outstanding.push('spend ' + COMPLETION.minMinutes + ' minutes in the course (' +
+        Math.floor(mins) + ' so far)');
+    }
+
+    var finished = outstanding.length === 0;
+    // A scored course is passed only once it is complete and the quiz bar is met.
+    var passed = finished && (!scored || (allQuizzesPassed || score >= (COMPLETION.minScore || 0)));
+
     return {
       pct: Math.round((doneCount / COURSE.lessons.length) * 100),
       finished: finished,
+      outstanding: outstanding,
       scored: scored,
       score: score,
-      passed: passed && finished
+      passed: passed
     };
   }
 
   function persist() {
+    state.mins = elapsedMinutes();
     scorm.save(state, computeProgress());
     renderSidebarState();
   }
@@ -232,21 +285,21 @@
         break;
       }
       case 'image':
-        if (!b.src) return null;
+        if (!src(b.src)) return null;
         w.className = 'block b-image ' + b.width;
-        w.innerHTML = '<img src="' + esc(b.src) + '" alt="' + esc(b.alt) + '" loading="lazy">' +
+        w.innerHTML = '<img src="' + esc(src(b.src)) + '" alt="' + esc(b.alt) + '" loading="lazy">' +
           (b.caption ? '<div class="b-caption">' + esc(b.caption) + '</div>' : '');
         break;
       case 'imageText':
         w.className = 'block b-imagetext' + (b.imageSide === 'right' ? ' right' : '');
-        w.innerHTML = (b.src ? '<img src="' + esc(b.src) + '" alt="' + esc(b.alt) + '" loading="lazy">' : '') +
+        w.innerHTML = (src(b.src) ? '<img src="' + esc(src(b.src)) + '" alt="' + esc(b.alt) + '" loading="lazy">' : '') +
           '<div class="it-text rich">' + b.html + '</div>';
         break;
       case 'gallery':
         if (!b.images.length) return null;
         w.className = 'block b-gallery cols-' + b.columns;
         w.innerHTML = b.images.map(function (im) {
-          return '<figure><img src="' + esc(im.src) + '" alt="' + esc(im.alt) + '" loading="lazy">' +
+          return '<figure><img src="' + esc(src(im.src)) + '" alt="' + esc(im.alt) + '" loading="lazy">' +
             (im.caption ? '<figcaption>' + esc(im.caption) + '</figcaption>' : '') + '</figure>';
         }).join('');
         break;
@@ -263,10 +316,10 @@
           (b.caption ? '<div class="b-caption">' + esc(b.caption) + '</div>' : '');
         break;
       case 'audio':
-        if (!b.src) return null;
+        if (!src(b.src)) return null;
         w.className = 'block b-audio';
         w.innerHTML = (b.title ? '<div class="a-title">' + esc(b.title) + '</div>' : '') +
-          '<audio controls src="' + esc(b.src) + '"></audio>';
+          '<audio controls src="' + esc(src(b.src)) + '"></audio>';
         break;
       case 'divider':
         w.className = 'block b-divider ' + b.style;
@@ -299,6 +352,15 @@
         break;
       case 'flashcards':
         renderFlashcards(w, b);
+        break;
+      case 'sorting':
+        renderSorting(w, b);
+        break;
+      case 'matching':
+        renderMatching(w, b);
+        break;
+      case 'hotspot':
+        if (!renderHotspot(w, b)) return null;
         break;
       case 'quiz':
         renderQuiz(w, b);
@@ -366,7 +428,7 @@
       card.innerHTML =
         '<div class="fcard-inner">' +
           '<div class="fcard-face fcard-front">' +
-            (c.frontImage ? '<img src="' + esc(c.frontImage) + '" alt="">' : '') +
+            (c.frontImage ? '<img src="' + esc(src(c.frontImage)) + '" alt="">' : '') +
             '<div>' + esc(c.front) + '</div><div class="fcard-hint">Tap to flip</div>' +
           '</div>' +
           '<div class="fcard-face fcard-back"><div>' + esc(c.back) + '</div><div class="fcard-hint">Tap to flip back</div></div>' +
@@ -374,6 +436,188 @@
       card.addEventListener('click', function () { card.classList.toggle('flipped'); });
       w.appendChild(card);
     });
+  }
+
+  /* ================= interactions ================= */
+
+  /* Sequence: shuffled steps the learner reorders with the arrow buttons.
+     Buttons rather than drag-and-drop, so it works with touch and a keyboard. */
+  function renderSorting(w, b) {
+    w.className = 'block b-sorting';
+    var items = b.items.filter(function (i) { return (i.text || '').trim(); });
+    if (!items.length) { w.innerHTML = ''; return; }
+
+    var order = shuffleArr(items);
+    if (order.length > 1 && order.every(function (it, i) { return it.id === items[i].id; })) {
+      order.push(order.shift()); // never open already solved
+    }
+
+    if (b.title) w.appendChild(el('div', 'ix-title', esc(b.title)));
+    var list = el('div', 'sort-list');
+    var fb = el('div');
+    var check = el('button', 'quiz-btn', 'Check order');
+
+    function draw() {
+      list.innerHTML = '';
+      order.forEach(function (it, i) {
+        var row = el('div', 'sort-row');
+        row.appendChild(el('span', 'sort-num', String(i + 1)));
+        row.appendChild(el('span', 'sort-text', esc(it.text)));
+        var up = el('button', 'sort-move', '&uarr;');
+        up.setAttribute('aria-label', 'Move “' + it.text + '” up');
+        up.disabled = i === 0;
+        up.addEventListener('click', function () {
+          order.splice(i - 1, 0, order.splice(i, 1)[0]);
+          draw();
+        });
+        var down = el('button', 'sort-move', '&darr;');
+        down.setAttribute('aria-label', 'Move “' + it.text + '” down');
+        down.disabled = i === order.length - 1;
+        down.addEventListener('click', function () {
+          order.splice(i + 1, 0, order.splice(i, 1)[0]);
+          draw();
+        });
+        row.appendChild(up);
+        row.appendChild(down);
+        list.appendChild(row);
+      });
+    }
+
+    check.addEventListener('click', function () {
+      var ok = order.every(function (it, i) { return it.id === items[i].id; });
+      list.querySelectorAll('.sort-row').forEach(function (row, i) {
+        row.classList.remove('correct', 'incorrect');
+        row.classList.add(order[i].id === items[i].id ? 'correct' : 'incorrect');
+      });
+      fb.className = 'q-feedback ' + (ok ? 'ok' : 'bad');
+      fb.textContent = (ok ? '✓ ' : '✗ ') +
+        (ok ? (b.feedbackCorrect || 'Correct!') : (b.feedbackIncorrect || 'Not quite — try again.'));
+    });
+
+    draw();
+    w.appendChild(list);
+    w.appendChild(fb);
+    var actions = el('div', 'ix-actions');
+    actions.appendChild(check);
+    w.appendChild(actions);
+  }
+
+  /* Matching: click a prompt, then click its partner. Click a made pair to undo it. */
+  function renderMatching(w, b) {
+    w.className = 'block b-matching';
+    var pairs = b.pairs.filter(function (p) { return (p.left || '').trim() && (p.right || '').trim(); });
+    if (!pairs.length) { w.innerHTML = ''; return; }
+
+    if (b.title) w.appendChild(el('div', 'ix-title', esc(b.title)));
+
+    var rights = shuffleArr(pairs);
+    var links = {};        // leftId -> rightId (a right is identified by its pair id)
+    var activeLeft = null;
+
+    var grid = el('div', 'match-grid');
+    var leftCol = el('div', 'match-col');
+    var rightCol = el('div', 'match-col');
+    grid.appendChild(leftCol);
+    grid.appendChild(rightCol);
+
+    var fb = el('div');
+    var check = el('button', 'quiz-btn', 'Check answers');
+
+    function linkedLeftOf(rightId) {
+      var found = null;
+      Object.keys(links).forEach(function (l) { if (links[l] === rightId) found = l; });
+      return found;
+    }
+
+    function draw() {
+      leftCol.innerHTML = '';
+      rightCol.innerHTML = '';
+      pairs.forEach(function (p, i) {
+        var btn = el('button', 'match-item');
+        btn.innerHTML = '<span class="match-badge">' + (links[p.id] ? '🔗' : String.fromCharCode(65 + i)) +
+          '</span><span>' + esc(p.left) + '</span>';
+        if (links[p.id]) btn.classList.add('linked');
+        if (activeLeft === p.id) btn.classList.add('active');
+        btn.addEventListener('click', function () {
+          if (links[p.id]) { delete links[p.id]; activeLeft = null; }
+          else activeLeft = activeLeft === p.id ? null : p.id;
+          fb.className = '';
+          fb.textContent = '';
+          draw();
+        });
+        leftCol.appendChild(btn);
+      });
+
+      rights.forEach(function (p) {
+        var btn = el('button', 'match-item');
+        var owner = linkedLeftOf(p.id);
+        btn.innerHTML = '<span>' + esc(p.right) + '</span>';
+        if (owner) btn.classList.add('linked');
+        btn.addEventListener('click', function () {
+          if (owner) { delete links[owner]; activeLeft = null; }
+          else if (activeLeft) { links[activeLeft] = p.id; activeLeft = null; }
+          fb.className = '';
+          fb.textContent = '';
+          draw();
+        });
+        rightCol.appendChild(btn);
+      });
+
+      check.disabled = Object.keys(links).length !== pairs.length;
+    }
+
+    check.addEventListener('click', function () {
+      var wrong = 0;
+      pairs.forEach(function (p) { if (links[p.id] !== p.id) wrong++; });
+      draw();
+      leftCol.querySelectorAll('.match-item').forEach(function (btn, i) {
+        btn.classList.add(links[pairs[i].id] === pairs[i].id ? 'correct' : 'incorrect');
+      });
+      fb.className = 'q-feedback ' + (wrong === 0 ? 'ok' : 'bad');
+      fb.textContent = (wrong === 0 ? '✓ ' : '✗ ') +
+        (wrong === 0
+          ? (b.feedbackCorrect || 'All matched correctly.')
+          : (b.feedbackIncorrect || 'Some pairs aren’t right.') + ' (' + wrong + ' to fix)');
+    });
+
+    draw();
+    w.appendChild(grid);
+    w.appendChild(el('div', 'ix-hint', 'Select a prompt, then select its match. Select a linked item to unlink it.'));
+    w.appendChild(fb);
+    var actions = el('div', 'ix-actions');
+    actions.appendChild(check);
+    w.appendChild(actions);
+  }
+
+  /* Hotspots: markers over an image; selecting one reveals its detail panel. */
+  function renderHotspot(w, b) {
+    var url = src(b.src);
+    if (!url || !b.spots.length) return false;
+    w.className = 'block b-hotspot';
+    if (b.title) w.appendChild(el('div', 'ix-title', esc(b.title)));
+
+    var stage = el('div', 'hs-stage');
+    stage.innerHTML = '<img src="' + esc(url) + '" alt="' + esc(b.alt) + '">';
+    var panel = el('div', 'hs-panel');
+    panel.innerHTML = '<div class="hs-empty">Select a marker to learn more.</div>';
+
+    b.spots.forEach(function (s, i) {
+      var dot = el('button', 'hs-dot', String(i + 1));
+      dot.style.left = s.x + '%';
+      dot.style.top = s.y + '%';
+      dot.setAttribute('aria-label', s.label || 'Hotspot ' + (i + 1));
+      dot.addEventListener('click', function () {
+        stage.querySelectorAll('.hs-dot').forEach(function (d) { d.classList.remove('active'); });
+        dot.classList.add('active', 'seen');
+        panel.innerHTML = '<div class="hs-label">' + esc(s.label || 'Hotspot ' + (i + 1)) +
+          '</div><div class="rich">' + (s.html || '') + '</div>';
+      });
+      stage.appendChild(dot);
+    });
+
+    w.appendChild(stage);
+    w.appendChild(panel);
+    return true;
   }
 
   /* ================= quiz ================= */
@@ -536,6 +780,10 @@
   var root = document.getElementById('app');
   var sidebarNav, progressFill, progressPct, footerNextBtn, gateMsg;
 
+  function isLastLesson(idx) {
+    return idx === COURSE.lessons.length - 1;
+  }
+
   function lessonQuizzes(lesson) {
     return lesson.blocks.filter(function (b) { return b.type === 'quiz'; });
   }
@@ -567,12 +815,31 @@
     }
   }
 
+  /** Per-lesson style overrides: CSS custom properties precomputed at export
+      time, applied to the player root while that lesson is open. */
+  function applyLessonTheme(id) {
+    var t = LESSON_THEMES[id];
+    var base = LESSON_THEMES.__base || {};
+    var vars = {};
+    Object.keys(base).forEach(function (k) { vars[k] = base[k]; });
+    Object.keys(t || {}).forEach(function (k) { vars[k] = t[k]; });
+    Object.keys(vars).forEach(function (k) {
+      if (k === 'dark' || k === 'hero') return;
+      root.style.setProperty(k, vars[k]);
+    });
+    document.body.classList.toggle('theme-dark', !!vars.dark);
+    ['gradient', 'solid', 'minimal'].forEach(function (h) {
+      document.body.classList.toggle('hero-' + h, vars.hero === h);
+    });
+  }
+
   function openLesson(id) {
     state.cur = id;
     var idx = COURSE.lessons.findIndex(function (l) { return l.id === id; });
     var lesson = COURSE.lessons[idx];
     var content = root.querySelector('.content');
     content.innerHTML = '';
+    applyLessonTheme(id);
 
     // mobile topbar
     var topbar = el('div', 'topbar');
@@ -589,8 +856,14 @@
     content.appendChild(hero);
 
     var blocksWrap = el('div', 'blocks');
-    if (computeProgress().finished) {
+    var prog = computeProgress();
+    if (prog.finished) {
       blocksWrap.appendChild(el('div', 'complete-banner', '🎉 <span>Course complete — great job!</span>'));
+    } else if (isLastLesson(idx) && state.done[lesson.id]) {
+      // Reached the end but a completion rule is still outstanding — say which.
+      blocksWrap.appendChild(el('div', 'complete-banner pending',
+        '⏳ <span>Almost there — to complete this course you still need to ' +
+        prog.outstanding.join(', and ') + '.</span>'));
     }
     lesson.blocks.forEach(function (b) {
       var node = renderBlock(b);
@@ -641,7 +914,9 @@
 
     var sidebar = el('aside', 'sidebar');
     var head = el('div', 'sidebar-head');
-    head.innerHTML = '<h1>' + esc(COURSE.title) + '</h1>' +
+    var logo = src((COURSE.theme && COURSE.theme.logo) || '');
+    head.innerHTML = (logo ? '<img class="course-logo" src="' + esc(logo) + '" alt="">' : '') +
+      '<h1>' + esc(COURSE.title) + '</h1>' +
       (COURSE.author ? '<div class="byline">by ' + esc(COURSE.author) + '</div>' : '') +
       '<div class="progress-wrap"><div class="progress-label"><span>Progress</span><span class="ppct">0%</span></div>' +
       '<div class="progress-bar"><div class="progress-fill"></div></div></div>';
@@ -674,9 +949,18 @@
       state.done = saved.done || {};
       state.quiz = saved.quiz || {};
       state.cur = saved.cur || '';
+      priorMins = saved.mins || 0;
     }
     var startLesson = COURSE.lessons.filter(function (l) { return l.id === state.cur; })[0];
     openLesson(startLesson ? startLesson.id : COURSE.lessons[0].id);
+
+    // A time-based rule can come good while the learner is simply reading.
+    if (COMPLETION.minMinutes > 0) {
+      setInterval(function () {
+        if (!computeProgress().finished) persist();
+        else if (!state.reported) { state.reported = true; persist(); }
+      }, 30000);
+    }
   }
 
   window.addEventListener('beforeunload', function () {

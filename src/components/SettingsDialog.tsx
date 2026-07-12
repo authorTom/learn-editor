@@ -1,7 +1,9 @@
-import { X } from 'lucide-react'
+import { useState } from 'react'
+import { LayoutTemplate, X } from 'lucide-react'
 import { useStore } from '../store'
-import type { CourseTheme } from '../types'
-import { FONT_PACKS, SCHEMES } from '../types'
+import type { CompletionRules, CourseTheme } from '../types'
+import { FONT_PACKS, SCHEMES, resolveAssetSrc } from '../types'
+import SaveTemplateDialog from './SaveTemplateDialog'
 import { UploadZone } from './blocks/MediaBlocks'
 
 const THEME_COLORS = [
@@ -39,10 +41,23 @@ function SegField<K extends keyof CourseTheme>({
 export default function SettingsDialog({ onClose }: { onClose: () => void }) {
   const course = useStore((s) => s.course)!
   const updateCourse = useStore((s) => s.updateCourse)
+  const saveCourseTemplate = useStore((s) => s.saveCourseTemplate)
+  const courseTemplates = useStore((s) => s.courseTemplates)
+  const [savingTpl, setSavingTpl] = useState(false)
   const theme = course.theme
+  const completion = course.completion
+  const logoSrc = resolveAssetSrc(theme.logo, course.assets)
+  const quizCount = course.lessons.reduce(
+    (n, l) => n + l.blocks.filter((b) => b.type === 'quiz').length,
+    0
+  )
 
   function setTheme(patch: Partial<CourseTheme>) {
     updateCourse({ theme: { ...theme, ...patch } })
+  }
+
+  function setCompletion(patch: Partial<CompletionRules>) {
+    updateCourse({ completion: { ...completion, ...patch } })
   }
 
   return (
@@ -86,7 +101,8 @@ export default function SettingsDialog({ onClose }: { onClose: () => void }) {
                   </div>
                 </div>
               ) : (
-                <UploadZone compact label="Add a cover image" onImage={(src) => updateCourse({ coverImage: src })} />
+                // raw: the dashboard card shows this outside the course, where assets aren't loaded
+                <UploadZone raw compact label="Add a cover image" onImage={(src) => updateCourse({ coverImage: src })} />
               )}
             </div>
           </div>
@@ -187,9 +203,142 @@ export default function SettingsDialog({ onClose }: { onClose: () => void }) {
             themeKey="headingWeight"
             options={[{ v: 'extrabold', label: 'Extra bold' }, { v: 'bold', label: 'Bold' }]}
           />
+          <SegField
+            label="Text size"
+            themeKey="fontScale"
+            options={[
+              { v: 'small', label: 'Small' },
+              { v: 'normal', label: 'Normal' },
+              { v: 'large', label: 'Large' },
+            ]}
+          />
+          <SegField
+            label="Spacing"
+            themeKey="spacing"
+            options={[
+              { v: 'compact', label: 'Compact' },
+              { v: 'normal', label: 'Normal' },
+              { v: 'airy', label: 'Airy' },
+            ]}
+          />
+          <div className="layout-field">
+            <span className="lo-label">Logo</span>
+            {theme.logo ? (
+              <span style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                <img src={logoSrc} alt="Course logo" className="logo-preview" />
+                <button className="btn sm" onClick={() => setTheme({ logo: '' })}>
+                  Remove
+                </button>
+              </span>
+            ) : (
+              <span style={{ flex: 1, minWidth: 220 }}>
+                <UploadZone
+                  compact
+                  label="Add a logo for the course header"
+                  onImage={(logo) => setTheme({ logo })}
+                />
+              </span>
+            )}
+          </div>
           <p className="drop-hint" style={{ marginTop: 14 }}>
-            Theme changes apply to the course player — open Preview to see them exactly as learners will.
+            Theme changes apply to the course player — open Preview to see them exactly as learners
+            will. Individual lessons can override the accent, scheme and header from{' '}
+            <strong>Lesson style</strong> in the canvas.
           </p>
+
+          <div className="settings-section-title">Completion rules</div>
+          <p className="drop-hint" style={{ marginTop: 0, marginBottom: 12 }}>
+            What the learner must do before the player reports the course complete to the LMS.
+          </p>
+          <label className="check-row">
+            <input
+              type="checkbox"
+              checked={completion.allLessons}
+              onChange={(e) => setCompletion({ allLessons: e.target.checked })}
+            />
+            <span>
+              Finish every lesson
+              <span className="lo-sub">Each lesson must be completed with Continue / Finish.</span>
+            </span>
+          </label>
+          <label className="check-row">
+            <input
+              type="checkbox"
+              checked={completion.quizPass}
+              disabled={quizCount === 0}
+              onChange={(e) => setCompletion({ quizPass: e.target.checked })}
+            />
+            <span>
+              Pass every quiz
+              <span className="lo-sub">
+                {quizCount === 0
+                  ? 'No quizzes in this course yet.'
+                  : `Each of the ${quizCount} quiz${quizCount === 1 ? '' : 'zes'} must reach its own pass mark.`}
+              </span>
+            </span>
+          </label>
+          <div className="layout-field">
+            <span className="lo-label lo-wide">
+              Minimum average quiz score
+              <span className="lo-sub">0 turns this off.</span>
+            </span>
+            <input
+              className="mini-input"
+              type="number"
+              min={0}
+              max={100}
+              step={5}
+              style={{ width: 90 }}
+              disabled={quizCount === 0}
+              value={completion.minScore}
+              onChange={(e) =>
+                setCompletion({ minScore: Math.min(100, Math.max(0, Number(e.target.value) || 0)) })
+              }
+            />
+            <span className="lbl">%</span>
+          </div>
+          <div className="layout-field">
+            <span className="lo-label lo-wide">
+              Minimum time in the course
+              <span className="lo-sub">0 turns this off. Useful for compliance minimums.</span>
+            </span>
+            <input
+              className="mini-input"
+              type="number"
+              min={0}
+              max={600}
+              step={5}
+              style={{ width: 90 }}
+              value={completion.minMinutes}
+              onChange={(e) =>
+                setCompletion({ minMinutes: Math.max(0, Number(e.target.value) || 0) })
+              }
+            />
+            <span className="lbl">minutes</span>
+          </div>
+          {!completion.allLessons &&
+            !completion.quizPass &&
+            !completion.minScore &&
+            !completion.minMinutes && (
+              <p className="drop-hint" style={{ color: 'var(--danger)' }}>
+                With every rule off, the course reports complete as soon as it is opened.
+              </p>
+            )}
+
+          <div className="settings-section-title">Reuse</div>
+          <div className="layout-field">
+            <span className="lo-label lo-wide">
+              Course template
+              <span className="lo-sub">
+                Save this course's lessons, blocks and theme as a starting point for new courses.
+                {courseTemplates.length > 0 &&
+                  ` You have ${courseTemplates.length} template${courseTemplates.length === 1 ? '' : 's'}.`}
+              </span>
+            </span>
+            <button className="btn" onClick={() => setSavingTpl(true)}>
+              <LayoutTemplate size={15} /> Save as template
+            </button>
+          </div>
         </div>
         <div className="modal-foot">
           <button className="btn primary" onClick={onClose}>
@@ -197,6 +346,20 @@ export default function SettingsDialog({ onClose }: { onClose: () => void }) {
           </button>
         </div>
       </div>
+
+      {savingTpl && (
+        // stop clicks in the nested dialog from reaching the settings scrim behind it
+        <div onClick={(e) => e.stopPropagation()}>
+          <SaveTemplateDialog
+            heading="Save as course template"
+            hint="Templates live in your Template library on the dashboard, and are offered whenever you create a new course."
+            defaultName={(course.title || 'Untitled course') + ' template'}
+            withDescription
+            onSave={(name, description) => saveCourseTemplate(name, description, course)}
+            onClose={() => setSavingTpl(false)}
+          />
+        </div>
+      )}
     </div>
   )
 }

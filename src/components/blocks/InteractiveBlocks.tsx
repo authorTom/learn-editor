@@ -1,9 +1,12 @@
-import { Plus, X, ArrowUp, ArrowDown } from 'lucide-react'
-import type { AccordionBlock, TabsBlock, FlashcardsBlock } from '../../types'
+import { useRef, useState } from 'react'
+import { Plus, X, ArrowUp, ArrowDown, MapPin, Trash2 } from 'lucide-react'
+import type {
+  AccordionBlock, TabsBlock, FlashcardsBlock, SortingBlock, MatchingBlock, HotspotBlock,
+} from '../../types'
 import { uid } from '../../utils/id'
 import RichText from '../RichText'
 import { usePatch } from './SimpleBlocks'
-import { UploadZone } from './MediaBlocks'
+import { UploadZone, useAssetSrc } from './MediaBlocks'
 
 /* Shared editor for accordion + tabs (title/html item lists). */
 function ItemsEditor({
@@ -83,6 +86,11 @@ export function TabsEditor({ block }: { block: TabsBlock }) {
   return <ItemsEditor items={block.items} itemNoun="Tab" onChange={(items) => patch({ items })} />
 }
 
+function CardImage({ src }: { src: string }) {
+  const resolved = useAssetSrc(src)
+  return <img src={resolved} alt="" style={{ maxHeight: 90, objectFit: 'cover', width: '100%' }} />
+}
+
 export function FlashcardsEditor({ block }: { block: FlashcardsBlock }) {
   const patch = usePatch(block)
 
@@ -106,7 +114,7 @@ export function FlashcardsEditor({ block }: { block: FlashcardsBlock }) {
             <div className="fc-side-lbl">Card {i + 1} — front</div>
             {c.frontImage ? (
               <div className="img-preview" style={{ marginBottom: 8 }}>
-                <img src={c.frontImage} alt="" style={{ maxHeight: 90, objectFit: 'cover', width: '100%' }} />
+                <CardImage src={c.frontImage} />
                 <div className="img-replace">
                   <button className="btn sm" onClick={() => patchCard(c.id, { frontImage: undefined })}>
                     <X size={11} />
@@ -138,6 +146,290 @@ export function FlashcardsEditor({ block }: { block: FlashcardsBlock }) {
           onClick={() => patch({ cards: [...block.cards, { id: uid(), front: '', back: '' }] })}
         >
           <Plus size={13} /> Add card
+        </button>
+      </div>
+    </div>
+  )
+}
+
+/* ---------- Sequence (sorting) ---------- */
+/* Items are authored in the correct order; the player shuffles them for the learner. */
+export function SortingEditor({ block }: { block: SortingBlock }) {
+  const patch = usePatch(block)
+
+  function move(i: number, dir: -1 | 1) {
+    const items = [...block.items]
+    const [it] = items.splice(i, 1)
+    items.splice(i + dir, 0, it)
+    patch({ items })
+  }
+
+  return (
+    <div>
+      <input
+        className="mini-input"
+        style={{ width: '100%', marginBottom: 10, fontWeight: 600 }}
+        value={block.title}
+        placeholder="Instruction, e.g. “Put these steps in order”"
+        onChange={(e) => patch({ title: e.target.value })}
+      />
+      <div className="order-list">
+        {block.items.map((it, i) => (
+          <div key={it.id} className="order-row">
+            <span className="order-num">{i + 1}</span>
+            <input
+              className="mini-input"
+              style={{ flex: 1 }}
+              value={it.text}
+              placeholder={`Step ${i + 1}`}
+              onChange={(e) =>
+                patch({
+                  items: block.items.map((x) => (x.id === it.id ? { ...x, text: e.target.value } : x)),
+                })
+              }
+            />
+            <button className="icon-btn" disabled={i === 0} title="Move up" onClick={() => move(i, -1)}>
+              <ArrowUp size={13} />
+            </button>
+            <button
+              className="icon-btn"
+              disabled={i === block.items.length - 1}
+              title="Move down"
+              onClick={() => move(i, 1)}
+            >
+              <ArrowDown size={13} />
+            </button>
+            <button
+              className="icon-btn danger"
+              disabled={block.items.length <= 2}
+              title="Remove"
+              onClick={() => patch({ items: block.items.filter((x) => x.id !== it.id) })}
+            >
+              <X size={13} />
+            </button>
+          </div>
+        ))}
+      </div>
+      <div className="blk-options">
+        <button
+          className="btn sm"
+          onClick={() => patch({ items: [...block.items, { id: uid(), text: '' }] })}
+        >
+          <Plus size={13} /> Add step
+        </button>
+        <span className="lbl">Learners see these shuffled and must restore this order.</span>
+      </div>
+      <FeedbackFields
+        correct={block.feedbackCorrect}
+        incorrect={block.feedbackIncorrect}
+        onChange={(p) => patch(p)}
+      />
+    </div>
+  )
+}
+
+/* ---------- Matching ---------- */
+export function MatchingEditor({ block }: { block: MatchingBlock }) {
+  const patch = usePatch(block)
+
+  function patchPair(id: string, p: Partial<{ left: string; right: string }>) {
+    patch({ pairs: block.pairs.map((x) => (x.id === id ? { ...x, ...p } : x)) })
+  }
+
+  return (
+    <div>
+      <input
+        className="mini-input"
+        style={{ width: '100%', marginBottom: 10, fontWeight: 600 }}
+        value={block.title}
+        placeholder="Instruction, e.g. “Match each term to its definition”"
+        onChange={(e) => patch({ title: e.target.value })}
+      />
+      <div className="pair-list">
+        {block.pairs.map((p, i) => (
+          <div key={p.id} className="pair-row">
+            <input
+              className="mini-input"
+              value={p.left}
+              placeholder={`Prompt ${i + 1}`}
+              onChange={(e) => patchPair(p.id, { left: e.target.value })}
+            />
+            <span className="pair-link">↔</span>
+            <input
+              className="mini-input"
+              value={p.right}
+              placeholder={`Match ${i + 1}`}
+              onChange={(e) => patchPair(p.id, { right: e.target.value })}
+            />
+            <button
+              className="icon-btn danger"
+              disabled={block.pairs.length <= 2}
+              title="Remove pair"
+              onClick={() => patch({ pairs: block.pairs.filter((x) => x.id !== p.id) })}
+            >
+              <X size={13} />
+            </button>
+          </div>
+        ))}
+      </div>
+      <div className="blk-options">
+        <button
+          className="btn sm"
+          onClick={() => patch({ pairs: [...block.pairs, { id: uid(), left: '', right: '' }] })}
+        >
+          <Plus size={13} /> Add pair
+        </button>
+        <span className="lbl">The right-hand column is shuffled for learners.</span>
+      </div>
+      <FeedbackFields
+        correct={block.feedbackCorrect}
+        incorrect={block.feedbackIncorrect}
+        onChange={(p) => patch(p)}
+      />
+    </div>
+  )
+}
+
+function FeedbackFields({
+  correct,
+  incorrect,
+  onChange,
+}: {
+  correct: string
+  incorrect: string
+  onChange: (p: { feedbackCorrect?: string; feedbackIncorrect?: string }) => void
+}) {
+  return (
+    <div className="blk-options">
+      <input
+        className="mini-input"
+        style={{ flex: 1, minWidth: 150 }}
+        value={correct}
+        placeholder="Feedback when correct"
+        onChange={(e) => onChange({ feedbackCorrect: e.target.value })}
+      />
+      <input
+        className="mini-input"
+        style={{ flex: 1, minWidth: 150 }}
+        value={incorrect}
+        placeholder="Feedback when incorrect"
+        onChange={(e) => onChange({ feedbackIncorrect: e.target.value })}
+      />
+    </div>
+  )
+}
+
+/* ---------- Hotspots ---------- */
+/* Markers are stored as percentages of the image box, so they hold their place
+   at every screen size. Click the image to drop one. */
+export function HotspotEditor({ block }: { block: HotspotBlock }) {
+  const patch = usePatch(block)
+  const src = useAssetSrc(block.src)
+  const imgRef = useRef<HTMLDivElement>(null)
+  const [selected, setSelected] = useState<string | null>(null)
+
+  function addSpotAt(e: React.MouseEvent) {
+    const box = imgRef.current?.getBoundingClientRect()
+    if (!box) return
+    const x = Math.round(((e.clientX - box.left) / box.width) * 1000) / 10
+    const y = Math.round(((e.clientY - box.top) / box.height) * 1000) / 10
+    const spot = {
+      id: uid(),
+      x: Math.min(97, Math.max(3, x)),
+      y: Math.min(97, Math.max(3, y)),
+      label: `Hotspot ${block.spots.length + 1}`,
+      html: '',
+    }
+    patch({ spots: [...block.spots, spot] })
+    setSelected(spot.id)
+  }
+
+  function patchSpot(id: string, p: Partial<HotspotBlock['spots'][number]>) {
+    patch({ spots: block.spots.map((s) => (s.id === id ? { ...s, ...p } : s)) })
+  }
+
+  if (!block.src) {
+    return (
+      <div>
+        <UploadZone label="Add the image learners will explore" onImage={(s) => patch({ src: s })} />
+      </div>
+    )
+  }
+
+  return (
+    <div>
+      <input
+        className="mini-input"
+        style={{ width: '100%', marginBottom: 10, fontWeight: 600 }}
+        value={block.title}
+        placeholder="Instruction, e.g. “Select each marker to learn more”"
+        onChange={(e) => patch({ title: e.target.value })}
+      />
+      <div className="hotspot-edit" ref={imgRef} onClick={addSpotAt} title="Click the image to add a hotspot">
+        <img src={src} alt={block.alt} />
+        {block.spots.map((s, i) => (
+          <button
+            key={s.id}
+            className={'hs-dot' + (selected === s.id ? ' sel' : '')}
+            style={{ left: s.x + '%', top: s.y + '%' }}
+            title={s.label}
+            onClick={(e) => {
+              e.stopPropagation()
+              setSelected(selected === s.id ? null : s.id)
+            }}
+          >
+            {i + 1}
+          </button>
+        ))}
+      </div>
+      <p className="drop-hint">Click anywhere on the image to drop a marker; click a marker to edit it.</p>
+
+      {block.spots.map((s, i) =>
+        selected === s.id ? (
+          <div key={s.id} className="item-editor" style={{ marginTop: 10 }}>
+            <div className="item-editor-head">
+              <MapPin size={14} style={{ color: 'var(--brand)', flexShrink: 0 }} />
+              <input
+                value={s.label}
+                placeholder={`Hotspot ${i + 1} label`}
+                onChange={(e) => patchSpot(s.id, { label: e.target.value })}
+              />
+              <button
+                className="icon-btn danger"
+                title="Delete hotspot"
+                onClick={() => {
+                  patch({ spots: block.spots.filter((x) => x.id !== s.id) })
+                  setSelected(null)
+                }}
+              >
+                <Trash2 size={13} />
+              </button>
+            </div>
+            <div className="item-editor-body">
+              <RichText
+                value={s.html}
+                onChange={(html) => patchSpot(s.id, { html })}
+                placeholder="What does this marker reveal?"
+                compact
+              />
+            </div>
+          </div>
+        ) : null
+      )}
+
+      <div className="blk-options">
+        <input
+          className="mini-input"
+          style={{ flex: 1, minWidth: 140 }}
+          value={block.alt}
+          placeholder="Alt text for the image"
+          onChange={(e) => patch({ alt: e.target.value })}
+        />
+        <span className="lbl">
+          {block.spots.length} hotspot{block.spots.length === 1 ? '' : 's'}
+        </span>
+        <button className="btn sm" onClick={() => patch({ src: '', spots: [] })}>
+          Replace image
         </button>
       </div>
     </div>
