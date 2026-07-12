@@ -1,8 +1,9 @@
+import { useState } from 'react'
 import { Plus, X } from 'lucide-react'
 import { useStore } from '../../store'
 import type {
   TextBlock, HeadingBlock, StatementBlock, QuoteBlock, ListBlock,
-  NoteBlock, DividerBlock, ButtonBlock, ColumnsBlock, Block,
+  NoteBlock, DividerBlock, ButtonBlock, ColumnsBlock, HtmlBlock, Block,
 } from '../../types'
 import { uid } from '../../utils/id'
 import RichText from '../RichText'
@@ -40,11 +41,26 @@ export { usePatch, Seg }
 export function TextEditor({ block }: { block: TextBlock }) {
   const patch = usePatch(block)
   return (
-    <RichText
-      value={block.html}
-      onChange={(html) => patch({ html })}
-      placeholder="Write your paragraph… select text to format it."
-    />
+    <div>
+      <RichText
+        value={block.html}
+        onChange={(html) => patch({ html })}
+        placeholder="Write your paragraph… select text to format it."
+      />
+      <div className="blk-options">
+        <span className="lbl">Layout</span>
+        <Seg
+          value={block.layout ?? 'normal'}
+          options={[
+            { v: 'normal', label: 'Normal' },
+            { v: 'lead', label: 'Lead' },
+            { v: 'columns', label: 'Two columns' },
+            { v: 'boxed', label: 'Boxed' },
+          ]}
+          onChange={(layout) => patch({ layout })}
+        />
+      </div>
+    </div>
   )
 }
 
@@ -274,6 +290,40 @@ export function ButtonEditor({ block }: { block: ButtonBlock }) {
           onChange={(variant) => patch({ variant })}
         />
       </div>
+    </div>
+  )
+}
+
+/* ---------- HTML / embed code ---------- */
+export function HtmlEditor({ block }: { block: HtmlBlock }) {
+  const patch = usePatch(block)
+  const [showPreview, setShowPreview] = useState(false)
+  return (
+    <div>
+      <textarea
+        className="code-input"
+        value={block.code}
+        placeholder={'<!-- Paste HTML or an embed code, e.g. -->\n<iframe src="https://example.com" width="100%" height="400"></iframe>'}
+        spellCheck={false}
+        rows={Math.min(16, Math.max(5, block.code.split('\n').length + 1))}
+        onChange={(e) => patch({ code: e.target.value })}
+      />
+      <div className="blk-options">
+        <button className="btn sm" disabled={!block.code.trim()} onClick={() => setShowPreview((v) => !v)}>
+          {showPreview ? 'Hide preview' : 'Preview'}
+        </button>
+        <span className="lbl" style={{ textTransform: 'none', letterSpacing: 0, fontWeight: 500 }}>
+          Rendered as-is in the course — scripts and embed codes will run.
+        </span>
+      </div>
+      {showPreview && block.code.trim() && (
+        <iframe
+          className="code-preview"
+          title="HTML preview"
+          sandbox="allow-scripts"
+          srcDoc={block.code}
+        />
+      )}
     </div>
   )
 }

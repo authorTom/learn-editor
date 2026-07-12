@@ -21,6 +21,7 @@ export const blockDefs: BlockDef[] = [
   { type: 'gallery', label: 'Gallery', description: 'Grid of images', category: 'Media', icon: 'LayoutGrid' },
   { type: 'video', label: 'Video', description: 'YouTube, Vimeo or embed URL', category: 'Media', icon: 'Play' },
   { type: 'embed', label: 'Embed', description: 'Any web page in an iframe', category: 'Media', icon: 'Globe' },
+  { type: 'html', label: 'HTML', description: 'Custom HTML or embed code', category: 'Media', icon: 'Code' },
   { type: 'audio', label: 'Audio', description: 'Upload an audio clip', category: 'Media', icon: 'Volume2' },
   { type: 'divider', label: 'Divider', description: 'Line, spacer or number', category: 'Layout', icon: 'Minus' },
   { type: 'button', label: 'Button', description: 'Link styled as a button', category: 'Layout', icon: 'MousePointerClick' },
@@ -62,7 +63,9 @@ export function createBlock(type: BlockType): Block {
   const id = uid()
   switch (type) {
     case 'text':
-      return { id, type, html: '' }
+      return { id, type, html: '', layout: 'normal' }
+    case 'html':
+      return { id, type, code: '' }
     case 'heading':
       return { id, type, text: '', level: 2, align: 'left' }
     case 'statement':

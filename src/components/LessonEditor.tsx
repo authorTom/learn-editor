@@ -9,24 +9,91 @@ import {
 } from '@dnd-kit/core'
 import { SortableContext, useSortable, verticalListSortingStrategy } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
-import { GripVertical, Plus, Copy, Trash2 } from 'lucide-react'
+import { GripVertical, Plus, Copy, Trash2, ArrowUp, ArrowDown, PaintBucket } from 'lucide-react'
 import { useStore } from '../store'
 import type { Block, BlockType } from '../types'
 import InsertMenu, { createBlock } from './InsertMenu'
 import BlockEditor from './blocks/BlockEditor'
 import { blockDefs } from '../blockDefaults'
 
+const BG_PRESETS = [
+  '#fef9c3', '#ffedd5', '#fee2e2', '#fce7f3', '#ede9fe', '#dbeafe', '#dcfce7', '#f1f5f9',
+]
+
+/** Approximate the player's background tokens inside the (always-light) editor canvas. */
+function editorBg(bg: string | undefined, accent: string): string | undefined {
+  if (!bg) return undefined
+  if (bg === 'panel') return '#ffffff'
+  if (bg === 'tint') return `color-mix(in srgb, ${accent} 10%, #ffffff)`
+  return bg
+}
+
+function BgPicker({ block, onClose }: { block: Block; onClose: () => void }) {
+  const updateBlock = useStore((s) => s.updateBlock)
+  const accent = useStore((s) => s.course!.theme.primaryColor)
+
+  function pick(bg: string) {
+    updateBlock(block.id, { bg })
+    onClose()
+  }
+
+  return (
+    <div className="bg-pop" onClick={(e) => e.stopPropagation()}>
+      <div className="bg-pop-row">
+        <button className={'bg-swatch none' + (!block.bg ? ' sel' : '')} title="None" onClick={() => pick('')} />
+        <button
+          className={'bg-swatch' + (block.bg === 'panel' ? ' sel' : '')}
+          style={{ background: '#ffffff' }}
+          title="Panel — follows the theme's card colour"
+          onClick={() => pick('panel')}
+        />
+        <button
+          className={'bg-swatch' + (block.bg === 'tint' ? ' sel' : '')}
+          style={{ background: `color-mix(in srgb, ${accent} 14%, #ffffff)` }}
+          title="Accent tint — follows the theme's accent colour"
+          onClick={() => pick('tint')}
+        />
+      </div>
+      <div className="bg-pop-row">
+        {BG_PRESETS.map((c) => (
+          <button
+            key={c}
+            className={'bg-swatch' + (block.bg === c ? ' sel' : '')}
+            style={{ background: c }}
+            title={c}
+            onClick={() => pick(c)}
+          />
+        ))}
+        <input
+          type="color"
+          className="bg-custom"
+          title="Custom colour"
+          value={block.bg && block.bg.startsWith('#') ? block.bg : '#ffffff'}
+          onChange={(e) => updateBlock(block.id, { bg: e.target.value })}
+        />
+      </div>
+    </div>
+  )
+}
+
 function BlockShell({
   block,
+  index,
+  count,
   selected,
   onSelect,
 }: {
   block: Block
+  index: number
+  count: number
   selected: boolean
   onSelect: () => void
 }) {
   const deleteBlock = useStore((s) => s.deleteBlock)
   const duplicateBlock = useStore((s) => s.duplicateBlock)
+  const moveBlock = useStore((s) => s.moveBlock)
+  const accent = useStore((s) => s.course!.theme.primaryColor)
+  const [bgOpen, setBgOpen] = useState(false)
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
     id: block.id,
   })
@@ -44,6 +111,29 @@ function BlockShell({
         <button className="icon-btn grip" title="Drag to reorder" {...attributes} {...listeners}>
           <GripVertical size={14} />
         </button>
+        <button
+          className="icon-btn"
+          title="Move up"
+          disabled={index === 0}
+          onClick={() => moveBlock(index, index - 1)}
+        >
+          <ArrowUp size={14} />
+        </button>
+        <button
+          className="icon-btn"
+          title="Move down"
+          disabled={index === count - 1}
+          onClick={() => moveBlock(index, index + 1)}
+        >
+          <ArrowDown size={14} />
+        </button>
+        <button
+          className={'icon-btn' + (block.bg ? ' active' : '')}
+          title="Background colour"
+          onClick={() => setBgOpen((v) => !v)}
+        >
+          <PaintBucket size={14} />
+        </button>
         <button className="icon-btn" title="Duplicate" onClick={() => duplicateBlock(block.id)}>
           <Copy size={14} />
         </button>
@@ -54,8 +144,9 @@ function BlockShell({
         >
           <Trash2 size={14} />
         </button>
+        {bgOpen && <BgPicker block={block} onClose={() => setBgOpen(false)} />}
       </div>
-      <div className="block-inner">
+      <div className="block-inner" style={{ background: editorBg(block.bg, accent) }}>
         <BlockEditor block={block} />
       </div>
     </div>
@@ -129,6 +220,8 @@ export default function LessonEditor() {
                 <InsertPoint onClick={() => setInsertAt(i)} />
                 <BlockShell
                   block={b}
+                  index={i}
+                  count={lesson.blocks.length}
                   selected={selectedId === b.id}
                   onSelect={() => setSelectedId(b.id)}
                 />

@@ -1,7 +1,7 @@
 import type { Block } from '../../types'
 import {
   TextEditor, HeadingEditor, StatementEditor, QuoteEditor, ListEditor,
-  NoteEditor, DividerEditor, ButtonEditor, ColumnsEditor,
+  NoteEditor, DividerEditor, ButtonEditor, ColumnsEditor, HtmlEditor,
 } from './SimpleBlocks'
 import {
   ImageEditor, ImageTextEditor, GalleryEditor, VideoEditor, EmbedEditor, AudioEditor,
@@ -30,5 +30,6 @@ export default function BlockEditor({ block }: { block: Block }) {
     case 'tabs': return <TabsEditor block={block} />
     case 'flashcards': return <FlashcardsEditor block={block} />
     case 'quiz': return <QuizEditor block={block} />
+    case 'html': return <HtmlEditor block={block} />
   }
 }

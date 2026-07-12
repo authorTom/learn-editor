@@ -2,7 +2,7 @@ import { useMemo, useState } from 'react'
 import {
   Type, Heading1, MessageSquareQuote, Quote, List, Info, Image, LayoutPanelLeft,
   LayoutGrid, Play, Globe, Volume2, Minus, MousePointerClick, Columns2,
-  ChevronsUpDown, PanelTop, GalleryHorizontalEnd, CircleCheckBig, X,
+  ChevronsUpDown, PanelTop, GalleryHorizontalEnd, CircleCheckBig, Code, X,
   type LucideIcon,
 } from 'lucide-react'
 import { blockDefs, createBlock } from '../blockDefaults'
@@ -11,7 +11,7 @@ import type { BlockType } from '../types'
 const ICONS: Record<string, LucideIcon> = {
   Type, Heading1, MessageSquareQuote, Quote, List, Info, Image, LayoutPanelLeft,
   LayoutGrid, Play, Globe, Volume2, Minus, MousePointerClick, Columns2,
-  ChevronsUpDown, PanelTop, GalleryHorizontalEnd, CircleCheckBig,
+  ChevronsUpDown, PanelTop, GalleryHorizontalEnd, CircleCheckBig, Code,
 }
 
 const CATEGORIES = ['Text', 'Media', 'Layout', 'Interactive', 'Assessment'] as const

@@ -186,10 +186,26 @@
 
   /* ================= block renderers ================= */
 
+  /* Per-block background: 'panel' and 'tint' follow the theme; anything else
+     is a CSS colour, where we also pick a readable ink for it. */
+  function applyBlockBg(w, bg) {
+    w.classList.add('has-bg');
+    if (bg === 'panel') { w.classList.add('bg-panel'); return; }
+    if (bg === 'tint') { w.classList.add('bg-tint'); return; }
+    w.style.background = bg;
+    var m = /^#?([0-9a-f]{6})$/i.exec(bg.replace('#', ''));
+    if (m) {
+      var r = parseInt(m[1].slice(0, 2), 16), g = parseInt(m[1].slice(2, 4), 16), bl = parseInt(m[1].slice(4, 6), 16);
+      var lum = (0.299 * r + 0.587 * g + 0.114 * bl) / 255;
+      w.style.color = lum > 0.55 ? '#1f2437' : '#f5f6fa';
+    }
+  }
+
   function renderBlock(b) {
     var w = el('div', 'block b-' + b.type.toLowerCase());
     switch (b.type) {
       case 'text':
+        if (b.layout && b.layout !== 'normal') w.className += ' layout-' + b.layout;
         w.innerHTML = '<div class="rich">' + b.html + '</div>';
         break;
       case 'heading': {
@@ -287,9 +303,26 @@
       case 'quiz':
         renderQuiz(w, b);
         break;
+      case 'html': {
+        if (!b.code || !b.code.trim()) return null;
+        w.className = 'block b-html';
+        w.innerHTML = b.code;
+        // innerHTML never executes <script> tags — recreate them so embed codes work
+        var scripts = w.querySelectorAll('script');
+        scripts.forEach(function (old) {
+          var s = document.createElement('script');
+          for (var i = 0; i < old.attributes.length; i++) {
+            s.setAttribute(old.attributes[i].name, old.attributes[i].value);
+          }
+          s.textContent = old.textContent;
+          old.parentNode.replaceChild(s, old);
+        });
+        break;
+      }
       default:
         return null;
     }
+    if (b.bg) applyBlockBg(w, b.bg);
     return w;
   }
 

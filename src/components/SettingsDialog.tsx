@@ -92,22 +92,30 @@ export default function SettingsDialog({ onClose }: { onClose: () => void }) {
           </div>
 
           <div className="settings-section-title">Colour scheme</div>
-          <div className="theme-grid">
-            {SCHEMES.map((s) => (
-              <button
-                key={s.id}
-                className={'theme-card' + (theme.scheme === s.id ? ' sel' : '')}
-                onClick={() => setTheme({ scheme: s.id })}
-              >
-                <span className="scheme-strip" style={{ background: s.bgSoft, borderColor: s.line }}>
-                  <span style={{ background: theme.primaryColor }} />
-                  <span style={{ background: s.bg, border: `1px solid ${s.line}` }} />
-                  <span style={{ background: s.ink }} />
-                </span>
-                <span className="tc-name">{s.label}</span>
-              </button>
-            ))}
-          </div>
+          {[
+            { label: 'Light backgrounds', schemes: SCHEMES.filter((s) => !s.dark) },
+            { label: 'Dark backgrounds', schemes: SCHEMES.filter((s) => s.dark) },
+          ].map((group) => (
+            <div key={group.label}>
+              <div className="scheme-group-label">{group.label}</div>
+              <div className="theme-grid">
+                {group.schemes.map((s) => (
+                  <button
+                    key={s.id}
+                    className={'theme-card' + (theme.scheme === s.id ? ' sel' : '')}
+                    onClick={() => setTheme({ scheme: s.id })}
+                  >
+                    <span className="scheme-strip" style={{ background: s.bgSoft, borderColor: s.line }}>
+                      <span style={{ background: theme.primaryColor }} />
+                      <span style={{ background: s.bg, border: `1px solid ${s.line}` }} />
+                      <span style={{ background: s.ink }} />
+                    </span>
+                    <span className="tc-name">{s.label}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+          ))}
           <div className="field" style={{ marginTop: 14 }}>
             <label>Accent colour</label>
             <div className="swatches">

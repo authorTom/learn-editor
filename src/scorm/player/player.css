@@ -124,6 +124,25 @@ body.hero-minimal .lesson-hero + .blocks { padding-top: 28px; }
 .rich blockquote { border-left: 3px solid var(--accent); padding-left: 16px; color: var(--ink-soft); margin: 0 0 1em; }
 .rich code { background: var(--bg-soft); border: 1px solid var(--line); border-radius: 4px; padding: 1px 5px; font-size: 0.9em; }
 
+/* text layouts */
+.b-text.layout-lead .rich { font-size: 21px; line-height: 1.6; font-weight: 450; }
+.b-text.layout-columns .rich { column-count: 2; column-gap: 40px; }
+.b-text.layout-boxed {
+  background: var(--bg); border: 1px solid var(--line);
+  border-left: 4px solid var(--accent);
+  border-radius: var(--radius); padding: 22px 26px;
+}
+
+/* per-block backgrounds */
+.block.has-bg { padding: 24px 26px; border-radius: var(--radius); }
+.block.bg-panel { background: var(--bg); border: 1px solid var(--line); }
+.block.bg-tint { background: var(--accent-soft); }
+.b-statement.has-bg, .b-text.layout-boxed.has-bg { padding: 36px 26px; }
+
+/* custom HTML */
+.b-html iframe { max-width: 100%; }
+.b-html img { max-width: 100%; height: auto; }
+
 .b-statement { text-align: center; padding: 36px 20px; }
 .b-statement .inner { font-size: 24px; font-weight: 700; line-height: 1.4; max-width: 620px; margin: 0 auto; }
 .b-statement.style-a { border-top: 3px solid var(--accent); border-bottom: 3px solid var(--accent); }
@@ -311,6 +330,28 @@ body.nav-top .player.nav-open .scrim { display: block; }
 body.nav-top .content { margin-left: 0; }
 body.nav-top .topbar { display: flex; }
 
+/* ---- dark scheme harmonisation (class set on <body> by the exporter) ----
+   Callouts, quiz states and banners use translucent tints instead of the
+   fixed pastel backgrounds, so they sit naturally on dark surfaces. */
+body.theme-dark .rich code { background: rgba(255,255,255,0.08); border-color: var(--line); }
+body.theme-dark .b-note.info { background: rgba(96,165,250,0.12); border-color: rgba(96,165,250,0.35); }
+body.theme-dark .b-note.info .n-title { color: #93c5fd; }
+body.theme-dark .b-note.success { background: rgba(74,222,128,0.10); border-color: rgba(74,222,128,0.32); }
+body.theme-dark .b-note.success .n-title { color: #6ee7a0; }
+body.theme-dark .b-note.warning { background: rgba(251,191,36,0.10); border-color: rgba(251,191,36,0.32); }
+body.theme-dark .b-note.warning .n-title { color: #fcd34d; }
+body.theme-dark .b-note.danger { background: rgba(248,113,113,0.10); border-color: rgba(248,113,113,0.32); }
+body.theme-dark .b-note.danger .n-title { color: #fca5a5; }
+body.theme-dark .q-choice.correct { background: rgba(74,222,128,0.12); border-color: #22c55e; }
+body.theme-dark .q-choice.incorrect { background: rgba(248,113,113,0.12); border-color: #ef4444; }
+body.theme-dark .q-feedback.ok { background: rgba(74,222,128,0.12); color: #6ee7a0; }
+body.theme-dark .q-feedback.bad { background: rgba(248,113,113,0.12); color: #fca5a5; }
+body.theme-dark .q-fillin input { background: var(--bg-soft); color: var(--ink); }
+body.theme-dark .quiz-score.pass { color: #4ade80; }
+body.theme-dark .quiz-score.fail { color: #f87171; }
+body.theme-dark .complete-banner { background: rgba(74,222,128,0.10); border-color: rgba(74,222,128,0.32); color: #6ee7a0; }
+body.theme-dark .topbar .menu-btn { color: var(--ink); }
+
 /* ---- responsive ---- */
 @media (max-width: 980px) {
   .sidebar { transform: translateX(-100%); box-shadow: 0 0 40px rgba(15,18,35,0.2); }
@@ -324,6 +365,7 @@ body.nav-top .topbar { display: flex; }
   body { font-size: 16px; }
   .blocks { padding: 32px 18px 64px; }
   .lesson-hero { padding: 48px 18px 40px; }
+  .b-text.layout-columns .rich { column-count: 1; }
   .b-imagetext { flex-direction: column !important; }
   .b-imagetext img { width: 100%; }
   .b-columns { grid-template-columns: 1fr !important; }

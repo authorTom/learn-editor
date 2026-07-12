@@ -17,23 +17,32 @@ Production build: `npm run build` (output in `dist/`, host it as any static site
 
 - **Course dashboard** — create, duplicate, delete, import/export courses.
   Everything autosaves to your browser's IndexedDB.
-- **Block-based lesson editor** — 19 block types across Text, Media, Layout,
+- **Block-based lesson editor** — 20 block types across Text, Media, Layout,
   Interactive and Assessment categories:
   - Rich text paragraphs (TipTap: bold/italic/underline/strike/code, headings,
-    lists, quotes, links, alignment, undo/redo)
+    lists, quotes, links, alignment, undo/redo) with layout variants:
+    normal, lead (large intro), two columns, boxed panel
   - Headings, statements, quotes, lists (bullet/numbered/checklist), callouts
   - Images (drag-and-drop upload, auto-downscaled, captions/alt/width), image+text,
     galleries, audio
   - **Video** — paste any YouTube or Vimeo URL (also supports generic iframe embeds)
+  - **Custom HTML** — paste raw HTML or embed codes (scripts run in the player),
+    with a sandboxed live preview in the editor
   - Dividers, buttons, multi-column layouts
   - Accordions, tabs, flashcards (flip cards, optional images)
   - **Quizzes** — multiple choice, multiple response, true/false, fill-in-the-blank;
     per-question feedback, pass mark, shuffle; gates lesson progression
-- **Drag to reorder** lessons and blocks; hover between blocks to insert.
+- **Per-block backgrounds** — none, theme panel, accent tint, preset pastels or
+  any custom colour (text colour auto-adjusts for contrast).
+- **Reorder** lessons and blocks by dragging or with move up/down arrows;
+  hover between blocks to insert.
 - **Preview** — phone / tablet / desktop frames rendering the *actual* exported
   player, so preview is pixel-identical to what the LMS shows.
 - **Theming** — applied across the whole course player:
-  - Colour schemes: Light, Warm, Cool, Dark, plus a custom accent colour
+  - 14 colour schemes with harmonised backgrounds — 9 light (Light, Warm, Cool,
+    Sand, Sage, Rose, Lavender, Sky, Mist) and 5 dark (Dark, Midnight, Forest,
+    Plum, Charcoal; callouts and quiz states adapt automatically) — plus a
+    custom accent colour
   - Font packs: Modern (Inter), Elegant (Playfair Display + Source Sans),
     Friendly (Nunito), Classic (Georgia), Technical (Space Grotesk + IBM Plex Sans)
   - Layout: sidebar or top-bar navigation, gradient/solid/minimal lesson headers,

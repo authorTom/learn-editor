@@ -23,7 +23,7 @@ export function buildPlayerHtml(course: Course, version: ScormVersion): string {
     : ''
   const themeCss = `:root {
   --accent: ${theme.primaryColor};
-  --accent-soft: color-mix(in srgb, ${theme.primaryColor} ${scheme.id === 'dark' ? '22%' : '10%'}, ${scheme.bg});
+  --accent-soft: color-mix(in srgb, ${theme.primaryColor} ${scheme.dark ? '22%' : '10%'}, ${scheme.bg});
   --bg: ${scheme.bg};
   --bg-soft: ${scheme.bgSoft};
   --ink: ${scheme.ink};
@@ -35,7 +35,11 @@ export function buildPlayerHtml(course: Course, version: ScormVersion): string {
   --radius: ${theme.corners === 'sharp' ? '4px' : '14px'};
   --content-max: ${CONTENT_WIDTH[theme.width]};
 }`
-  const bodyClass = [`hero-${theme.hero}`, theme.nav === 'top' ? 'nav-top' : ''].join(' ').trim()
+  const bodyClass = [
+    `hero-${theme.hero}`,
+    theme.nav === 'top' ? 'nav-top' : '',
+    scheme.dark ? 'theme-dark' : '',
+  ].join(' ').trim()
 
   return `<!doctype html>
 <html lang="en">

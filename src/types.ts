@@ -20,15 +20,22 @@ export type BlockType =
   | 'tabs'
   | 'flashcards'
   | 'quiz'
+  | 'html'
 
+/** Block background: '' or undefined = none, 'panel' = card surface,
+    'tint' = accent tint, otherwise any CSS colour (e.g. '#fde68a'). */
 export interface BlockBase {
   id: string
   type: BlockType
+  bg?: string
 }
+
+export type TextLayout = 'normal' | 'lead' | 'columns' | 'boxed'
 
 export interface TextBlock extends BlockBase {
   type: 'text'
   html: string
+  layout?: TextLayout // undefined = 'normal' (pre-existing saves)
 }
 
 export interface HeadingBlock extends BlockBase {
@@ -152,6 +159,11 @@ export interface QuizQuestion {
   feedbackIncorrect: string
 }
 
+export interface HtmlBlock extends BlockBase {
+  type: 'html'
+  code: string
+}
+
 export interface QuizBlock extends BlockBase {
   type: 'quiz'
   title: string
@@ -181,6 +193,7 @@ export type Block =
   | TabsBlock
   | FlashcardsBlock
   | QuizBlock
+  | HtmlBlock
 
 export interface Lesson {
   id: string
@@ -190,7 +203,9 @@ export interface Lesson {
 }
 
 export type FontPackId = 'modern' | 'elegant' | 'friendly' | 'classic' | 'technical'
-export type SchemeId = 'light' | 'warm' | 'cool' | 'dark'
+export type SchemeId =
+  | 'light' | 'warm' | 'cool' | 'sand' | 'sage' | 'rose' | 'lavender' | 'sky' | 'mist'
+  | 'dark' | 'midnight' | 'forest' | 'plum' | 'charcoal'
 
 export interface CourseTheme {
   primaryColor: string
@@ -262,13 +277,26 @@ export interface ColorScheme {
   ink: string
   inkSoft: string
   line: string
+  dark?: boolean // dark-surface scheme: player harmonises callouts, quiz states, etc.
 }
 
+/** Each scheme keeps its five surfaces in one hue family so panels, page
+    background, text and rules always harmonise. Light schemes first, then dark. */
 export const SCHEMES: ColorScheme[] = [
   { id: 'light', label: 'Light', bg: '#ffffff', bgSoft: '#f6f7fb', ink: '#1f2437', inkSoft: '#5b6178', line: '#e6e8f0' },
   { id: 'warm', label: 'Warm', bg: '#fffdf8', bgSoft: '#f7f2e7', ink: '#2e2921', inkSoft: '#6f665a', line: '#eae2d0' },
   { id: 'cool', label: 'Cool', bg: '#fafbfe', bgSoft: '#ecf0f8', ink: '#182035', inkSoft: '#56607a', line: '#dde4f0' },
-  { id: 'dark', label: 'Dark', bg: '#1a1d2e', bgSoft: '#111320', ink: '#e9ebf8', inkSoft: '#9ba0bd', line: '#2d3150' },
+  { id: 'sand', label: 'Sand', bg: '#fffcf4', bgSoft: '#f1e8d7', ink: '#33291a', inkSoft: '#7a6c55', line: '#e5dac2' },
+  { id: 'sage', label: 'Sage', bg: '#fbfdfa', bgSoft: '#e9f0e4', ink: '#212b1e', inkSoft: '#5f6f5a', line: '#d8e3d1' },
+  { id: 'rose', label: 'Rose', bg: '#fffbfc', bgSoft: '#f7eaee', ink: '#33202a', inkSoft: '#7a5f6b', line: '#ecd5dc' },
+  { id: 'lavender', label: 'Lavender', bg: '#fdfcff', bgSoft: '#edeaf7', ink: '#251f36', inkSoft: '#635d7d', line: '#dcd6ed' },
+  { id: 'sky', label: 'Sky', bg: '#fafdff', bgSoft: '#e5f0f8', ink: '#14273a', inkSoft: '#4f6579', line: '#d1e2ef' },
+  { id: 'mist', label: 'Mist', bg: '#fcfcfd', bgSoft: '#edeff1', ink: '#22262b', inkSoft: '#5f666e', line: '#dce0e5' },
+  { id: 'dark', label: 'Dark', bg: '#1a1d2e', bgSoft: '#111320', ink: '#e9ebf8', inkSoft: '#9ba0bd', line: '#2d3150', dark: true },
+  { id: 'midnight', label: 'Midnight', bg: '#142138', bgSoft: '#0c1524', ink: '#e6edf8', inkSoft: '#93a4c3', line: '#243556', dark: true },
+  { id: 'forest', label: 'Forest', bg: '#17251d', bgSoft: '#0e1813', ink: '#e4f0e8', inkSoft: '#91a89a', line: '#28392f', dark: true },
+  { id: 'plum', label: 'Plum', bg: '#261b30', bgSoft: '#181021', ink: '#f0e8f6', inkSoft: '#a793b8', line: '#3a2c49', dark: true },
+  { id: 'charcoal', label: 'Charcoal', bg: '#1f2124', bgSoft: '#151719', ink: '#ececee', inkSoft: '#9a9ea5', line: '#33363b', dark: true },
 ]
 
 /** Fill in defaults and migrate the legacy `font` field from early saves. */
@@ -278,6 +306,7 @@ export function normalizeTheme(t?: Partial<CourseTheme> & { font?: string }): Co
     merged.fontPack = t.font === 'serif' ? 'classic' : 'modern'
   }
   delete (merged as Partial<CourseTheme> & { font?: string }).font
+  if (!SCHEMES.some((s) => s.id === merged.scheme)) merged.scheme = 'light'
   return merged
 }
 
