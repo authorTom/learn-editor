@@ -1,0 +1,1380 @@
+{
+  "id": "ecg005r",
+  "title": "Recording a 12-Lead ECG",
+  "description": "A practical UK guide to recording a diagnostic-quality resting 12-lead ECG — consent, skin prep, electrode placement, special situations and artefact. Aligned to the SCST (2024) clinical guidelines.",
+  "author": "Learn Editor — exemplar course",
+  "coverImage": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA2NDAgMzAwIj4KICA8ZGVmcz48bGluZWFyR3JhZGllbnQgaWQ9ImciIHgxPSIwIiB5MT0iMCIgeDI9IjEiIHkyPSIxIj4KICAgIDxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iIzAwM2Q3OCIvPjxzdG9wIG9mZnNldD0iMSIgc3RvcC1jb2xvcj0iIzAwNzJjZSIvPgogIDwvbGluZWFyR3JhZGllbnQ+PC9kZWZzPgogIDxyZWN0IHdpZHRoPSI2NDAiIGhlaWdodD0iMzAwIiBmaWxsPSJ1cmwoI2cpIi8+CiAgPHBhdGggZD0iTTAgMTkwIGgxNDAgbDIyIC01MCBsMzAgOTYgbDI2IC02MCBsMTggMTYgaDYwIGwyMCAtNDQgbDI2IDg0IGwyNCAtNTIgbDE2IDEwIGgyNTgiCiAgICAgICAgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjN2ZkNGMxIiBzdHJva2Utd2lkdGg9IjQiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIgb3BhY2l0eT0iMC45Ii8+CiAgPHRleHQgeD0iNDAiIHk9IjkwIiBmb250LXNpemU9IjM0IiBmb250LXdlaWdodD0iODAwIiBmaWxsPSIjZmZmIiBmb250LWZhbWlseT0iSW50ZXIsIEFyaWFsLCBzYW5zLXNlcmlmIj5SZWNvcmRpbmcgYSAxMi1sZWFkIEVDRzwvdGV4dD4KICA8dGV4dCB4PSI0MCIgeT0iMTI2IiBmb250LXNpemU9IjE4IiBmaWxsPSIjYmNkY2Y1IiBmb250LWZhbWlseT0iSW50ZXIsIEFyaWFsLCBzYW5zLXNlcmlmIj5BIHByYWN0aWNhbCBVSyBndWlkZSDCtyBhbGlnbmVkIHRvIFNDU1QgKDIwMjQpPC90ZXh0Pgo8L3N2Zz4=",
+  "lessons": [
+    {
+      "id": "ecg000l",
+      "title": "Before you begin",
+      "icon": "🩺",
+      "blocks": [
+        {
+          "id": "ecg0009",
+          "type": "statement",
+          "html": "A 12-lead ECG is only as good as the electrodes that recorded it. Misplace them and you can create — or hide — a heart attack.",
+          "style": "b"
+        },
+        {
+          "id": "ecg000a",
+          "type": "text",
+          "html": "<p>This course takes you through recording a diagnostic-quality resting 12-lead ECG in UK practice, from consent through to the quality check you make before the trace leaves your hands. It follows the <strong>Society for Cardiological Science &amp; Technology (SCST) <em>Clinical Guidelines by Consensus: Recording a Standard 12-lead Electrocardiogram</em> (2024)</strong>, the reference standard for ECG recording in the NHS.</p>",
+          "layout": "lead"
+        },
+        {
+          "id": "ecg000b",
+          "type": "divider",
+          "style": "line"
+        },
+        {
+          "id": "ecg000c",
+          "type": "heading",
+          "text": "What you will be able to do",
+          "level": 2,
+          "align": "left"
+        },
+        {
+          "id": "ecg000d",
+          "type": "list",
+          "style": "check",
+          "items": [
+            "Prepare a patient and their skin so the trace is free of avoidable artefact",
+            "Place the four limb electrodes correctly — and know why they never go on the torso",
+            "Locate V1–V6 by counting rib spaces from the angle of Louis, not by eye",
+            "Set paper speed, gain and filters, and say what each one does to the trace",
+            "Adapt safely for dextrocardia, right-sided and posterior leads, breast tissue and amputation",
+            "Recognise mains interference, wandering baseline, muscle tremor and lead reversal — and fix them"
+          ]
+        },
+        {
+          "id": "ecg000h",
+          "type": "columns",
+          "columns": [
+            {
+              "id": "ecg000e",
+              "html": "<p><strong>Who it is for</strong></p><p>Healthcare assistants, nursing associates, nurses, paramedics, physiologists and medical students who record ECGs in UK practice.</p>"
+            },
+            {
+              "id": "ecg000f",
+              "html": "<p><strong>How long it takes</strong></p><p>About 45 minutes. Your progress is saved, so you can stop and come back.</p>"
+            },
+            {
+              "id": "ecg000g",
+              "html": "<p><strong>How you pass</strong></p><p>Work through every lesson and pass each knowledge check. The final assessment needs 80%.</p>"
+            }
+          ]
+        },
+        {
+          "id": "ecg000i",
+          "type": "note",
+          "tone": "warning",
+          "title": "This is training, not a substitute for supervised practice",
+          "html": "<p>Follow your employer’s policies and your local Trust protocols at all times. Record an ECG only within your scope of practice and after supervised, assessed competence. Nothing here overrides clinical judgement or local guidance.</p>"
+        },
+        {
+          "id": "ecg000j",
+          "type": "note",
+          "tone": "danger",
+          "title": "Never let learning delay treatment",
+          "html": "<p>For a patient with suspected acute coronary syndrome, NICE expects a 12-lead ECG to be recorded and reviewed by a clinician who can interpret it <strong>as soon as possible</strong> — for chest pain of suspected cardiac origin, within minutes of first contact. If your patient is acutely unwell, get help first.</p>"
+        },
+        {
+          "id": "ecg000k",
+          "type": "button",
+          "label": "Read the SCST 2024 guideline (PDF)",
+          "url": "https://scst.org.uk/wp-content/uploads/2024/09/2024_ECG_Recording_Guidelines_26-09-2024_V5_FINAL.pdf",
+          "align": "center",
+          "variant": "outline"
+        }
+      ]
+    },
+    {
+      "id": "ecg0018",
+      "title": "What the ECG records",
+      "icon": "❤️",
+      "blocks": [
+        {
+          "id": "ecg000m",
+          "type": "heading",
+          "text": "One heartbeat, twelve points of view",
+          "level": 1,
+          "align": "left"
+        },
+        {
+          "id": "ecg000n",
+          "type": "text",
+          "html": "<p>An ECG does not photograph the heart. It records the <strong>electrical potential differences</strong> that reach the skin as each wave of depolarisation sweeps through the myocardium. Ten electrodes generate twelve <em>views</em> of that same electrical event — which is why an electrode a rib space out of place changes what the cardiologist sees.</p>",
+          "layout": "normal"
+        },
+        {
+          "id": "ecg000o",
+          "type": "image",
+          "src": "asset:ecg0004",
+          "alt": "A labelled P wave, QRS complex and T wave drawn on standard ECG paper with a 10 mm/mV calibration pulse",
+          "caption": "The complex you are trying to capture cleanly. At 25 mm/s, one small square is 0.04 s and one large square 0.20 s.",
+          "width": "wide"
+        },
+        {
+          "id": "ecg000s",
+          "type": "columns",
+          "columns": [
+            {
+              "id": "ecg000p",
+              "html": "<p><strong>P wave</strong><br>Atrial depolarisation.</p>"
+            },
+            {
+              "id": "ecg000q",
+              "html": "<p><strong>QRS complex</strong><br>Ventricular depolarisation — the big one.</p>"
+            },
+            {
+              "id": "ecg000r",
+              "html": "<p><strong>T wave</strong><br>Ventricular repolarisation.</p>"
+            }
+          ]
+        },
+        {
+          "id": "ecg000t",
+          "type": "imageText",
+          "src": "asset:ecg0005",
+          "alt": "Einthoven’s triangle formed by the right arm, left arm and left leg electrodes, showing leads I, II and III",
+          "html": "<p><strong>Where the twelve leads come from</strong></p><p>The three active limb electrodes (RA, LA, LL) form <em>Einthoven’s triangle</em>. Comparing them in pairs gives the bipolar leads <strong>I, II and III</strong>; comparing each against the average of the others gives the augmented leads <strong>aVR, aVL and aVF</strong> — six views in the frontal plane.</p><p>The six chest electrodes each give one view in the horizontal plane: <strong>V1–V6</strong>. Six plus six is your twelve leads, from ten electrodes. The right leg electrode (RL, black) is neutral — it takes no view of its own.</p>",
+          "imageSide": "right"
+        },
+        {
+          "id": "ecg000x",
+          "type": "accordion",
+          "items": [
+            {
+              "id": "ecg000u",
+              "title": "Why lead placement changes the diagnosis",
+              "html": "<p>Placing V1 and V2 too high (a very common error) can produce a false <em>incomplete right bundle branch block</em> pattern, T-wave inversion, or diminished R waves that mimic an anterior infarct. Placing V4–V6 too low flattens the R waves. The trace looks plausible — which is exactly what makes it dangerous.</p>"
+            },
+            {
+              "id": "ecg000v",
+              "title": "Why limb electrodes must not go on the torso",
+              "html": "<p>Torso placement significantly alters wave amplitudes and axis. SCST is explicit: limb electrodes go on the limbs. A torso-placed ECG is not comparable with the patient’s previous or future recordings and may invalidate the diagnosis.</p>"
+            },
+            {
+              "id": "ecg000w",
+              "title": "Why serial ECGs must be recorded identically",
+              "html": "<p>Comparison is the whole point of a serial ECG. If today’s electrodes are 2 cm from where yesterday’s were, an apparent change may be your placement rather than the patient’s myocardium. Consistency is a clinical safety issue.</p>"
+            }
+          ]
+        },
+        {
+          "id": "ecg000y",
+          "type": "quote",
+          "html": "<p>The centre of the active area of the electrode should be aligned with the relevant anatomical landmark.</p>",
+          "attribution": "SCST, Recording a Standard 12-lead Electrocardiogram (2024)"
+        },
+        {
+          "id": "ecg0017",
+          "type": "quiz",
+          "title": "Quick check: the basics",
+          "questions": [
+            {
+              "id": "ecg000z",
+              "type": "choice",
+              "text": "How many electrodes are used to produce a standard 12-lead ECG?",
+              "choices": [
+                {
+                  "id": "ecg0010",
+                  "text": "10",
+                  "correct": true
+                },
+                {
+                  "id": "ecg0011",
+                  "text": "12",
+                  "correct": false
+                },
+                {
+                  "id": "ecg0012",
+                  "text": "6",
+                  "correct": false
+                },
+                {
+                  "id": "ecg0013",
+                  "text": "4",
+                  "correct": false
+                }
+              ],
+              "answers": [],
+              "feedbackCorrect": "Correct — ten electrodes (four limb, six chest) generate twelve views.",
+              "feedbackIncorrect": "Not quite. Ten electrodes produce twelve leads: six frontal-plane and six horizontal-plane views."
+            },
+            {
+              "id": "ecg0014",
+              "type": "truefalse",
+              "text": "Limb electrodes may be placed on the torso if it is more convenient.",
+              "choices": [
+                {
+                  "id": "ecg0015",
+                  "text": "True",
+                  "correct": false
+                },
+                {
+                  "id": "ecg0016",
+                  "text": "False",
+                  "correct": true
+                }
+              ],
+              "answers": [],
+              "feedbackCorrect": "Correct. Torso placement alters wave amplitudes and can invalidate the recording.",
+              "feedbackIncorrect": "Incorrect — SCST states limb electrodes must not be placed on the torso."
+            }
+          ],
+          "passingScore": 100,
+          "shuffle": false,
+          "showFeedback": true
+        }
+      ]
+    },
+    {
+      "id": "ecg001k",
+      "title": "Equipment, environment and consent",
+      "icon": "🧰",
+      "blocks": [
+        {
+          "id": "ecg0019",
+          "type": "heading",
+          "text": "Get the room right before you touch the patient",
+          "level": 2,
+          "align": "left"
+        },
+        {
+          "id": "ecg001d",
+          "type": "tabs",
+          "items": [
+            {
+              "id": "ecg001a",
+              "title": "Equipment",
+              "html": "<ul><li>12-lead ECG machine, serviced and in date, with a full paper roll</li><li>Patient cable with clearly identified, undamaged lead wires</li><li>Fresh, in-date self-adhesive electrodes (dried-out gel is a leading cause of poor traces)</li><li>Skin preparation: mild soap and water or alcohol wipes, gauze or a proprietary abrasive tape</li><li>Single-use razor or battery razor with single-use head, plus a sharps bin</li><li>Couch that allows a semi-recumbent position, ideally around 45°</li></ul>"
+            },
+            {
+              "id": "ecg001b",
+              "title": "Environment",
+              "html": "<ul><li>Warm room — a cold patient shivers, and shivering is muscle tremor on your trace</li><li>Privacy: a door that closes or curtains that fully draw, and a chaperone offered and documented</li><li>Keep the patient cable away from mains cables and other electrical equipment</li><li>Enough space to stand on the patient’s left to place the chest electrodes accurately</li></ul>"
+            },
+            {
+              "id": "ecg001c",
+              "title": "Infection control",
+              "html": "<ul><li>Hand hygiene before and after patient contact, and gloves as per local policy</li><li>Single-patient-use electrodes — never re-use</li><li>Decontaminate the cable, leads and machine between patients following your Trust’s protocol</li><li>Cover any broken skin; do not place an electrode on a wound, rash or tattoo where policy prohibits</li></ul>"
+            }
+          ]
+        },
+        {
+          "id": "ecg001e",
+          "type": "divider",
+          "style": "space"
+        },
+        {
+          "id": "ecg001f",
+          "type": "heading",
+          "text": "Identify, explain, consent",
+          "level": 2,
+          "align": "left"
+        },
+        {
+          "id": "ecg001g",
+          "type": "list",
+          "style": "number",
+          "items": [
+            "<strong>Identify the patient positively</strong> — full name, date of birth and NHS number, checked against the request and their wristband.",
+            "<strong>Explain what you are going to do</strong> in plain language: where the electrodes go, that it is painless, that it records but does not deliver electricity, and that they will need to undress to the waist.",
+            "<strong>Gain and document informed consent</strong>, including consent to remove chest hair if that is needed.",
+            "<strong>Offer a chaperone</strong> and record the offer and the outcome — whether accepted or declined.",
+            "<strong>Preserve dignity</strong>: expose only what you must, cover the patient between placements, and keep clinical conversation for after they are dressed."
+          ]
+        },
+        {
+          "id": "ecg001h",
+          "type": "note",
+          "tone": "info",
+          "title": "Say it in the patient’s words",
+          "html": "<p>“I’m going to put ten stickers on your chest, wrists and ankles and connect them to this machine. It listens to your heart — it doesn’t give you any electricity, and it won’t hurt. It takes about a minute, and I need you to lie still and breathe normally.”</p>"
+        },
+        {
+          "id": "ecg001i",
+          "type": "html",
+          "code": "<table style=\"width:100%;border-collapse:collapse;font-size:15px\"><thead><tr style=\"background:#005eb8;color:#fff;text-align:left\"><th style=\"padding:10px 12px\">Setting</th><th style=\"padding:10px 12px\">Standard</th><th style=\"padding:10px 12px\">Why</th></tr></thead><tbody><tr><td style=\"padding:10px 12px;border-bottom:1px solid #dbe3ec\"><strong>Paper speed</strong></td><td style=\"padding:10px 12px;border-bottom:1px solid #dbe3ec\">25&nbsp;mm/s</td><td style=\"padding:10px 12px;border-bottom:1px solid #dbe3ec\">1 small square = 0.04&nbsp;s; intervals are measured against this</td></tr><tr><td style=\"padding:10px 12px;border-bottom:1px solid #dbe3ec\"><strong>Voltage gain</strong></td><td style=\"padding:10px 12px;border-bottom:1px solid #dbe3ec\">10&nbsp;mm/mV</td><td style=\"padding:10px 12px;border-bottom:1px solid #dbe3ec\">Amplitude criteria (e.g. hypertrophy) assume it</td></tr><tr><td style=\"padding:10px 12px;border-bottom:1px solid #dbe3ec\"><strong>Initial recording</strong></td><td style=\"padding:10px 12px;border-bottom:1px solid #dbe3ec\">Filter <strong>off</strong> — 0.67–150&nbsp;Hz</td><td style=\"padding:10px 12px;border-bottom:1px solid #dbe3ec\">Preserves the true waveform</td></tr><tr><td style=\"padding:10px 12px\"><strong>If muscle tremor persists</strong></td><td style=\"padding:10px 12px\">Filter <strong>on</strong> — 0.67–40&nbsp;Hz</td><td style=\"padding:10px 12px\">Reduces interference, but <em>distorts</em> the ECG — annotate that you used it</td></tr></tbody></table>"
+        },
+        {
+          "id": "ecg001j",
+          "type": "note",
+          "tone": "warning",
+          "title": "A filter is a last resort, not a first move",
+          "html": "<p>The filter reduces interference by throwing information away. Fix the cause first — warm the patient, re-prep the skin, move the cable — and only then reach for the filter. If you use it, say so on the trace.</p>"
+        }
+      ],
+      "theme": {
+        "primaryColor": "#0072ce",
+        "hero": "solid"
+      }
+    },
+    {
+      "id": "ecg0028",
+      "title": "Preparing your patient",
+      "icon": "🧼",
+      "blocks": [
+        {
+          "id": "ecg001l",
+          "type": "statement",
+          "html": "Ninety per cent of a bad trace is decided before you press record.",
+          "style": "c"
+        },
+        {
+          "id": "ecg001m",
+          "type": "heading",
+          "text": "Position",
+          "level": 2,
+          "align": "left"
+        },
+        {
+          "id": "ecg001n",
+          "type": "text",
+          "html": "<p>Lie the patient <strong>semi-recumbent, ideally at about 45°</strong>, arms relaxed and supported at their sides, legs uncrossed and supported. Ask them to keep still and breathe normally — not to hold their breath. If they cannot lie flat (breathlessness, pregnancy, pain), record them as upright as they need to be and <strong>annotate the position on the trace</strong>, because it changes the axis.</p>",
+          "layout": "normal"
+        },
+        {
+          "id": "ecg001o",
+          "type": "heading",
+          "text": "Skin preparation",
+          "level": 2,
+          "align": "left"
+        },
+        {
+          "id": "ecg001p",
+          "type": "text",
+          "html": "<p>The enemy is impedance between skin and electrode. Reduce it — carefully, and with consent.</p>",
+          "layout": "normal"
+        },
+        {
+          "id": "ecg001s",
+          "type": "columns",
+          "columns": [
+            {
+              "id": "ecg001q",
+              "html": "<p><strong>Do</strong></p><ul><li>Clean the site: mild soap and water, or an alcohol-based skin wipe, and let it <em>dry</em></li><li>Exfoliate with very light abrasion — a paper towel, gauze swab or proprietary tape</li><li>Remove chest hair only where it prevents contact, with consent, using a single-use razor</li><li>Check every electrode is in date and the gel is moist</li></ul>"
+            },
+            {
+              "id": "ecg001r",
+              "html": "<p><strong>Don’t</strong></p><ul><li>Place an electrode on broken, sore or inflamed skin</li><li>Abrade hard enough to redden or graze the skin</li><li>Apply electrodes to wet skin — they will lift and the baseline will wander</li><li>Re-use an electrode, or one whose gel has dried</li></ul>"
+            }
+          ]
+        },
+        {
+          "id": "ecg001z",
+          "type": "sorting",
+          "title": "Put the preparation steps in the correct order",
+          "items": [
+            {
+              "id": "ecg001t",
+              "text": "Identify the patient and confirm the request"
+            },
+            {
+              "id": "ecg001u",
+              "text": "Explain the procedure and gain informed consent"
+            },
+            {
+              "id": "ecg001v",
+              "text": "Offer a chaperone and ensure privacy"
+            },
+            {
+              "id": "ecg001w",
+              "text": "Position the patient semi-recumbent at about 45°"
+            },
+            {
+              "id": "ecg001x",
+              "text": "Prepare the skin at each electrode site"
+            },
+            {
+              "id": "ecg001y",
+              "text": "Apply the electrodes, then attach the lead wires"
+            }
+          ],
+          "feedbackCorrect": "Exactly right — identity and consent come first, and lead wires go on last so you are not dragging the cable across a half-placed chest.",
+          "feedbackIncorrect": "Not yet. Think about the order you would actually work in: who they are, what you are about to do, dignity, position, skin, then electrodes."
+        },
+        {
+          "id": "ecg0020",
+          "type": "note",
+          "tone": "info",
+          "title": "Electrodes first, wires second",
+          "html": "<p>Stick all ten electrodes down, <em>then</em> clip the lead wires on. Attaching wires as you go tugs at the electrodes you have already placed and is a classic cause of a wandering baseline.</p>"
+        },
+        {
+          "id": "ecg0027",
+          "type": "quiz",
+          "title": "Quick check: preparation",
+          "questions": [
+            {
+              "id": "ecg0021",
+              "type": "multiple",
+              "text": "Which of these are acceptable ways to reduce skin-to-electrode impedance? (Select all that apply)",
+              "choices": [
+                {
+                  "id": "ecg0022",
+                  "text": "Cleaning the skin with an alcohol wipe and letting it dry",
+                  "correct": true
+                },
+                {
+                  "id": "ecg0023",
+                  "text": "Light abrasion with a gauze swab or proprietary tape",
+                  "correct": true
+                },
+                {
+                  "id": "ecg0024",
+                  "text": "Removing chest hair with a single-use razor, with consent",
+                  "correct": true
+                },
+                {
+                  "id": "ecg0025",
+                  "text": "Rubbing the skin firmly until it reddens",
+                  "correct": false
+                }
+              ],
+              "answers": [],
+              "feedbackCorrect": "Correct. Clean, lightly exfoliate and remove hair only where needed — but never abrade to the point of reddening or breaking the skin.",
+              "feedbackIncorrect": "Not quite. Cleaning, light abrasion and consented hair removal are all appropriate; vigorous rubbing that reddens the skin is not."
+            },
+            {
+              "id": "ecg0026",
+              "type": "fillin",
+              "text": "At roughly what angle (in degrees) should the patient ideally be positioned for a resting 12-lead ECG?",
+              "choices": [],
+              "answers": [
+                "45",
+                "45 degrees",
+                "45°"
+              ],
+              "feedbackCorrect": "Correct — semi-recumbent at about 45°.",
+              "feedbackIncorrect": "The SCST standard is semi-recumbent at approximately 45°."
+            }
+          ],
+          "passingScore": 100,
+          "shuffle": false,
+          "showFeedback": true
+        }
+      ]
+    },
+    {
+      "id": "ecg002n",
+      "title": "The four limb electrodes",
+      "icon": "🦵",
+      "blocks": [
+        {
+          "id": "ecg0029",
+          "type": "heading",
+          "text": "Right arm, left arm, left leg, right leg",
+          "level": 2,
+          "align": "left"
+        },
+        {
+          "id": "ecg002a",
+          "type": "imageText",
+          "src": "asset:ecg0003",
+          "alt": "A figure showing red on the right forearm, yellow on the left forearm, black on the right lower leg and green on the left lower leg",
+          "html": "<p>Place the limb electrodes on <strong>flesh, not bone</strong>:</p><ul><li><strong>RA (red)</strong> — right forearm, proximal to the wrist</li><li><strong>LA (yellow)</strong> — left forearm, proximal to the wrist</li><li><strong>LL (green)</strong> — left lower leg, proximal to the ankle</li><li><strong>RL (black)</strong> — right lower leg, proximal to the ankle</li></ul><p>RL is the <em>neutral</em> electrode: it contributes no lead of its own, but without it the machine cannot reject noise.</p>",
+          "imageSide": "left"
+        },
+        {
+          "id": "ecg002b",
+          "type": "note",
+          "tone": "danger",
+          "title": "Limb electrodes never go on the torso",
+          "html": "<p>Moving limb electrodes onto the trunk changes wave amplitudes and the calculated axis. The recording is then not a standard 12-lead ECG, is not comparable with previous traces, and may be diagnostically invalid. Only move them if a limb is absent or has a significant tremor — and then <strong>annotate exactly where you placed them</strong>.</p>"
+        },
+        {
+          "id": "ecg002g",
+          "type": "matching",
+          "title": "Match each limb electrode to its position and colour",
+          "pairs": [
+            {
+              "id": "ecg002c",
+              "left": "RA — red",
+              "right": "Right forearm, proximal to the wrist"
+            },
+            {
+              "id": "ecg002d",
+              "left": "LA — yellow",
+              "right": "Left forearm, proximal to the wrist"
+            },
+            {
+              "id": "ecg002e",
+              "left": "LL — green",
+              "right": "Left lower leg, proximal to the ankle"
+            },
+            {
+              "id": "ecg002f",
+              "left": "RL — black",
+              "right": "Right lower leg (neutral electrode)"
+            }
+          ],
+          "feedbackCorrect": "All four correct. In the UK the colours follow the IEC standard — but always check the cable in front of you.",
+          "feedbackIncorrect": "Some of those aren’t right. Remember: red is on the right arm, and the traffic-light order runs clockwise from the patient’s right arm."
+        },
+        {
+          "id": "ecg002l",
+          "type": "flashcards",
+          "cards": [
+            {
+              "id": "ecg002h",
+              "front": "Ride Your Green Bike",
+              "back": "Clockwise from the patient’s right arm: Red, Yellow, Green, Black. RA → LA → LL → RL."
+            },
+            {
+              "id": "ecg002i",
+              "front": "What does the black (RL) electrode contribute?",
+              "back": "No lead at all. It is the neutral electrode, used for noise rejection — but the ECG cannot be recorded without it."
+            },
+            {
+              "id": "ecg002j",
+              "front": "Negative P waves and QRS in lead I. What are the two explanations?",
+              "back": "Right/left arm lead reversal (far more common), or genuine dextrocardia. Check the cable before you believe the heart."
+            },
+            {
+              "id": "ecg002k",
+              "front": "Which colour scheme do UK cables follow?",
+              "back": "IEC (European): RA red, LA yellow, LL green, RL black. Some machines use the American AHA scheme — always read the label on the wire."
+            }
+          ]
+        },
+        {
+          "id": "ecg002m",
+          "type": "note",
+          "tone": "info",
+          "title": "Colours vary — labels do not",
+          "html": "<p>Cable colours can differ by manufacturer. The letters on the lead wires (RA, LA, LL, RL, C1–C6) are the reliable identifier. If a cable’s colours don’t match what you expect, trust the label.</p>"
+        }
+      ]
+    },
+    {
+      "id": "ecg003n",
+      "title": "Chest electrodes: V1 to V6",
+      "icon": "📍",
+      "blocks": [
+        {
+          "id": "ecg002o",
+          "type": "statement",
+          "html": "V1 and V2 are usually placed too high. V4, V5 and V6 are usually placed too low. Counting rib spaces is the only cure.",
+          "style": "a"
+        },
+        {
+          "id": "ecg002v",
+          "type": "hotspot",
+          "src": "asset:ecg0002",
+          "alt": "Front of the chest with the angle of Louis, intercostal spaces and the mid-clavicular and mid-axillary lines marked, and six numbered electrode positions",
+          "title": "Select each position to see exactly where the electrode goes — and the mistake to avoid",
+          "spots": [
+            {
+              "id": "ecg002p",
+              "x": 47.1,
+              "y": 42.4,
+              "label": "V1 (C1) — red",
+              "html": "<p><strong>Fourth intercostal space, right sternal edge.</strong></p><p>Find the angle of Louis, slide down and to the patient’s right into the 2nd space, then count down to the 4th. Slide back towards the sternum until you feel the edge — that is where the centre of the electrode goes.</p><p><em>V1 and V2 are the two most commonly misplaced electrodes, and are almost always placed too high.</em></p>"
+            },
+            {
+              "id": "ecg002q",
+              "x": 52.9,
+              "y": 42.4,
+              "label": "V2 (C2) — yellow",
+              "html": "<p><strong>Fourth intercostal space, left sternal edge.</strong></p><p>Repeat the counting technique on the left. The left and right rib spaces can be slightly offset, so count them separately rather than placing V2 opposite V1 by eye.</p>"
+            },
+            {
+              "id": "ecg002r",
+              "x": 57.6,
+              "y": 45.1,
+              "label": "V3 (C3) — green",
+              "html": "<p><strong>Midway between V2 and V4.</strong></p><p>Place V4 <em>before</em> V3 — V3 is defined by where V2 and V4 already sit, not the other way round.</p>"
+            },
+            {
+              "id": "ecg002s",
+              "x": 62.1,
+              "y": 47.9,
+              "label": "V4 (C4) — brown",
+              "html": "<p><strong>Fifth intercostal space, mid-clavicular line.</strong></p><p>The mid-clavicular line is the midpoint of the clavicle, not the nipple line. V4, V5 and V6 are commonly placed too low.</p>"
+            },
+            {
+              "id": "ecg002t",
+              "x": 69.4,
+              "y": 47.9,
+              "label": "V5 (C5) — black",
+              "html": "<p><strong>Left anterior axillary line, level with V4.</strong></p><p>Keep it on the same horizontal plane as V4 — follow the rib space across rather than dropping down the chest wall.</p>"
+            },
+            {
+              "id": "ecg002u",
+              "x": 75.5,
+              "y": 47.9,
+              "label": "V6 (C6) — purple",
+              "html": "<p><strong>Left mid-axillary line, level with V4 and V5.</strong></p><p>Directly below the midpoint of the axilla. V4, V5 and V6 must sit on one horizontal line.</p>"
+            }
+          ]
+        },
+        {
+          "id": "ecg002w",
+          "type": "divider",
+          "style": "numbered",
+          "number": 1
+        },
+        {
+          "id": "ecg002x",
+          "type": "heading",
+          "text": "Find the angle of Louis first",
+          "level": 2,
+          "align": "left"
+        },
+        {
+          "id": "ecg002y",
+          "type": "text",
+          "html": "<p>Run a finger down the sternum from the top until you meet a <strong>bony horizontal ridge</strong> — the manubriosternal joint, or angle of Louis. Slide down and to the patient’s right and your finger drops into the <strong>second intercostal space</strong>. From there, count down: third, fourth. In the fourth space, slide back towards the sternum until you feel the edge. That is the centre of V1.</p><p>Repeat the count on the left for V2. The rib spaces on the two sides can be slightly offset, so <em>count both sides</em> rather than placing V2 level with V1 by eye.</p>",
+          "layout": "normal"
+        },
+        {
+          "id": "ecg002z",
+          "type": "divider",
+          "style": "numbered",
+          "number": 2
+        },
+        {
+          "id": "ecg0030",
+          "type": "heading",
+          "text": "Then place V4 — before V3",
+          "level": 2,
+          "align": "left"
+        },
+        {
+          "id": "ecg0031",
+          "type": "text",
+          "html": "<p>V4 sits in the <strong>fifth intercostal space in the mid-clavicular line</strong> (the midpoint of the clavicle, not the nipple). Only once V2 and V4 are down can you place <strong>V3 midway between them</strong>. V5 and V6 then follow the same horizontal plane as V4: anterior axillary line, then mid-axillary line.</p>",
+          "layout": "boxed"
+        },
+        {
+          "id": "ecg0032",
+          "type": "note",
+          "tone": "warning",
+          "title": "The nipple is not a landmark",
+          "html": "<p>Nipple position varies enormously and moves with posture and breast tissue. Use the clavicle and the rib spaces. In patients with breast tissue overlying the correct sites, convention is to place V4, V5 and V6 <strong>beneath the left breast</strong>, on the chest wall.</p>"
+        },
+        {
+          "id": "ecg0033",
+          "type": "image",
+          "src": "asset:ecg0001",
+          "alt": "The chest diagram with all six electrodes in place, colour-coded: V1 red, V2 yellow, V3 green, V4 brown, V5 black, V6 purple",
+          "caption": "The finished placement, with the UK (IEC) chest-lead colours: V1 red, V2 yellow, V3 green, V4 brown, V5 black, V6 purple.",
+          "width": "wide"
+        },
+        {
+          "id": "ecg003m",
+          "type": "quiz",
+          "title": "Knowledge check: precordial placement",
+          "questions": [
+            {
+              "id": "ecg0034",
+              "type": "choice",
+              "text": "Where does V1 go?",
+              "choices": [
+                {
+                  "id": "ecg0035",
+                  "text": "Fourth intercostal space, right sternal edge",
+                  "correct": true
+                },
+                {
+                  "id": "ecg0036",
+                  "text": "Fourth intercostal space, left sternal edge",
+                  "correct": false
+                },
+                {
+                  "id": "ecg0037",
+                  "text": "Fifth intercostal space, right sternal edge",
+                  "correct": false
+                },
+                {
+                  "id": "ecg0038",
+                  "text": "Second intercostal space, right sternal edge",
+                  "correct": false
+                }
+              ],
+              "answers": [],
+              "feedbackCorrect": "Correct — V1 (C1, red) sits in the 4th intercostal space at the right sternal edge.",
+              "feedbackIncorrect": "V1 belongs in the fourth intercostal space at the <em>right</em> sternal edge. The fourth space at the left sternal edge is V2."
+            },
+            {
+              "id": "ecg0039",
+              "type": "choice",
+              "text": "Which electrode should you position before V3, and why?",
+              "choices": [
+                {
+                  "id": "ecg003a",
+                  "text": "V4 — because V3 is defined as midway between V2 and V4",
+                  "correct": true
+                },
+                {
+                  "id": "ecg003b",
+                  "text": "V5 — because V3 is level with V5",
+                  "correct": false
+                },
+                {
+                  "id": "ecg003c",
+                  "text": "V6 — because V3 is measured back from the mid-axillary line",
+                  "correct": false
+                },
+                {
+                  "id": "ecg003d",
+                  "text": "None; V3 is placed first, in the 4th space",
+                  "correct": false
+                }
+              ],
+              "answers": [],
+              "feedbackCorrect": "Correct. V3 has no landmark of its own — it is defined by V2 and V4.",
+              "feedbackIncorrect": "V3 is defined as the midpoint between V2 and V4, so V4 must be placed first."
+            },
+            {
+              "id": "ecg003e",
+              "type": "multiple",
+              "text": "Which of these are placed on the same horizontal level? (Select all that apply)",
+              "choices": [
+                {
+                  "id": "ecg003f",
+                  "text": "V4",
+                  "correct": true
+                },
+                {
+                  "id": "ecg003g",
+                  "text": "V5",
+                  "correct": true
+                },
+                {
+                  "id": "ecg003h",
+                  "text": "V6",
+                  "correct": true
+                },
+                {
+                  "id": "ecg003i",
+                  "text": "V1",
+                  "correct": false
+                }
+              ],
+              "answers": [],
+              "feedbackCorrect": "Correct — V4, V5 and V6 all sit on one horizontal plane: mid-clavicular, anterior axillary and mid-axillary lines.",
+              "feedbackIncorrect": "V4, V5 and V6 share one horizontal level. V1 is higher, in the fourth intercostal space."
+            },
+            {
+              "id": "ecg003j",
+              "type": "truefalse",
+              "text": "It is acceptable to place V2 level with V1 by eye, without counting the rib spaces on the left.",
+              "choices": [
+                {
+                  "id": "ecg003k",
+                  "text": "True",
+                  "correct": false
+                },
+                {
+                  "id": "ecg003l",
+                  "text": "False",
+                  "correct": true
+                }
+              ],
+              "answers": [],
+              "feedbackCorrect": "Correct — the rib spaces may be offset between the two sides, so count them separately.",
+              "feedbackIncorrect": "Incorrect. SCST specifically warns that left and right rib spaces may be offset; count down to the fourth space on each side."
+            }
+          ],
+          "passingScore": 75,
+          "shuffle": false,
+          "showFeedback": true
+        }
+      ],
+      "theme": {
+        "primaryColor": "#00a499"
+      }
+    },
+    {
+      "id": "ecg0049",
+      "title": "Special situations",
+      "icon": "🩻",
+      "blocks": [
+        {
+          "id": "ecg003o",
+          "type": "heading",
+          "text": "When the standard placement will not do",
+          "level": 1,
+          "align": "left"
+        },
+        {
+          "id": "ecg003p",
+          "type": "text",
+          "html": "<p>Every deviation from the standard is acceptable <strong>if it is clinically necessary and clearly annotated</strong>. An unannotated non-standard ECG is the dangerous one, because the person reading it will assume standard placement.</p>",
+          "layout": "lead"
+        },
+        {
+          "id": "ecg003w",
+          "type": "accordion",
+          "items": [
+            {
+              "id": "ecg003q",
+              "title": "Suspected dextrocardia",
+              "html": "<p>Suspect it when a 12-lead ECG shows <strong>negative P waves and QRS complexes in lead I</strong> with poor R-wave progression across V1–V6 — <em>and</em> you have excluded right/left arm reversal, which produces a very similar picture and is far more common.</p><p>Record a second ECG with the chest electrodes <strong>V3 to V6 mirrored onto the right side</strong> of the chest (V3R–V6R), using the same rib spaces and landmarks. In true dextrocardia, R-wave progression across the repositioned leads becomes appropriate. Annotate the trace clearly.</p>"
+            },
+            {
+              "id": "ecg003r",
+              "title": "Right-sided leads (V3R–V6R)",
+              "html": "<p>Used when right ventricular infarction is suspected — classically with an inferior STEMI. Mirror the chest positions onto the right side of the chest using identical rib spaces, record, and annotate <strong>“right-sided leads”</strong> on the trace so nobody mistakes it for a standard recording.</p>"
+            },
+            {
+              "id": "ecg003s",
+              "title": "Posterior leads (V7–V9)",
+              "html": "<ul><li><strong>V7 (C7)</strong> — left posterior axillary line, same horizontal level as V4</li><li><strong>V8 (C8)</strong> — left mid-scapular line, same level as V4</li><li><strong>V9 (C9)</strong> — left spinal border, same level as V4</li></ul><p>Used where posterior infarction is suspected, for example with tall R waves and ST depression in V1–V3. Roll the patient, keep the horizontal plane, annotate.</p>"
+            },
+            {
+              "id": "ecg003t",
+              "title": "Breast tissue overlying the correct sites",
+              "html": "<p>Convention is to place <strong>V4, V5 and V6 beneath the left breast</strong>, directly on the chest wall at the correct anatomical positions, rather than on top of breast tissue. Explain what you are doing before you do it, offer a chaperone, and expose only what you need to.</p>"
+            },
+            {
+              "id": "ecg003u",
+              "title": "Amputation, tremor or a limb that cannot be used",
+              "html": "<p>If a limb is absent or has a significant tremor, move that electrode to the <strong>most distal available point of the limb</strong> — or, if there is no limb, to the shoulder/hip region as your local policy directs — and <strong>annotate exactly where you placed it</strong>. Remember that torso placement changes amplitudes: the ECG is no longer a standard recording and must not be compared with one as though it were.</p>"
+            },
+            {
+              "id": "ecg003v",
+              "title": "The patient who cannot lie at 45°",
+              "html": "<p>Record them in the position they can tolerate, annotate it (“recorded sitting upright”), and — critically — record any <em>future</em> ECG for comparison in the same position wherever possible.</p>"
+            }
+          ]
+        },
+        {
+          "id": "ecg003x",
+          "type": "note",
+          "tone": "success",
+          "title": "The rule that covers every special situation",
+          "html": "<p><strong>Deviate only when you must, do it to a recognised standard, and write on the ECG what you did.</strong> Annotation is not admin — it is what makes a non-standard trace safe to interpret.</p>"
+        },
+        {
+          "id": "ecg0048",
+          "type": "quiz",
+          "title": "Quick check: adapting safely",
+          "questions": [
+            {
+              "id": "ecg003y",
+              "type": "choice",
+              "text": "A trace shows negative P waves and QRS complexes in lead I. What should you exclude first?",
+              "choices": [
+                {
+                  "id": "ecg003z",
+                  "text": "Right/left arm electrode reversal",
+                  "correct": true
+                },
+                {
+                  "id": "ecg0040",
+                  "text": "Dextrocardia",
+                  "correct": false
+                },
+                {
+                  "id": "ecg0041",
+                  "text": "Posterior infarction",
+                  "correct": false
+                },
+                {
+                  "id": "ecg0042",
+                  "text": "Mains interference",
+                  "correct": false
+                }
+              ],
+              "answers": [],
+              "feedbackCorrect": "Correct — arm lead reversal is far more common than dextrocardia and produces a similar picture. Check the cable first.",
+              "feedbackIncorrect": "Check the cable first: right/left arm reversal is much more common than dextrocardia and looks very similar."
+            },
+            {
+              "id": "ecg0043",
+              "type": "choice",
+              "text": "Where is V7 placed?",
+              "choices": [
+                {
+                  "id": "ecg0044",
+                  "text": "Left posterior axillary line, level with V4",
+                  "correct": true
+                },
+                {
+                  "id": "ecg0045",
+                  "text": "Left mid-scapular line, level with V4",
+                  "correct": false
+                },
+                {
+                  "id": "ecg0046",
+                  "text": "Left spinal border, level with V4",
+                  "correct": false
+                },
+                {
+                  "id": "ecg0047",
+                  "text": "Right sternal edge, 4th intercostal space",
+                  "correct": false
+                }
+              ],
+              "answers": [],
+              "feedbackCorrect": "Correct. V8 is the mid-scapular line and V9 the left spinal border, both at the same level.",
+              "feedbackIncorrect": "V7 is the left posterior axillary line at V4’s level; V8 is mid-scapular and V9 the spinal border."
+            }
+          ],
+          "passingScore": 100,
+          "shuffle": false,
+          "showFeedback": true
+        }
+      ],
+      "theme": {
+        "scheme": "sand",
+        "primaryColor": "#7c3aed",
+        "hero": "minimal"
+      }
+    },
+    {
+      "id": "ecg004r",
+      "title": "Artefact and troubleshooting",
+      "icon": "🔍",
+      "blocks": [
+        {
+          "id": "ecg004a",
+          "type": "heading",
+          "text": "Read the noise before you read the heart",
+          "level": 2,
+          "align": "left"
+        },
+        {
+          "id": "ecg004b",
+          "type": "text",
+          "html": "<p>Artefact is information: each pattern points at its own cause. Learn to name it and you will fix it in seconds instead of re-recording blindly — or worse, sending a trace that mimics pathology.</p>",
+          "layout": "normal"
+        },
+        {
+          "id": "ecg004f",
+          "type": "gallery",
+          "columns": 3,
+          "images": [
+            {
+              "id": "ecg004c",
+              "src": "asset:ecg0006",
+              "alt": "ECG trace with a fine regular ripple superimposed on every complex",
+              "caption": "Mains (50 Hz) interference"
+            },
+            {
+              "id": "ecg004d",
+              "src": "asset:ecg0007",
+              "alt": "ECG trace whose baseline drifts slowly up and down",
+              "caption": "Wandering baseline"
+            },
+            {
+              "id": "ecg004e",
+              "src": "asset:ecg0008",
+              "alt": "ECG trace with coarse irregular fuzz across the baseline",
+              "caption": "Somatic (muscle) tremor"
+            }
+          ]
+        },
+        {
+          "id": "ecg004l",
+          "type": "matching",
+          "title": "Match each problem to the first thing you should do",
+          "pairs": [
+            {
+              "id": "ecg004g",
+              "left": "Fine, regular 50 Hz ripple on every lead",
+              "right": "Move the cable away from mains leads and unplug nearby equipment"
+            },
+            {
+              "id": "ecg004h",
+              "left": "Slow drifting baseline",
+              "right": "Re-prep the skin and replace lifting or dried-out electrodes"
+            },
+            {
+              "id": "ecg004i",
+              "left": "Coarse, irregular fuzz",
+              "right": "Warm and reassure the patient; support their limbs so muscles relax"
+            },
+            {
+              "id": "ecg004j",
+              "left": "Negative P and QRS in lead I",
+              "right": "Check RA and LA lead wires for reversal before believing the trace"
+            },
+            {
+              "id": "ecg004k",
+              "left": "Flat line in one lead only",
+              "right": "Check that single electrode’s contact and its lead wire"
+            }
+          ],
+          "feedbackCorrect": "All correct — and notice that not one of these fixes is “switch the filter on”.",
+          "feedbackIncorrect": "Some of those aren’t right. Ask yourself what each pattern is physically telling you: interference, contact, movement or a swapped wire."
+        },
+        {
+          "id": "ecg004p",
+          "type": "tabs",
+          "items": [
+            {
+              "id": "ecg004m",
+              "title": "Filters — what they cost you",
+              "html": "<p>Record with the <strong>filter off</strong> first: 0.67–150&nbsp;Hz preserves the true waveform. If somatic tremor persists after you have warmed, reassured and repositioned the patient, repeat with the <strong>filter on</strong> (0.67–40&nbsp;Hz).</p><p>The filter reduces interference <em>and distorts the ECG</em> — it can blunt genuine ST-segment and QRS detail. Use it as a last resort, and annotate that you used it.</p>"
+            },
+            {
+              "id": "ecg004n",
+              "title": "A trace that lies",
+              "html": "<p>The most dangerous artefacts are the ones that look like disease:</p><ul><li>Arm lead reversal mimicking dextrocardia</li><li>High V1/V2 mimicking incomplete RBBB or anterior T-wave inversion</li><li>Muscle tremor mimicking atrial fibrillation or flutter</li><li>Baseline wander mimicking ST elevation or depression</li></ul><p>If a finding surprises you, check your electrodes before you escalate the diagnosis.</p>"
+            },
+            {
+              "id": "ecg004o",
+              "title": "Before you press print",
+              "html": "<p>Look at the trace on the screen. Is the baseline flat? Is every lead present? Is there a calibration pulse? Are the settings 25&nbsp;mm/s and 10&nbsp;mm/mV? Fix it now — re-recording takes a minute; a misread ECG can cost far more.</p>"
+            }
+          ]
+        },
+        {
+          "id": "ecg004q",
+          "type": "statement",
+          "html": "If you would not want a cardiologist to make a decision from this trace, do not hand it over.",
+          "style": "b",
+          "bg": "tint"
+        }
+      ],
+      "theme": {
+        "scheme": "mist"
+      }
+    },
+    {
+      "id": "ecg005q",
+      "title": "Quality check and final assessment",
+      "icon": "✅",
+      "blocks": [
+        {
+          "id": "ecg004s",
+          "type": "heading",
+          "text": "The 60-second quality check",
+          "level": 1,
+          "align": "left"
+        },
+        {
+          "id": "ecg004t",
+          "type": "text",
+          "html": "<p>Before the ECG leaves your hands, run through this. Every item is one you can still fix while the patient is in front of you.</p>",
+          "layout": "lead"
+        },
+        {
+          "id": "ecg004u",
+          "type": "list",
+          "style": "check",
+          "items": [
+            "<strong>Patient identity</strong> on the trace: full name, date of birth, NHS number",
+            "<strong>Date and time</strong> correct on the machine — not the default from its last service",
+            "<strong>Settings</strong>: 25 mm/s, 10 mm/mV, calibration pulse visible",
+            "<strong>All 12 leads present</strong>, none flat, none disconnected",
+            "<strong>Baseline steady</strong>, no mains ripple, no muscle tremor",
+            "<strong>Annotations</strong>: filter used, non-standard positions, patient position, symptoms at the time",
+            "<strong>Handed to a clinician who can interpret it</strong> — promptly, and in person if the patient is unwell"
+          ]
+        },
+        {
+          "id": "ecg004v",
+          "type": "note",
+          "tone": "info",
+          "title": "Annotate the story, not just the trace",
+          "html": "<p>“Recorded during chest pain, 14:05” or “pain-free at time of recording” can change how the ECG is read. You are the only person who can add that context.</p>"
+        },
+        {
+          "id": "ecg004w",
+          "type": "divider",
+          "style": "line"
+        },
+        {
+          "id": "ecg005l",
+          "type": "quiz",
+          "title": "Final assessment",
+          "questions": [
+            {
+              "id": "ecg004x",
+              "type": "choice",
+              "text": "What is the standard paper speed and gain for a resting 12-lead ECG?",
+              "choices": [
+                {
+                  "id": "ecg004y",
+                  "text": "25 mm/s and 10 mm/mV",
+                  "correct": true
+                },
+                {
+                  "id": "ecg004z",
+                  "text": "50 mm/s and 10 mm/mV",
+                  "correct": false
+                },
+                {
+                  "id": "ecg0050",
+                  "text": "25 mm/s and 20 mm/mV",
+                  "correct": false
+                },
+                {
+                  "id": "ecg0051",
+                  "text": "10 mm/s and 25 mm/mV",
+                  "correct": false
+                }
+              ],
+              "answers": [],
+              "feedbackCorrect": "Correct — 25 mm/s and 10 mm/mV.",
+              "feedbackIncorrect": "The standard is 25 mm/s with a gain of 10 mm/mV."
+            },
+            {
+              "id": "ecg0052",
+              "type": "choice",
+              "text": "V4 is placed in the:",
+              "choices": [
+                {
+                  "id": "ecg0053",
+                  "text": "Fifth intercostal space, mid-clavicular line",
+                  "correct": true
+                },
+                {
+                  "id": "ecg0054",
+                  "text": "Fourth intercostal space, mid-clavicular line",
+                  "correct": false
+                },
+                {
+                  "id": "ecg0055",
+                  "text": "Fifth intercostal space, anterior axillary line",
+                  "correct": false
+                },
+                {
+                  "id": "ecg0056",
+                  "text": "Fifth intercostal space, mid-axillary line",
+                  "correct": false
+                }
+              ],
+              "answers": [],
+              "feedbackCorrect": "Correct. V5 is the anterior axillary line and V6 the mid-axillary line, both level with V4.",
+              "feedbackIncorrect": "V4 goes in the fifth intercostal space in the mid-clavicular line."
+            },
+            {
+              "id": "ecg0057",
+              "type": "multiple",
+              "text": "Which statements about limb electrodes are true? (Select all that apply)",
+              "choices": [
+                {
+                  "id": "ecg0058",
+                  "text": "RA is red and goes on the right forearm",
+                  "correct": true
+                },
+                {
+                  "id": "ecg0059",
+                  "text": "LL is green and goes on the left lower leg",
+                  "correct": true
+                },
+                {
+                  "id": "ecg005a",
+                  "text": "RL is the neutral electrode and produces no lead of its own",
+                  "correct": true
+                },
+                {
+                  "id": "ecg005b",
+                  "text": "They may be placed on the torso to save time",
+                  "correct": false
+                }
+              ],
+              "answers": [],
+              "feedbackCorrect": "Correct on all three. Torso placement is only ever a necessity, never a convenience — and must be annotated.",
+              "feedbackIncorrect": "Review the limb lesson: red right arm, green left leg, black is neutral — and the torso is not an option for convenience."
+            },
+            {
+              "id": "ecg005c",
+              "type": "choice",
+              "text": "You have warmed and reassured a shivering patient, supported their limbs, and tremor persists. What now?",
+              "choices": [
+                {
+                  "id": "ecg005d",
+                  "text": "Repeat the recording with the filter on (0.67–40 Hz) and annotate that you used it",
+                  "correct": true
+                },
+                {
+                  "id": "ecg005e",
+                  "text": "Record with the filter on and say nothing — the trace looks cleaner",
+                  "correct": false
+                },
+                {
+                  "id": "ecg005f",
+                  "text": "Move the limb electrodes onto the torso",
+                  "correct": false
+                },
+                {
+                  "id": "ecg005g",
+                  "text": "Increase the paper speed to 50 mm/s",
+                  "correct": false
+                }
+              ],
+              "answers": [],
+              "feedbackCorrect": "Correct — filter as a last resort, and always annotate it, because it distorts the waveform.",
+              "feedbackIncorrect": "The filter is the last resort once physical causes are addressed, and its use must be annotated because it distorts the ECG."
+            },
+            {
+              "id": "ecg005h",
+              "type": "truefalse",
+              "text": "A non-standard electrode position is acceptable provided it is clinically necessary and clearly annotated on the trace.",
+              "choices": [
+                {
+                  "id": "ecg005i",
+                  "text": "True",
+                  "correct": true
+                },
+                {
+                  "id": "ecg005j",
+                  "text": "False",
+                  "correct": false
+                }
+              ],
+              "answers": [],
+              "feedbackCorrect": "Correct. Deviate only when you must, to a recognised standard, and write down what you did.",
+              "feedbackIncorrect": "It is true: the deviation itself is not the danger — an <em>unannotated</em> deviation is."
+            },
+            {
+              "id": "ecg005k",
+              "type": "fillin",
+              "text": "Which bony landmark do you find first when counting down to the fourth intercostal space? (Two words, or its formal name)",
+              "choices": [],
+              "answers": [
+                "angle of louis",
+                "the angle of louis",
+                "manubriosternal joint",
+                "sternal angle"
+              ],
+              "feedbackCorrect": "Correct — the angle of Louis (manubriosternal joint) marks the second rib.",
+              "feedbackIncorrect": "The angle of Louis, also called the manubriosternal joint, is your starting landmark."
+            }
+          ],
+          "passingScore": 80,
+          "shuffle": false,
+          "showFeedback": true
+        },
+        {
+          "id": "ecg005m",
+          "type": "statement",
+          "html": "You can now record an ECG that a cardiologist can trust. Keep counting those rib spaces.",
+          "style": "c"
+        },
+        {
+          "id": "ecg005n",
+          "type": "note",
+          "tone": "success",
+          "title": "Next steps",
+          "html": "<p>Complete a supervised, assessed practical competency with your clinical educator before recording ECGs unsupervised. Keep this course as a refresher — and re-read the SCST guideline in full at least once.</p>"
+        },
+        {
+          "id": "ecg005o",
+          "type": "button",
+          "label": "SCST 2024 recording guideline",
+          "url": "https://scst.org.uk/wp-content/uploads/2024/09/2024_ECG_Recording_Guidelines_26-09-2024_V5_FINAL.pdf",
+          "align": "center",
+          "variant": "solid"
+        },
+        {
+          "id": "ecg005p",
+          "type": "button",
+          "label": "Resuscitation Council UK",
+          "url": "https://www.resus.org.uk/",
+          "align": "center",
+          "variant": "outline"
+        }
+      ],
+      "theme": {
+        "scheme": "midnight",
+        "primaryColor": "#00a499",
+        "hero": "gradient"
+      }
+    }
+  ],
+  "theme": {
+    "primaryColor": "#005eb8",
+    "scheme": "cool",
+    "fontPack": "modern",
+    "nav": "side",
+    "hero": "gradient",
+    "width": "normal",
+    "corners": "soft",
+    "headingWeight": "extrabold",
+    "fontScale": "normal",
+    "spacing": "normal",
+    "logo": "asset:ecg0000"
+  },
+  "assets": [
+    {
+      "id": "ecg0000",
+      "name": "ecg-logo.svg",
+      "kind": "image",
+      "src": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNDAgNjAiPgogIDxwYXRoIGQ9Ik02IDM0IGgyNiBsOCAtMTggbDEyIDM0IGwxMCAtMjIgbDcgNiBoMTgiIGZpbGw9Im5vbmUiIHN0cm9rZT0iIzAwNWViOCIgc3Ryb2tlLXdpZHRoPSI0IgogICAgICAgIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIvPgogIDx0ZXh0IHg9Ijk4IiB5PSI0MSIgZm9udC1zaXplPSIyNiIgZm9udC13ZWlnaHQ9IjgwMCIgZmlsbD0iIzAwNWViOCIgZm9udC1mYW1pbHk9IkludGVyLCBBcmlhbCwgc2Fucy1zZXJpZiI+RUNHIDEyPC90ZXh0Pgo8L3N2Zz4=",
+      "size": 490,
+      "createdAt": 1783850484888
+    },
+    {
+      "id": "ecg0001",
+      "name": "chest-electrode-positions.svg",
+      "kind": "image",
+      "src": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA2MjAgNzIwIj4KICA8cmVjdCB3aWR0aD0iNjIwIiBoZWlnaHQ9IjcyMCIgZmlsbD0iI2Y0ZjdmYiIvPgogIAogIDxwYXRoIGQ9Ik0zMTAgNjAgYy0zNCAwIC01OCAxNCAtNjYgMzQgbC05NiAzNCBjLTE2IDYgLTI0IDIwIC0yMiAzNiBsMTQgOTYgYzIgMTQgMTQgMjIgMjggMjAgbDIyIC00CiAgICAgICAgICAgLTYgMzAwIGMtMSAyNiAxNiA0NCA0NCA0NiBsMTY0IDAgYzI4IC0yIDQ1IC0yMCA0NCAtNDYgbC02IC0zMDAgMjIgNCBjMTQgMiAyNiAtNiAyOCAtMjAKICAgICAgICAgICBsMTQgLTk2IGMyIC0xNiAtNiAtMzAgLTIyIC0zNiBsLTk2IC0zNCBjLTggLTIwIC0zMiAtMzQgLTY2IC0zNCB6IgogICAgICAgIGZpbGw9IiNmM2Q5YzYiIHN0cm9rZT0iI2Q4YjQ5YiIgc3Ryb2tlLXdpZHRoPSIzIi8+CiAgPHBhdGggZD0iTTMxMCAxMzAgdjMwMCIgc3Ryb2tlPSIjZDhiNDliIiBzdHJva2Utd2lkdGg9IjIiIHN0cm9rZS1kYXNoYXJyYXk9IjYgNiIgb3BhY2l0eT0iMC43Ii8+CgogIDwhLS0gc3Rlcm51bSArIGFuZ2xlIG9mIExvdWlzIC0tPgogIDxyZWN0IHg9IjI5OCIgeT0iMTIwIiB3aWR0aD0iMjQiIGhlaWdodD0iMjAwIiByeD0iMTAiIGZpbGw9IiNmZmYiIG9wYWNpdHk9IjAuNTUiLz4KICA8bGluZSB4MT0iMjg2IiB5MT0iMTgwIiB4Mj0iMzM0IiB5Mj0iMTgwIiBzdHJva2U9IiMxYTJhM2EiIHN0cm9rZS13aWR0aD0iMyIvPgogIDxsaW5lIHgxPSIyODYiIHkxPSIxODAiIHgyPSIxOTYiIHkyPSIxNTAiIHN0cm9rZT0iIzFhMmEzYSIgc3Ryb2tlLXdpZHRoPSIxLjUiLz4KICA8dGV4dCB4PSIxOTAiIHk9IjE0NiIgZm9udC1zaXplPSIxNSIgZm9udC13ZWlnaHQ9IjYwMCIgZmlsbD0iIzFhMmEzYSIgdGV4dC1hbmNob3I9ImVuZCIKICAgICAgICBmb250LWZhbWlseT0iSW50ZXIsIEFyaWFsLCBzYW5zLXNlcmlmIj5BbmdsZSBvZiBMb3VpczwvdGV4dD4KICA8dGV4dCB4PSIxOTAiIHk9IjE2NiIgZm9udC1zaXplPSIxMyIgZmlsbD0iIzViNmI3ZCIgdGV4dC1hbmNob3I9ImVuZCIKICAgICAgICBmb250LWZhbWlseT0iSW50ZXIsIEFyaWFsLCBzYW5zLXNlcmlmIj5zdGFydCBjb3VudGluZyBoZXJlPC90ZXh0PgogIDwhLS0gaW50ZXJjb3N0YWwgZ3VpZGUgbGluZXMgLS0+CiAgCiAgICA8bGluZSB4MT0iMjMwIiB5MT0iMjA1IiB4Mj0iNDMwIiB5Mj0iMjA1IiBzdHJva2U9IiNkOGI0OWIiIHN0cm9rZS13aWR0aD0iMS41IiBzdHJva2UtZGFzaGFycmF5PSI0IDYiIG9wYWNpdHk9IjAuOCIvPgogICAgPHRleHQgeD0iMjIyIiB5PSIyMTAiIGZvbnQtc2l6ZT0iMTMiIGZpbGw9IiM4YTk0YTYiIHRleHQtYW5jaG9yPSJlbmQiCiAgICAgICAgICBmb250LWZhbWlseT0iSW50ZXIsIEFyaWFsLCBzYW5zLXNlcmlmIj4ybmQgSUNTPC90ZXh0PgogICAgPGxpbmUgeDE9IjIzMCIgeTE9IjI1NSIgeDI9IjQzMCIgeTI9IjI1NSIgc3Ryb2tlPSIjZDhiNDliIiBzdHJva2Utd2lkdGg9IjEuNSIgc3Ryb2tlLWRhc2hhcnJheT0iNCA2IiBvcGFjaXR5PSIwLjgiLz4KICAgIDx0ZXh0IHg9IjIyMiIgeT0iMjYwIiBmb250LXNpemU9IjEzIiBmaWxsPSIjOGE5NGE2IiB0ZXh0LWFuY2hvcj0iZW5kIgogICAgICAgICAgZm9udC1mYW1pbHk9IkludGVyLCBBcmlhbCwgc2Fucy1zZXJpZiI+M3JkIElDUzwvdGV4dD4KICAgIDxsaW5lIHgxPSIyMzAiIHkxPSIzMDUiIHgyPSI0MzAiIHkyPSIzMDUiIHN0cm9rZT0iI2Q4YjQ5YiIgc3Ryb2tlLXdpZHRoPSIxLjUiIHN0cm9rZS1kYXNoYXJyYXk9IjQgNiIgb3BhY2l0eT0iMC44Ii8+CiAgICA8dGV4dCB4PSIyMjIiIHk9IjMxMCIgZm9udC1zaXplPSIxMyIgZmlsbD0iIzhhOTRhNiIgdGV4dC1hbmNob3I9ImVuZCIKICAgICAgICAgIGZvbnQtZmFtaWx5PSJJbnRlciwgQXJpYWwsIHNhbnMtc2VyaWYiPjR0aCBJQ1M8L3RleHQ+CiAgICA8bGluZSB4MT0iMjMwIiB5MT0iMzQ1IiB4Mj0iNDMwIiB5Mj0iMzQ1IiBzdHJva2U9IiNkOGI0OWIiIHN0cm9rZS13aWR0aD0iMS41IiBzdHJva2UtZGFzaGFycmF5PSI0IDYiIG9wYWNpdHk9IjAuOCIvPgogICAgPHRleHQgeD0iMjIyIiB5PSIzNTAiIGZvbnQtc2l6ZT0iMTMiIGZpbGw9IiM4YTk0YTYiIHRleHQtYW5jaG9yPSJlbmQiCiAgICAgICAgICBmb250LWZhbWlseT0iSW50ZXIsIEFyaWFsLCBzYW5zLXNlcmlmIj41dGggSUNTPC90ZXh0PgogIDwhLS0gbWlkLWNsYXZpY3VsYXIgLyBheGlsbGFyeSByZWZlcmVuY2UgbGluZXMgLS0+CiAgPGxpbmUgeDE9IjM4NSIgeTE9IjE1MCIgeDI9IjM4NSIgeTI9IjQzMCIgc3Ryb2tlPSIjMDA1ZWI4IiBzdHJva2Utd2lkdGg9IjEuNSIgc3Ryb2tlLWRhc2hhcnJheT0iNSA1IiBvcGFjaXR5PSIwLjU1Ii8+CiAgPHRleHQgeD0iMzkyIiB5PSIxNTAiIGZvbnQtc2l6ZT0iMTIuNSIgZmlsbD0iIzAwNWViOCIgZm9udC1mYW1pbHk9IkludGVyLCBBcmlhbCwgc2Fucy1zZXJpZiI+bWlkLWNsYXZpY3VsYXI8L3RleHQ+CiAgPGxpbmUgeDE9IjQ2OCIgeTE9IjIzMCIgeDI9IjQ2OCIgeTI9IjQzMCIgc3Ryb2tlPSIjMDA1ZWI4IiBzdHJva2Utd2lkdGg9IjEuNSIgc3Ryb2tlLWRhc2hhcnJheT0iNSA1IiBvcGFjaXR5PSIwLjU1Ii8+CiAgPHRleHQgeD0iNDc1IiB5PSIyMzAiIGZvbnQtc2l6ZT0iMTIuNSIgZmlsbD0iIzAwNWViOCIgZm9udC1mYW1pbHk9IkludGVyLCBBcmlhbCwgc2Fucy1zZXJpZiI+bWlkLWF4aWxsYXJ5PC90ZXh0PgogIAogICAgPGNpcmNsZSBjeD0iMjkyIiBjeT0iMzA1IiByPSIxNSIgZmlsbD0iI2Q1MjgxYiIgc3Ryb2tlPSIjZmZmIiBzdHJva2Utd2lkdGg9IjMiLz4KICAgIDx0ZXh0IHg9IjI5MiIgeT0iMzEwIiBmb250LXNpemU9IjEzIiBmb250LXdlaWdodD0iNzAwIiBmaWxsPSIjZmZmIgogICAgICAgICAgdGV4dC1hbmNob3I9Im1pZGRsZSIgZm9udC1mYW1pbHk9IkludGVyLCBBcmlhbCwgc2Fucy1zZXJpZiI+VjE8L3RleHQ+CiAgICA8Y2lyY2xlIGN4PSIzMjgiIGN5PSIzMDUiIHI9IjE1IiBmaWxsPSIjZmZiODFjIiBzdHJva2U9IiNmZmYiIHN0cm9rZS13aWR0aD0iMyIvPgogICAgPHRleHQgeD0iMzI4IiB5PSIzMTAiIGZvbnQtc2l6ZT0iMTMiIGZvbnQtd2VpZ2h0PSI3MDAiIGZpbGw9IiNmZmYiCiAgICAgICAgICB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LWZhbWlseT0iSW50ZXIsIEFyaWFsLCBzYW5zLXNlcmlmIj5WMjwvdGV4dD4KICAgIDxjaXJjbGUgY3g9IjM1NyIgY3k9IjMyNSIgcj0iMTUiIGZpbGw9IiMwMDk2MzkiIHN0cm9rZT0iI2ZmZiIgc3Ryb2tlLXdpZHRoPSIzIi8+CiAgICA8dGV4dCB4PSIzNTciIHk9IjMzMCIgZm9udC1zaXplPSIxMyIgZm9udC13ZWlnaHQ9IjcwMCIgZmlsbD0iI2ZmZiIKICAgICAgICAgIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZvbnQtZmFtaWx5PSJJbnRlciwgQXJpYWwsIHNhbnMtc2VyaWYiPlYzPC90ZXh0PgogICAgPGNpcmNsZSBjeD0iMzg1IiBjeT0iMzQ1IiByPSIxNSIgZmlsbD0iIzhhNWEyYiIgc3Ryb2tlPSIjZmZmIiBzdHJva2Utd2lkdGg9IjMiLz4KICAgIDx0ZXh0IHg9IjM4NSIgeT0iMzUwIiBmb250LXNpemU9IjEzIiBmb250LXdlaWdodD0iNzAwIiBmaWxsPSIjZmZmIgogICAgICAgICAgdGV4dC1hbmNob3I9Im1pZGRsZSIgZm9udC1mYW1pbHk9IkludGVyLCBBcmlhbCwgc2Fucy1zZXJpZiI+VjQ8L3RleHQ+CiAgICA8Y2lyY2xlIGN4PSI0MzAiIGN5PSIzNDUiIHI9IjE1IiBmaWxsPSIjMmIyYjJiIiBzdHJva2U9IiNmZmYiIHN0cm9rZS13aWR0aD0iMyIvPgogICAgPHRleHQgeD0iNDMwIiB5PSIzNTAiIGZvbnQtc2l6ZT0iMTMiIGZvbnQtd2VpZ2h0PSI3MDAiIGZpbGw9IiNmZmYiCiAgICAgICAgICB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LWZhbWlseT0iSW50ZXIsIEFyaWFsLCBzYW5zLXNlcmlmIj5WNTwvdGV4dD4KICAgIDxjaXJjbGUgY3g9IjQ2OCIgY3k9IjM0NSIgcj0iMTUiIGZpbGw9IiM3YzNhZWQiIHN0cm9rZT0iI2ZmZiIgc3Ryb2tlLXdpZHRoPSIzIi8+CiAgICA8dGV4dCB4PSI0NjgiIHk9IjM1MCIgZm9udC1zaXplPSIxMyIgZm9udC13ZWlnaHQ9IjcwMCIgZmlsbD0iI2ZmZiIKICAgICAgICAgIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZvbnQtZmFtaWx5PSJJbnRlciwgQXJpYWwsIHNhbnMtc2VyaWYiPlY2PC90ZXh0PgogIDx0ZXh0IHg9IjQwIiB5PSI2MCIgZm9udC1zaXplPSIxNyIgZm9udC13ZWlnaHQ9IjcwMCIgZmlsbD0iIzFhMmEzYSIgZm9udC1mYW1pbHk9IkludGVyLCBBcmlhbCwgc2Fucy1zZXJpZiI+UGF0aWVudOKAmXMgUklHSFQ8L3RleHQ+CiAgPHRleHQgeD0iNTgwIiB5PSI2MCIgZm9udC1zaXplPSIxNyIgZm9udC13ZWlnaHQ9IjcwMCIgZmlsbD0iIzFhMmEzYSIgdGV4dC1hbmNob3I9ImVuZCIgZm9udC1mYW1pbHk9IkludGVyLCBBcmlhbCwgc2Fucy1zZXJpZiI+UGF0aWVudOKAmXMgTEVGVDwvdGV4dD4KPC9zdmc+",
+      "size": 5958,
+      "createdAt": 1783850484888
+    },
+    {
+      "id": "ecg0002",
+      "name": "chest-landmarks-only.svg",
+      "kind": "image",
+      "src": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA2MjAgNzIwIj4KICA8cmVjdCB3aWR0aD0iNjIwIiBoZWlnaHQ9IjcyMCIgZmlsbD0iI2Y0ZjdmYiIvPgogIAogIDxwYXRoIGQ9Ik0zMTAgNjAgYy0zNCAwIC01OCAxNCAtNjYgMzQgbC05NiAzNCBjLTE2IDYgLTI0IDIwIC0yMiAzNiBsMTQgOTYgYzIgMTQgMTQgMjIgMjggMjAgbDIyIC00CiAgICAgICAgICAgLTYgMzAwIGMtMSAyNiAxNiA0NCA0NCA0NiBsMTY0IDAgYzI4IC0yIDQ1IC0yMCA0NCAtNDYgbC02IC0zMDAgMjIgNCBjMTQgMiAyNiAtNiAyOCAtMjAKICAgICAgICAgICBsMTQgLTk2IGMyIC0xNiAtNiAtMzAgLTIyIC0zNiBsLTk2IC0zNCBjLTggLTIwIC0zMiAtMzQgLTY2IC0zNCB6IgogICAgICAgIGZpbGw9IiNmM2Q5YzYiIHN0cm9rZT0iI2Q4YjQ5YiIgc3Ryb2tlLXdpZHRoPSIzIi8+CiAgPHBhdGggZD0iTTMxMCAxMzAgdjMwMCIgc3Ryb2tlPSIjZDhiNDliIiBzdHJva2Utd2lkdGg9IjIiIHN0cm9rZS1kYXNoYXJyYXk9IjYgNiIgb3BhY2l0eT0iMC43Ii8+CgogIDwhLS0gc3Rlcm51bSArIGFuZ2xlIG9mIExvdWlzIC0tPgogIDxyZWN0IHg9IjI5OCIgeT0iMTIwIiB3aWR0aD0iMjQiIGhlaWdodD0iMjAwIiByeD0iMTAiIGZpbGw9IiNmZmYiIG9wYWNpdHk9IjAuNTUiLz4KICA8bGluZSB4MT0iMjg2IiB5MT0iMTgwIiB4Mj0iMzM0IiB5Mj0iMTgwIiBzdHJva2U9IiMxYTJhM2EiIHN0cm9rZS13aWR0aD0iMyIvPgogIDxsaW5lIHgxPSIyODYiIHkxPSIxODAiIHgyPSIxOTYiIHkyPSIxNTAiIHN0cm9rZT0iIzFhMmEzYSIgc3Ryb2tlLXdpZHRoPSIxLjUiLz4KICA8dGV4dCB4PSIxOTAiIHk9IjE0NiIgZm9udC1zaXplPSIxNSIgZm9udC13ZWlnaHQ9IjYwMCIgZmlsbD0iIzFhMmEzYSIgdGV4dC1hbmNob3I9ImVuZCIKICAgICAgICBmb250LWZhbWlseT0iSW50ZXIsIEFyaWFsLCBzYW5zLXNlcmlmIj5BbmdsZSBvZiBMb3VpczwvdGV4dD4KICA8dGV4dCB4PSIxOTAiIHk9IjE2NiIgZm9udC1zaXplPSIxMyIgZmlsbD0iIzViNmI3ZCIgdGV4dC1hbmNob3I9ImVuZCIKICAgICAgICBmb250LWZhbWlseT0iSW50ZXIsIEFyaWFsLCBzYW5zLXNlcmlmIj5zdGFydCBjb3VudGluZyBoZXJlPC90ZXh0PgogIDwhLS0gaW50ZXJjb3N0YWwgZ3VpZGUgbGluZXMgLS0+CiAgCiAgICA8bGluZSB4MT0iMjMwIiB5MT0iMjA1IiB4Mj0iNDMwIiB5Mj0iMjA1IiBzdHJva2U9IiNkOGI0OWIiIHN0cm9rZS13aWR0aD0iMS41IiBzdHJva2UtZGFzaGFycmF5PSI0IDYiIG9wYWNpdHk9IjAuOCIvPgogICAgPHRleHQgeD0iMjIyIiB5PSIyMTAiIGZvbnQtc2l6ZT0iMTMiIGZpbGw9IiM4YTk0YTYiIHRleHQtYW5jaG9yPSJlbmQiCiAgICAgICAgICBmb250LWZhbWlseT0iSW50ZXIsIEFyaWFsLCBzYW5zLXNlcmlmIj4ybmQgSUNTPC90ZXh0PgogICAgPGxpbmUgeDE9IjIzMCIgeTE9IjI1NSIgeDI9IjQzMCIgeTI9IjI1NSIgc3Ryb2tlPSIjZDhiNDliIiBzdHJva2Utd2lkdGg9IjEuNSIgc3Ryb2tlLWRhc2hhcnJheT0iNCA2IiBvcGFjaXR5PSIwLjgiLz4KICAgIDx0ZXh0IHg9IjIyMiIgeT0iMjYwIiBmb250LXNpemU9IjEzIiBmaWxsPSIjOGE5NGE2IiB0ZXh0LWFuY2hvcj0iZW5kIgogICAgICAgICAgZm9udC1mYW1pbHk9IkludGVyLCBBcmlhbCwgc2Fucy1zZXJpZiI+M3JkIElDUzwvdGV4dD4KICAgIDxsaW5lIHgxPSIyMzAiIHkxPSIzMDUiIHgyPSI0MzAiIHkyPSIzMDUiIHN0cm9rZT0iI2Q4YjQ5YiIgc3Ryb2tlLXdpZHRoPSIxLjUiIHN0cm9rZS1kYXNoYXJyYXk9IjQgNiIgb3BhY2l0eT0iMC44Ii8+CiAgICA8dGV4dCB4PSIyMjIiIHk9IjMxMCIgZm9udC1zaXplPSIxMyIgZmlsbD0iIzhhOTRhNiIgdGV4dC1hbmNob3I9ImVuZCIKICAgICAgICAgIGZvbnQtZmFtaWx5PSJJbnRlciwgQXJpYWwsIHNhbnMtc2VyaWYiPjR0aCBJQ1M8L3RleHQ+CiAgICA8bGluZSB4MT0iMjMwIiB5MT0iMzQ1IiB4Mj0iNDMwIiB5Mj0iMzQ1IiBzdHJva2U9IiNkOGI0OWIiIHN0cm9rZS13aWR0aD0iMS41IiBzdHJva2UtZGFzaGFycmF5PSI0IDYiIG9wYWNpdHk9IjAuOCIvPgogICAgPHRleHQgeD0iMjIyIiB5PSIzNTAiIGZvbnQtc2l6ZT0iMTMiIGZpbGw9IiM4YTk0YTYiIHRleHQtYW5jaG9yPSJlbmQiCiAgICAgICAgICBmb250LWZhbWlseT0iSW50ZXIsIEFyaWFsLCBzYW5zLXNlcmlmIj41dGggSUNTPC90ZXh0PgogIDwhLS0gbWlkLWNsYXZpY3VsYXIgLyBheGlsbGFyeSByZWZlcmVuY2UgbGluZXMgLS0+CiAgPGxpbmUgeDE9IjM4NSIgeTE9IjE1MCIgeDI9IjM4NSIgeTI9IjQzMCIgc3Ryb2tlPSIjMDA1ZWI4IiBzdHJva2Utd2lkdGg9IjEuNSIgc3Ryb2tlLWRhc2hhcnJheT0iNSA1IiBvcGFjaXR5PSIwLjU1Ii8+CiAgPHRleHQgeD0iMzkyIiB5PSIxNTAiIGZvbnQtc2l6ZT0iMTIuNSIgZmlsbD0iIzAwNWViOCIgZm9udC1mYW1pbHk9IkludGVyLCBBcmlhbCwgc2Fucy1zZXJpZiI+bWlkLWNsYXZpY3VsYXI8L3RleHQ+CiAgPGxpbmUgeDE9IjQ2OCIgeTE9IjIzMCIgeDI9IjQ2OCIgeTI9IjQzMCIgc3Ryb2tlPSIjMDA1ZWI4IiBzdHJva2Utd2lkdGg9IjEuNSIgc3Ryb2tlLWRhc2hhcnJheT0iNSA1IiBvcGFjaXR5PSIwLjU1Ii8+CiAgPHRleHQgeD0iNDc1IiB5PSIyMzAiIGZvbnQtc2l6ZT0iMTIuNSIgZmlsbD0iIzAwNWViOCIgZm9udC1mYW1pbHk9IkludGVyLCBBcmlhbCwgc2Fucy1zZXJpZiI+bWlkLWF4aWxsYXJ5PC90ZXh0PgogIAogIDx0ZXh0IHg9IjQwIiB5PSI2MCIgZm9udC1zaXplPSIxNyIgZm9udC13ZWlnaHQ9IjcwMCIgZmlsbD0iIzFhMmEzYSIgZm9udC1mYW1pbHk9IkludGVyLCBBcmlhbCwgc2Fucy1zZXJpZiI+UGF0aWVudOKAmXMgUklHSFQ8L3RleHQ+CiAgPHRleHQgeD0iNTgwIiB5PSI2MCIgZm9udC1zaXplPSIxNyIgZm9udC13ZWlnaHQ9IjcwMCIgZmlsbD0iIzFhMmEzYSIgdGV4dC1hbmNob3I9ImVuZCIgZm9udC1mYW1pbHk9IkludGVyLCBBcmlhbCwgc2Fucy1zZXJpZiI+UGF0aWVudOKAmXMgTEVGVDwvdGV4dD4KPC9zdmc+",
+      "size": 4070,
+      "createdAt": 1783850484888
+    },
+    {
+      "id": "ecg0003",
+      "name": "limb-electrode-positions.svg",
+      "kind": "image",
+      "src": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA2NDAgNTYwIj4KICA8cmVjdCB3aWR0aD0iNjQwIiBoZWlnaHQ9IjU2MCIgZmlsbD0iI2Y0ZjdmYiIvPgogIDwhLS0gYm9keSAtLT4KICA8cmVjdCB4PSIyNzAiIHk9IjkwIiB3aWR0aD0iMTAwIiBoZWlnaHQ9IjE4MCIgcng9IjM0IiBmaWxsPSIjZjNkOWM2IiBzdHJva2U9IiNkOGI0OWIiIHN0cm9rZS13aWR0aD0iMyIvPgogIDxjaXJjbGUgY3g9IjMyMCIgY3k9IjYwIiByPSIzNCIgZmlsbD0iI2YzZDljNiIgc3Ryb2tlPSIjZDhiNDliIiBzdHJva2Utd2lkdGg9IjMiLz4KICA8IS0tIGFybXMgLS0+CiAgPHBhdGggZD0iTTI3MCAxMTAgTDE1MCAyMDAgTDEyMCAyODAiIGZpbGw9Im5vbmUiIHN0cm9rZT0iI2YzZDljNiIgc3Ryb2tlLXdpZHRoPSIzNCIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIi8+CiAgPHBhdGggZD0iTTM3MCAxMTAgTDQ5MCAyMDAgTDUyMCAyODAiIGZpbGw9Im5vbmUiIHN0cm9rZT0iI2YzZDljNiIgc3Ryb2tlLXdpZHRoPSIzNCIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIi8+CiAgPCEtLSBsZWdzIC0tPgogIDxwYXRoIGQ9Ik0yOTUgMjcwIEwyODAgNDAwIEwyNzAgNDkwIiBmaWxsPSJub25lIiBzdHJva2U9IiNmM2Q5YzYiIHN0cm9rZS13aWR0aD0iMzgiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIvPgogIDxwYXRoIGQ9Ik0zNDUgMjcwIEwzNjAgNDAwIEwzNzAgNDkwIiBmaWxsPSJub25lIiBzdHJva2U9IiNmM2Q5YzYiIHN0cm9rZS13aWR0aD0iMzgiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIvPgogIAogICAgPGNpcmNsZSBjeD0iMTI2IiBjeT0iMjYyIiByPSIxNiIgZmlsbD0iI2Q1MjgxYiIgc3Ryb2tlPSIjZmZmIiBzdHJva2Utd2lkdGg9IjMiLz4KICAgIDx0ZXh0IHg9IjEyNiIgeT0iMzAyIiBmb250LXNpemU9IjE1IiBmb250LXdlaWdodD0iNzAwIiBmaWxsPSIjMWEyYTNhIgogICAgICAgICAgdGV4dC1hbmNob3I9Im1pZGRsZSIgZm9udC1mYW1pbHk9IkludGVyLCBBcmlhbCwgc2Fucy1zZXJpZiI+UkEg4oCUIHJlZDwvdGV4dD4KICAKICAgIDxjaXJjbGUgY3g9IjUxNCIgY3k9IjI2MiIgcj0iMTYiIGZpbGw9IiNmZmI4MWMiIHN0cm9rZT0iI2ZmZiIgc3Ryb2tlLXdpZHRoPSIzIi8+CiAgICA8dGV4dCB4PSI1MTQiIHk9IjMwMiIgZm9udC1zaXplPSIxNSIgZm9udC13ZWlnaHQ9IjcwMCIgZmlsbD0iIzFhMmEzYSIKICAgICAgICAgIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZvbnQtZmFtaWx5PSJJbnRlciwgQXJpYWwsIHNhbnMtc2VyaWYiPkxBIOKAlCB5ZWxsb3c8L3RleHQ+CiAgCiAgICA8Y2lyY2xlIGN4PSIyNzIiIGN5PSI0NzAiIHI9IjE2IiBmaWxsPSIjMmIyYjJiIiBzdHJva2U9IiNmZmYiIHN0cm9rZS13aWR0aD0iMyIvPgogICAgPHRleHQgeD0iMjcyIiB5PSI1MTAiIGZvbnQtc2l6ZT0iMTUiIGZvbnQtd2VpZ2h0PSI3MDAiIGZpbGw9IiMxYTJhM2EiCiAgICAgICAgICB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LWZhbWlseT0iSW50ZXIsIEFyaWFsLCBzYW5zLXNlcmlmIj5STCDigJQgYmxhY2s8L3RleHQ+CiAgCiAgICA8Y2lyY2xlIGN4PSIzNjgiIGN5PSI0NzAiIHI9IjE2IiBmaWxsPSIjMDA5NjM5IiBzdHJva2U9IiNmZmYiIHN0cm9rZS13aWR0aD0iMyIvPgogICAgPHRleHQgeD0iMzY4IiB5PSI1MTAiIGZvbnQtc2l6ZT0iMTUiIGZvbnQtd2VpZ2h0PSI3MDAiIGZpbGw9IiMxYTJhM2EiCiAgICAgICAgICB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LWZhbWlseT0iSW50ZXIsIEFyaWFsLCBzYW5zLXNlcmlmIj5MTCDigJQgZ3JlZW48L3RleHQ+CiAgPHRleHQgeD0iMzIwIiB5PSI1MzAiIGZvbnQtc2l6ZT0iMTUiIGZpbGw9IiMxYTJhM2EiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZvbnQtZmFtaWx5PSJJbnRlciwgQXJpYWwsIHNhbnMtc2VyaWYiPgogICAgRm9yZWFybXMgcHJveGltYWwgdG8gdGhlIHdyaXN0IMK3IGxvd2VyIGxlZ3MgcHJveGltYWwgdG8gdGhlIGFua2xlCiAgPC90ZXh0PgogIDx0ZXh0IHg9IjQwIiB5PSI0MCIgZm9udC1zaXplPSIxNiIgZm9udC13ZWlnaHQ9IjcwMCIgZmlsbD0iIzFhMmEzYSIgZm9udC1mYW1pbHk9IkludGVyLCBBcmlhbCwgc2Fucy1zZXJpZiI+UGF0aWVudOKAmXMgUklHSFQ8L3RleHQ+CiAgPHRleHQgeD0iNjAwIiB5PSI0MCIgZm9udC1zaXplPSIxNiIgZm9udC13ZWlnaHQ9IjcwMCIgZmlsbD0iIzFhMmEzYSIgdGV4dC1hbmNob3I9ImVuZCIgZm9udC1mYW1pbHk9IkludGVyLCBBcmlhbCwgc2Fucy1zZXJpZiI+UGF0aWVudOKAmXMgTEVGVDwvdGV4dD4KPC9zdmc+",
+      "size": 3082,
+      "createdAt": 1783850484888
+    },
+    {
+      "id": "ecg0004",
+      "name": "pqrst-complex.svg",
+      "kind": "image",
+      "src": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA3MDAgMzYwIj4KICA8cmVjdCB3aWR0aD0iNzAwIiBoZWlnaHQ9IjM2MCIgZmlsbD0iI2ZmZmFmYSIvPgogIDxsaW5lIHgxPSIwIiB5MT0iMCIgeDI9IjAiIHkyPSIzNjAiIHN0cm9rZT0iI2Y2YzljMiIgc3Ryb2tlLXdpZHRoPSIxLjQiLz48bGluZSB4MT0iMTAiIHkxPSIwIiB4Mj0iMTAiIHkyPSIzNjAiIHN0cm9rZT0iI2Y2YzljMiIgc3Ryb2tlLXdpZHRoPSIwLjYiLz48bGluZSB4MT0iMjAiIHkxPSIwIiB4Mj0iMjAiIHkyPSIzNjAiIHN0cm9rZT0iI2Y2YzljMiIgc3Ryb2tlLXdpZHRoPSIwLjYiLz48bGluZSB4MT0iMzAiIHkxPSIwIiB4Mj0iMzAiIHkyPSIzNjAiIHN0cm9rZT0iI2Y2YzljMiIgc3Ryb2tlLXdpZHRoPSIwLjYiLz48bGluZSB4MT0iNDAiIHkxPSIwIiB4Mj0iNDAiIHkyPSIzNjAiIHN0cm9rZT0iI2Y2YzljMiIgc3Ryb2tlLXdpZHRoPSIwLjYiLz48bGluZSB4MT0iNTAiIHkxPSIwIiB4Mj0iNTAiIHkyPSIzNjAiIHN0cm9rZT0iI2Y2YzljMiIgc3Ryb2tlLXdpZHRoPSIxLjQiLz48bGluZSB4MT0iNjAiIHkxPSIwIiB4Mj0iNjAiIHkyPSIzNjAiIHN0cm9rZT0iI2Y2YzljMiIgc3Ryb2tlLXdpZHRoPSIwLjYiLz48bGluZSB4MT0iNzAiIHkxPSIwIiB4Mj0iNzAiIHkyPSIzNjAiIHN0cm9rZT0iI2Y2YzljMiIgc3Ryb2tlLXdpZHRoPSIwLjYiLz48bGluZSB4MT0iODAiIHkxPSIwIiB4Mj0iODAiIHkyPSIzNjAiIHN0cm9rZT0iI2Y2YzljMiIgc3Ryb2tlLXdpZHRoPSIwLjYiLz48bGluZSB4MT0iOTAiIHkxPSIwIiB4Mj0iOTAiIHkyPSIzNjAiIHN0cm9rZT0iI2Y2YzljMiIgc3Ryb2tlLXdpZHRoPSIwLjYiLz48bGluZSB4MT0iMTAwIiB5MT0iMCIgeDI9IjEwMCIgeTI9IjM2MCIgc3Ryb2tlPSIjZjZjOWMyIiBzdHJva2Utd2lkdGg9IjEuNCIvPjxsaW5lIHgxPSIxMTAiIHkxPSIwIiB4Mj0iMTEwIiB5Mj0iMzYwIiBzdHJva2U9IiNmNmM5YzIiIHN0cm9rZS13aWR0aD0iMC42Ii8+PGxpbmUgeDE9IjEyMCIgeTE9IjAiIHgyPSIxMjAiIHkyPSIzNjAiIHN0cm9rZT0iI2Y2YzljMiIgc3Ryb2tlLXdpZHRoPSIwLjYiLz48bGluZSB4MT0iMTMwIiB5MT0iMCIgeDI9IjEzMCIgeTI9IjM2MCIgc3Ryb2tlPSIjZjZjOWMyIiBzdHJva2Utd2lkdGg9IjAuNiIvPjxsaW5lIHgxPSIxNDAiIHkxPSIwIiB4Mj0iMTQwIiB5Mj0iMzYwIiBzdHJva2U9IiNmNmM5YzIiIHN0cm9rZS13aWR0aD0iMC42Ii8+PGxpbmUgeDE9IjE1MCIgeTE9IjAiIHgyPSIxNTAiIHkyPSIzNjAiIHN0cm9rZT0iI2Y2YzljMiIgc3Ryb2tlLXdpZHRoPSIxLjQiLz48bGluZSB4MT0iMTYwIiB5MT0iMCIgeDI9IjE2MCIgeTI9IjM2MCIgc3Ryb2tlPSIjZjZjOWMyIiBzdHJva2Utd2lkdGg9IjAuNiIvPjxsaW5lIHgxPSIxNzAiIHkxPSIwIiB4Mj0iMTcwIiB5Mj0iMzYwIiBzdHJva2U9IiNmNmM5YzIiIHN0cm9rZS13aWR0aD0iMC42Ii8+PGxpbmUgeDE9IjE4MCIgeTE9IjAiIHgyPSIxODAiIHkyPSIzNjAiIHN0cm9rZT0iI2Y2YzljMiIgc3Ryb2tlLXdpZHRoPSIwLjYiLz48bGluZSB4MT0iMTkwIiB5MT0iMCIgeDI9IjE5MCIgeTI9IjM2MCIgc3Ryb2tlPSIjZjZjOWMyIiBzdHJva2Utd2lkdGg9IjAuNiIvPjxsaW5lIHgxPSIyMDAiIHkxPSIwIiB4Mj0iMjAwIiB5Mj0iMzYwIiBzdHJva2U9IiNmNmM5YzIiIHN0cm9rZS13aWR0aD0iMS40Ii8+PGxpbmUgeDE9IjIxMCIgeTE9IjAiIHgyPSIyMTAiIHkyPSIzNjAiIHN0cm9rZT0iI2Y2YzljMiIgc3Ryb2tlLXdpZHRoPSIwLjYiLz48bGluZSB4MT0iMjIwIiB5MT0iMCIgeDI9IjIyMCIgeTI9IjM2MCIgc3Ryb2tlPSIjZjZjOWMyIiBzdHJva2Utd2lkdGg9IjAuNiIvPjxsaW5lIHgxPSIyMzAiIHkxPSIwIiB4Mj0iMjMwIiB5Mj0iMzYwIiBzdHJva2U9IiNmNmM5YzIiIHN0cm9rZS13aWR0aD0iMC42Ii8+PGxpbmUgeDE9IjI0MCIgeTE9IjAiIHgyPSIyNDAiIHkyPSIzNjAiIHN0cm9rZT0iI2Y2YzljMiIgc3Ryb2tlLXdpZHRoPSIwLjYiLz48bGluZSB4MT0iMjUwIiB5MT0iMCIgeDI9IjI1MCIgeTI9IjM2MCIgc3Ryb2tlPSIjZjZjOWMyIiBzdHJva2Utd2lkdGg9IjEuNCIvPjxsaW5lIHgxPSIyNjAiIHkxPSIwIiB4Mj0iMjYwIiB5Mj0iMzYwIiBzdHJva2U9IiNmNmM5YzIiIHN0cm9rZS13aWR0aD0iMC42Ii8+PGxpbmUgeDE9IjI3MCIgeTE9IjAiIHgyPSIyNzAiIHkyPSIzNjAiIHN0cm9rZT0iI2Y2YzljMiIgc3Ryb2tlLXdpZHRoPSIwLjYiLz48bGluZSB4MT0iMjgwIiB5MT0iMCIgeDI9IjI4MCIgeTI9IjM2MCIgc3Ryb2tlPSIjZjZjOWMyIiBzdHJva2Utd2lkdGg9IjAuNiIvPjxsaW5lIHgxPSIyOTAiIHkxPSIwIiB4Mj0iMjkwIiB5Mj0iMzYwIiBzdHJva2U9IiNmNmM5YzIiIHN0cm9rZS13aWR0aD0iMC42Ii8+PGxpbmUgeDE9IjMwMCIgeTE9IjAiIHgyPSIzMDAiIHkyPSIzNjAiIHN0cm9rZT0iI2Y2YzljMiIgc3Ryb2tlLXdpZHRoPSIxLjQiLz48bGluZSB4MT0iMzEwIiB5MT0iMCIgeDI9IjMxMCIgeTI9IjM2MCIgc3Ryb2tlPSIjZjZjOWMyIiBzdHJva2Utd2lkdGg9IjAuNiIvPjxsaW5lIHgxPSIzMjAiIHkxPSIwIiB4Mj0iMzIwIiB5Mj0iMzYwIiBzdHJva2U9IiNmNmM5YzIiIHN0cm9rZS13aWR0aD0iMC42Ii8+PGxpbmUgeDE9IjMzMCIgeTE9IjAiIHgyPSIzMzAiIHkyPSIzNjAiIHN0cm9rZT0iI2Y2YzljMiIgc3Ryb2tlLXdpZHRoPSIwLjYiLz48bGluZSB4MT0iMzQwIiB5MT0iMCIgeDI9IjM0MCIgeTI9IjM2MCIgc3Ryb2tlPSIjZjZjOWMyIiBzdHJva2Utd2lkdGg9IjAuNiIvPjxsaW5lIHgxPSIzNTAiIHkxPSIwIiB4Mj0iMzUwIiB5Mj0iMzYwIiBzdHJva2U9IiNmNmM5YzIiIHN0cm9rZS13aWR0aD0iMS40Ii8+PGxpbmUgeDE9IjM2MCIgeTE9IjAiIHgyPSIzNjAiIHkyPSIzNjAiIHN0cm9rZT0iI2Y2YzljMiIgc3Ryb2tlLXdpZHRoPSIwLjYiLz48bGluZSB4MT0iMzcwIiB5MT0iMCIgeDI9IjM3MCIgeTI9IjM2MCIgc3Ryb2tlPSIjZjZjOWMyIiBzdHJva2Utd2lkdGg9IjAuNiIvPjxsaW5lIHgxPSIzODAiIHkxPSIwIiB4Mj0iMzgwIiB5Mj0iMzYwIiBzdHJva2U9IiNmNmM5YzIiIHN0cm9rZS13aWR0aD0iMC42Ii8+PGxpbmUgeDE9IjM5MCIgeTE9IjAiIHgyPSIzOTAiIHkyPSIzNjAiIHN0cm9rZT0iI2Y2YzljMiIgc3Ryb2tlLXdpZHRoPSIwLjYiLz48bGluZSB4MT0iNDAwIiB5MT0iMCIgeDI9IjQwMCIgeTI9IjM2MCIgc3Ryb2tlPSIjZjZjOWMyIiBzdHJva2Utd2lkdGg9IjEuNCIvPjxsaW5lIHgxPSI0MTAiIHkxPSIwIiB4Mj0iNDEwIiB5Mj0iMzYwIiBzdHJva2U9IiNmNmM5YzIiIHN0cm9rZS13aWR0aD0iMC42Ii8+PGxpbmUgeDE9IjQyMCIgeTE9IjAiIHgyPSI0MjAiIHkyPSIzNjAiIHN0cm9rZT0iI2Y2YzljMiIgc3Ryb2tlLXdpZHRoPSIwLjYiLz48bGluZSB4MT0iNDMwIiB5MT0iMCIgeDI9IjQzMCIgeTI9IjM2MCIgc3Ryb2tlPSIjZjZjOWMyIiBzdHJva2Utd2lkdGg9IjAuNiIvPjxsaW5lIHgxPSI0NDAiIHkxPSIwIiB4Mj0iNDQwIiB5Mj0iMzYwIiBzdHJva2U9IiNmNmM5YzIiIHN0cm9rZS13aWR0aD0iMC42Ii8+PGxpbmUgeDE9IjQ1MCIgeTE9IjAiIHgyPSI0NTAiIHkyPSIzNjAiIHN0cm9rZT0iI2Y2YzljMiIgc3Ryb2tlLXdpZHRoPSIxLjQiLz48bGluZSB4MT0iNDYwIiB5MT0iMCIgeDI9IjQ2MCIgeTI9IjM2MCIgc3Ryb2tlPSIjZjZjOWMyIiBzdHJva2Utd2lkdGg9IjAuNiIvPjxsaW5lIHgxPSI0NzAiIHkxPSIwIiB4Mj0iNDcwIiB5Mj0iMzYwIiBzdHJva2U9IiNmNmM5YzIiIHN0cm9rZS13aWR0aD0iMC42Ii8+PGxpbmUgeDE9IjQ4MCIgeTE9IjAiIHgyPSI0ODAiIHkyPSIzNjAiIHN0cm9rZT0iI2Y2YzljMiIgc3Ryb2tlLXdpZHRoPSIwLjYiLz48bGluZSB4MT0iNDkwIiB5MT0iMCIgeDI9IjQ5MCIgeTI9IjM2MCIgc3Ryb2tlPSIjZjZjOWMyIiBzdHJva2Utd2lkdGg9IjAuNiIvPjxsaW5lIHgxPSI1MDAiIHkxPSIwIiB4Mj0iNTAwIiB5Mj0iMzYwIiBzdHJva2U9IiNmNmM5YzIiIHN0cm9rZS13aWR0aD0iMS40Ii8+PGxpbmUgeDE9IjUxMCIgeTE9IjAiIHgyPSI1MTAiIHkyPSIzNjAiIHN0cm9rZT0iI2Y2YzljMiIgc3Ryb2tlLXdpZHRoPSIwLjYiLz48bGluZSB4MT0iNTIwIiB5MT0iMCIgeDI9IjUyMCIgeTI9IjM2MCIgc3Ryb2tlPSIjZjZjOWMyIiBzdHJva2Utd2lkdGg9IjAuNiIvPjxsaW5lIHgxPSI1MzAiIHkxPSIwIiB4Mj0iNTMwIiB5Mj0iMzYwIiBzdHJva2U9IiNmNmM5YzIiIHN0cm9rZS13aWR0aD0iMC42Ii8+PGxpbmUgeDE9IjU0MCIgeTE9IjAiIHgyPSI1NDAiIHkyPSIzNjAiIHN0cm9rZT0iI2Y2YzljMiIgc3Ryb2tlLXdpZHRoPSIwLjYiLz48bGluZSB4MT0iNTUwIiB5MT0iMCIgeDI9IjU1MCIgeTI9IjM2MCIgc3Ryb2tlPSIjZjZjOWMyIiBzdHJva2Utd2lkdGg9IjEuNCIvPjxsaW5lIHgxPSI1NjAiIHkxPSIwIiB4Mj0iNTYwIiB5Mj0iMzYwIiBzdHJva2U9IiNmNmM5YzIiIHN0cm9rZS13aWR0aD0iMC42Ii8+PGxpbmUgeDE9IjU3MCIgeTE9IjAiIHgyPSI1NzAiIHkyPSIzNjAiIHN0cm9rZT0iI2Y2YzljMiIgc3Ryb2tlLXdpZHRoPSIwLjYiLz48bGluZSB4MT0iNTgwIiB5MT0iMCIgeDI9IjU4MCIgeTI9IjM2MCIgc3Ryb2tlPSIjZjZjOWMyIiBzdHJva2Utd2lkdGg9IjAuNiIvPjxsaW5lIHgxPSI1OTAiIHkxPSIwIiB4Mj0iNTkwIiB5Mj0iMzYwIiBzdHJva2U9IiNmNmM5YzIiIHN0cm9rZS13aWR0aD0iMC42Ii8+PGxpbmUgeDE9IjYwMCIgeTE9IjAiIHgyPSI2MDAiIHkyPSIzNjAiIHN0cm9rZT0iI2Y2YzljMiIgc3Ryb2tlLXdpZHRoPSIxLjQiLz48bGluZSB4MT0iNjEwIiB5MT0iMCIgeDI9IjYxMCIgeTI9IjM2MCIgc3Ryb2tlPSIjZjZjOWMyIiBzdHJva2Utd2lkdGg9IjAuNiIvPjxsaW5lIHgxPSI2MjAiIHkxPSIwIiB4Mj0iNjIwIiB5Mj0iMzYwIiBzdHJva2U9IiNmNmM5YzIiIHN0cm9rZS13aWR0aD0iMC42Ii8+PGxpbmUgeDE9IjYzMCIgeTE9IjAiIHgyPSI2MzAiIHkyPSIzNjAiIHN0cm9rZT0iI2Y2YzljMiIgc3Ryb2tlLXdpZHRoPSIwLjYiLz48bGluZSB4MT0iNjQwIiB5MT0iMCIgeDI9IjY0MCIgeTI9IjM2MCIgc3Ryb2tlPSIjZjZjOWMyIiBzdHJva2Utd2lkdGg9IjAuNiIvPjxsaW5lIHgxPSI2NTAiIHkxPSIwIiB4Mj0iNjUwIiB5Mj0iMzYwIiBzdHJva2U9IiNmNmM5YzIiIHN0cm9rZS13aWR0aD0iMS40Ii8+PGxpbmUgeDE9IjY2MCIgeTE9IjAiIHgyPSI2NjAiIHkyPSIzNjAiIHN0cm9rZT0iI2Y2YzljMiIgc3Ryb2tlLXdpZHRoPSIwLjYiLz48bGluZSB4MT0iNjcwIiB5MT0iMCIgeDI9IjY3MCIgeTI9IjM2MCIgc3Ryb2tlPSIjZjZjOWMyIiBzdHJva2Utd2lkdGg9IjAuNiIvPjxsaW5lIHgxPSI2ODAiIHkxPSIwIiB4Mj0iNjgwIiB5Mj0iMzYwIiBzdHJva2U9IiNmNmM5YzIiIHN0cm9rZS13aWR0aD0iMC42Ii8+PGxpbmUgeDE9IjY5MCIgeTE9IjAiIHgyPSI2OTAiIHkyPSIzNjAiIHN0cm9rZT0iI2Y2YzljMiIgc3Ryb2tlLXdpZHRoPSIwLjYiLz48bGluZSB4MT0iNzAwIiB5MT0iMCIgeDI9IjcwMCIgeTI9IjM2MCIgc3Ryb2tlPSIjZjZjOWMyIiBzdHJva2Utd2lkdGg9IjEuNCIvPjxsaW5lIHgxPSIwIiB5MT0iMCIgeDI9IjcwMCIgeTI9IjAiIHN0cm9rZT0iI2Y2YzljMiIgc3Ryb2tlLXdpZHRoPSIxLjQiLz48bGluZSB4MT0iMCIgeTE9IjEwIiB4Mj0iNzAwIiB5Mj0iMTAiIHN0cm9rZT0iI2Y2YzljMiIgc3Ryb2tlLXdpZHRoPSIwLjYiLz48bGluZSB4MT0iMCIgeTE9IjIwIiB4Mj0iNzAwIiB5Mj0iMjAiIHN0cm9rZT0iI2Y2YzljMiIgc3Ryb2tlLXdpZHRoPSIwLjYiLz48bGluZSB4MT0iMCIgeTE9IjMwIiB4Mj0iNzAwIiB5Mj0iMzAiIHN0cm9rZT0iI2Y2YzljMiIgc3Ryb2tlLXdpZHRoPSIwLjYiLz48bGluZSB4MT0iMCIgeTE9IjQwIiB4Mj0iNzAwIiB5Mj0iNDAiIHN0cm9rZT0iI2Y2YzljMiIgc3Ryb2tlLXdpZHRoPSIwLjYiLz48bGluZSB4MT0iMCIgeTE9IjUwIiB4Mj0iNzAwIiB5Mj0iNTAiIHN0cm9rZT0iI2Y2YzljMiIgc3Ryb2tlLXdpZHRoPSIxLjQiLz48bGluZSB4MT0iMCIgeTE9IjYwIiB4Mj0iNzAwIiB5Mj0iNjAiIHN0cm9rZT0iI2Y2YzljMiIgc3Ryb2tlLXdpZHRoPSIwLjYiLz48bGluZSB4MT0iMCIgeTE9IjcwIiB4Mj0iNzAwIiB5Mj0iNzAiIHN0cm9rZT0iI2Y2YzljMiIgc3Ryb2tlLXdpZHRoPSIwLjYiLz48bGluZSB4MT0iMCIgeTE9IjgwIiB4Mj0iNzAwIiB5Mj0iODAiIHN0cm9rZT0iI2Y2YzljMiIgc3Ryb2tlLXdpZHRoPSIwLjYiLz48bGluZSB4MT0iMCIgeTE9IjkwIiB4Mj0iNzAwIiB5Mj0iOTAiIHN0cm9rZT0iI2Y2YzljMiIgc3Ryb2tlLXdpZHRoPSIwLjYiLz48bGluZSB4MT0iMCIgeTE9IjEwMCIgeDI9IjcwMCIgeTI9IjEwMCIgc3Ryb2tlPSIjZjZjOWMyIiBzdHJva2Utd2lkdGg9IjEuNCIvPjxsaW5lIHgxPSIwIiB5MT0iMTEwIiB4Mj0iNzAwIiB5Mj0iMTEwIiBzdHJva2U9IiNmNmM5YzIiIHN0cm9rZS13aWR0aD0iMC42Ii8+PGxpbmUgeDE9IjAiIHkxPSIxMjAiIHgyPSI3MDAiIHkyPSIxMjAiIHN0cm9rZT0iI2Y2YzljMiIgc3Ryb2tlLXdpZHRoPSIwLjYiLz48bGluZSB4MT0iMCIgeTE9IjEzMCIgeDI9IjcwMCIgeTI9IjEzMCIgc3Ryb2tlPSIjZjZjOWMyIiBzdHJva2Utd2lkdGg9IjAuNiIvPjxsaW5lIHgxPSIwIiB5MT0iMTQwIiB4Mj0iNzAwIiB5Mj0iMTQwIiBzdHJva2U9IiNmNmM5YzIiIHN0cm9rZS13aWR0aD0iMC42Ii8+PGxpbmUgeDE9IjAiIHkxPSIxNTAiIHgyPSI3MDAiIHkyPSIxNTAiIHN0cm9rZT0iI2Y2YzljMiIgc3Ryb2tlLXdpZHRoPSIxLjQiLz48bGluZSB4MT0iMCIgeTE9IjE2MCIgeDI9IjcwMCIgeTI9IjE2MCIgc3Ryb2tlPSIjZjZjOWMyIiBzdHJva2Utd2lkdGg9IjAuNiIvPjxsaW5lIHgxPSIwIiB5MT0iMTcwIiB4Mj0iNzAwIiB5Mj0iMTcwIiBzdHJva2U9IiNmNmM5YzIiIHN0cm9rZS13aWR0aD0iMC42Ii8+PGxpbmUgeDE9IjAiIHkxPSIxODAiIHgyPSI3MDAiIHkyPSIxODAiIHN0cm9rZT0iI2Y2YzljMiIgc3Ryb2tlLXdpZHRoPSIwLjYiLz48bGluZSB4MT0iMCIgeTE9IjE5MCIgeDI9IjcwMCIgeTI9IjE5MCIgc3Ryb2tlPSIjZjZjOWMyIiBzdHJva2Utd2lkdGg9IjAuNiIvPjxsaW5lIHgxPSIwIiB5MT0iMjAwIiB4Mj0iNzAwIiB5Mj0iMjAwIiBzdHJva2U9IiNmNmM5YzIiIHN0cm9rZS13aWR0aD0iMS40Ii8+PGxpbmUgeDE9IjAiIHkxPSIyMTAiIHgyPSI3MDAiIHkyPSIyMTAiIHN0cm9rZT0iI2Y2YzljMiIgc3Ryb2tlLXdpZHRoPSIwLjYiLz48bGluZSB4MT0iMCIgeTE9IjIyMCIgeDI9IjcwMCIgeTI9IjIyMCIgc3Ryb2tlPSIjZjZjOWMyIiBzdHJva2Utd2lkdGg9IjAuNiIvPjxsaW5lIHgxPSIwIiB5MT0iMjMwIiB4Mj0iNzAwIiB5Mj0iMjMwIiBzdHJva2U9IiNmNmM5YzIiIHN0cm9rZS13aWR0aD0iMC42Ii8+PGxpbmUgeDE9IjAiIHkxPSIyNDAiIHgyPSI3MDAiIHkyPSIyNDAiIHN0cm9rZT0iI2Y2YzljMiIgc3Ryb2tlLXdpZHRoPSIwLjYiLz48bGluZSB4MT0iMCIgeTE9IjI1MCIgeDI9IjcwMCIgeTI9IjI1MCIgc3Ryb2tlPSIjZjZjOWMyIiBzdHJva2Utd2lkdGg9IjEuNCIvPjxsaW5lIHgxPSIwIiB5MT0iMjYwIiB4Mj0iNzAwIiB5Mj0iMjYwIiBzdHJva2U9IiNmNmM5YzIiIHN0cm9rZS13aWR0aD0iMC42Ii8+PGxpbmUgeDE9IjAiIHkxPSIyNzAiIHgyPSI3MDAiIHkyPSIyNzAiIHN0cm9rZT0iI2Y2YzljMiIgc3Ryb2tlLXdpZHRoPSIwLjYiLz48bGluZSB4MT0iMCIgeTE9IjI4MCIgeDI9IjcwMCIgeTI9IjI4MCIgc3Ryb2tlPSIjZjZjOWMyIiBzdHJva2Utd2lkdGg9IjAuNiIvPjxsaW5lIHgxPSIwIiB5MT0iMjkwIiB4Mj0iNzAwIiB5Mj0iMjkwIiBzdHJva2U9IiNmNmM5YzIiIHN0cm9rZS13aWR0aD0iMC42Ii8+PGxpbmUgeDE9IjAiIHkxPSIzMDAiIHgyPSI3MDAiIHkyPSIzMDAiIHN0cm9rZT0iI2Y2YzljMiIgc3Ryb2tlLXdpZHRoPSIxLjQiLz48bGluZSB4MT0iMCIgeTE9IjMxMCIgeDI9IjcwMCIgeTI9IjMxMCIgc3Ryb2tlPSIjZjZjOWMyIiBzdHJva2Utd2lkdGg9IjAuNiIvPjxsaW5lIHgxPSIwIiB5MT0iMzIwIiB4Mj0iNzAwIiB5Mj0iMzIwIiBzdHJva2U9IiNmNmM5YzIiIHN0cm9rZS13aWR0aD0iMC42Ii8+PGxpbmUgeDE9IjAiIHkxPSIzMzAiIHgyPSI3MDAiIHkyPSIzMzAiIHN0cm9rZT0iI2Y2YzljMiIgc3Ryb2tlLXdpZHRoPSIwLjYiLz48bGluZSB4MT0iMCIgeTE9IjM0MCIgeDI9IjcwMCIgeTI9IjM0MCIgc3Ryb2tlPSIjZjZjOWMyIiBzdHJva2Utd2lkdGg9IjAuNiIvPjxsaW5lIHgxPSIwIiB5MT0iMzUwIiB4Mj0iNzAwIiB5Mj0iMzUwIiBzdHJva2U9IiNmNmM5YzIiIHN0cm9rZS13aWR0aD0iMS40Ii8+PGxpbmUgeDE9IjAiIHkxPSIzNjAiIHgyPSI3MDAiIHkyPSIzNjAiIHN0cm9rZT0iI2Y2YzljMiIgc3Ryb2tlLXdpZHRoPSIwLjYiLz4KICA8cGF0aCBkPSIKICAgIE00MCAyMjAgaDMwCiAgICBxMTggLTM0IDM2IDAKICAgIGgyNAogICAgbDEwIDggbDEwIC0xMTAgbDEyIDE1MCBsMTAgLTQ4IGgxMAogICAgcTI2IC00NiA1MiAwCiAgICBoNDAiIGZpbGw9Im5vbmUiIHN0cm9rZT0iIzFhMmEzYSIgc3Ryb2tlLXdpZHRoPSIzIiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+CiAgPHBhdGggZD0iCiAgICBNMzIwIDIyMCBoMzAKICAgIHExOCAtMzQgMzYgMAogICAgaDI0CiAgICBsMTAgOCBsMTAgLTExMCBsMTIgMTUwIGwxMCAtNDggaDEwCiAgICBxMjYgLTQ2IDUyIDAKICAgIGg0MCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjMWEyYTNhIiBzdHJva2Utd2lkdGg9IjMiIHN0cm9rZS1saW5lam9pbj0icm91bmQiLz4KICA8IS0tIGNhbGlicmF0aW9uIHB1bHNlIC0tPgogIDxwYXRoIGQ9Ik0xMCAyMjAgdi0xMDAgaDIwIHYxMDAiIGZpbGw9Im5vbmUiIHN0cm9rZT0iIzAwNWViOCIgc3Ryb2tlLXdpZHRoPSIzIi8+CiAgPHRleHQgeD0iMTQiIHk9IjExMiIgZm9udC1zaXplPSIxMyIgZmlsbD0iIzAwNWViOCIgZm9udC1mYW1pbHk9IkludGVyLCBBcmlhbCwgc2Fucy1zZXJpZiI+MTAgbW0vbVY8L3RleHQ+CiAgPHRleHQgeD0iODgiIHk9IjE3NiIgZm9udC1zaXplPSIxNSIgZm9udC13ZWlnaHQ9IjcwMCIgZmlsbD0iIzAwNWViOCIgZm9udC1mYW1pbHk9IkludGVyLCBBcmlhbCwgc2Fucy1zZXJpZiI+UDwvdGV4dD4KICA8dGV4dCB4PSIxNTAiIHk9Ijk4IiBmb250LXNpemU9IjE1IiBmb250LXdlaWdodD0iNzAwIiBmaWxsPSIjMDA1ZWI4IiBmb250LWZhbWlseT0iSW50ZXIsIEFyaWFsLCBzYW5zLXNlcmlmIj5SPC90ZXh0PgogIDx0ZXh0IHg9IjEzMiIgeT0iMjQ2IiBmb250LXNpemU9IjE1IiBmb250LXdlaWdodD0iNzAwIiBmaWxsPSIjMDA1ZWI4IiBmb250LWZhbWlseT0iSW50ZXIsIEFyaWFsLCBzYW5zLXNlcmlmIj5RPC90ZXh0PgogIDx0ZXh0IHg9IjE3MCIgeT0iMjYyIiBmb250LXNpemU9IjE1IiBmb250LXdlaWdodD0iNzAwIiBmaWxsPSIjMDA1ZWI4IiBmb250LWZhbWlseT0iSW50ZXIsIEFyaWFsLCBzYW5zLXNlcmlmIj5TPC90ZXh0PgogIDx0ZXh0IHg9IjIyMiIgeT0iMTUyIiBmb250LXNpemU9IjE1IiBmb250LXdlaWdodD0iNzAwIiBmaWxsPSIjMDA1ZWI4IiBmb250LWZhbWlseT0iSW50ZXIsIEFyaWFsLCBzYW5zLXNlcmlmIj5UPC90ZXh0PgogIDxsaW5lIHgxPSI0MCIgeTE9IjMyMCIgeDI9IjkwIiB5Mj0iMzIwIiBzdHJva2U9IiMxYTJhM2EiIHN0cm9rZS13aWR0aD0iMiIvPgogIDx0ZXh0IHg9Ijk2IiB5PSIzMjUiIGZvbnQtc2l6ZT0iMTMiIGZpbGw9IiMxYTJhM2EiIGZvbnQtZmFtaWx5PSJJbnRlciwgQXJpYWwsIHNhbnMtc2VyaWYiPjEgbGFyZ2Ugc3F1YXJlID0gMC4yMCBzIGF0IDI1IG1tL3MgKDEgc21hbGwgPSAwLjA0IHMpPC90ZXh0Pgo8L3N2Zz4=",
+      "size": 13126,
+      "createdAt": 1783850484888
+    },
+    {
+      "id": "ecg0005",
+      "name": "einthovens-triangle.svg",
+      "kind": "image",
+      "src": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1MjAgNDYwIj4KICA8cmVjdCB3aWR0aD0iNTIwIiBoZWlnaHQ9IjQ2MCIgZmlsbD0iI2Y0ZjdmYiIvPgogIDxwb2x5Z29uIHBvaW50cz0iMTEwLDkwIDQxMCw5MCAyNjAsMzUwIiBmaWxsPSJub25lIiBzdHJva2U9IiMwMDVlYjgiIHN0cm9rZS13aWR0aD0iMyIvPgogIDxjaXJjbGUgY3g9IjExMCIgY3k9IjkwIiByPSIxNCIgZmlsbD0iI2Q1MjgxYiIvPgogIDxjaXJjbGUgY3g9IjQxMCIgY3k9IjkwIiByPSIxNCIgZmlsbD0iI2ZmYjgxYyIvPgogIDxjaXJjbGUgY3g9IjI2MCIgY3k9IjM1MCIgcj0iMTQiIGZpbGw9IiMwMDk2MzkiLz4KICA8dGV4dCB4PSI5MiIgeT0iNjYiIGZvbnQtc2l6ZT0iMTUiIGZvbnQtd2VpZ2h0PSI3MDAiIGZpbGw9IiMxYTJhM2EiIGZvbnQtZmFtaWx5PSJJbnRlciwgQXJpYWwsIHNhbnMtc2VyaWYiPlJBPC90ZXh0PgogIDx0ZXh0IHg9IjM5OCIgeT0iNjYiIGZvbnQtc2l6ZT0iMTUiIGZvbnQtd2VpZ2h0PSI3MDAiIGZpbGw9IiMxYTJhM2EiIGZvbnQtZmFtaWx5PSJJbnRlciwgQXJpYWwsIHNhbnMtc2VyaWYiPkxBPC90ZXh0PgogIDx0ZXh0IHg9IjI0OCIgeT0iMzg2IiBmb250LXNpemU9IjE1IiBmb250LXdlaWdodD0iNzAwIiBmaWxsPSIjMWEyYTNhIiBmb250LWZhbWlseT0iSW50ZXIsIEFyaWFsLCBzYW5zLXNlcmlmIj5MTDwvdGV4dD4KICA8dGV4dCB4PSIyNDAiIHk9IjgwIiBmb250LXNpemU9IjE2IiBmb250LXdlaWdodD0iNzAwIiBmaWxsPSIjMDA1ZWI4IiBmb250LWZhbWlseT0iSW50ZXIsIEFyaWFsLCBzYW5zLXNlcmlmIj5MZWFkIEk8L3RleHQ+CiAgPHRleHQgeD0iMTUwIiB5PSIyNDAiIGZvbnQtc2l6ZT0iMTYiIGZvbnQtd2VpZ2h0PSI3MDAiIGZpbGw9IiMwMDVlYjgiIHRyYW5zZm9ybT0icm90YXRlKC02MCAxNTAgMjQwKSIgZm9udC1mYW1pbHk9IkludGVyLCBBcmlhbCwgc2Fucy1zZXJpZiI+TGVhZCBJSTwvdGV4dD4KICA8dGV4dCB4PSIzNjAiIHk9IjI0MCIgZm9udC1zaXplPSIxNiIgZm9udC13ZWlnaHQ9IjcwMCIgZmlsbD0iIzAwNWViOCIgdHJhbnNmb3JtPSJyb3RhdGUoNjAgMzYwIDI0MCkiIGZvbnQtZmFtaWx5PSJJbnRlciwgQXJpYWwsIHNhbnMtc2VyaWYiPkxlYWQgSUlJPC90ZXh0PgogIDxsaW5lIHgxPSIyNjAiIHkxPSIxNzciIHgyPSIxMTAiIHkyPSI5MCIgc3Ryb2tlPSIjOGE5NGE2IiBzdHJva2Utd2lkdGg9IjEuNSIgc3Ryb2tlLWRhc2hhcnJheT0iNSA1Ii8+CiAgPGxpbmUgeDE9IjI2MCIgeTE9IjE3NyIgeDI9IjQxMCIgeTI9IjkwIiBzdHJva2U9IiM4YTk0YTYiIHN0cm9rZS13aWR0aD0iMS41IiBzdHJva2UtZGFzaGFycmF5PSI1IDUiLz4KICA8bGluZSB4MT0iMjYwIiB5MT0iMTc3IiB4Mj0iMjYwIiB5Mj0iMzUwIiBzdHJva2U9IiM4YTk0YTYiIHN0cm9rZS13aWR0aD0iMS41IiBzdHJva2UtZGFzaGFycmF5PSI1IDUiLz4KICA8dGV4dCB4PSIxNTAiIHk9IjE0MCIgZm9udC1zaXplPSIxMyIgZmlsbD0iIzViNmI3ZCIgZm9udC1mYW1pbHk9IkludGVyLCBBcmlhbCwgc2Fucy1zZXJpZiI+YVZSPC90ZXh0PgogIDx0ZXh0IHg9IjM1MiIgeT0iMTQwIiBmb250LXNpemU9IjEzIiBmaWxsPSIjNWI2YjdkIiBmb250LWZhbWlseT0iSW50ZXIsIEFyaWFsLCBzYW5zLXNlcmlmIj5hVkw8L3RleHQ+CiAgPHRleHQgeD0iMjcwIiB5PSIzMDAiIGZvbnQtc2l6ZT0iMTMiIGZpbGw9IiM1YjZiN2QiIGZvbnQtZmFtaWx5PSJJbnRlciwgQXJpYWwsIHNhbnMtc2VyaWYiPmFWRjwvdGV4dD4KICA8dGV4dCB4PSIyNjAiIHk9IjQzMCIgZm9udC1zaXplPSIxNCIgZmlsbD0iIzFhMmEzYSIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZm9udC1mYW1pbHk9IkludGVyLCBBcmlhbCwgc2Fucy1zZXJpZiI+CiAgICBUaHJlZSBlbGVjdHJvZGVzLCBzaXggZnJvbnRhbC1wbGFuZSB2aWV3cy4gUkwgaXMgdGhlIG5ldXRyYWwgZWxlY3Ryb2RlLgogIDwvdGV4dD4KPC9zdmc+",
+      "size": 2678,
+      "createdAt": 1783850484888
+    },
+    {
+      "id": "ecg0006",
+      "name": "artefact-mains-interference.svg",
+      "kind": "image",
+      "src": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA0ODAgMjAwIj4KICA8cmVjdCB3aWR0aD0iNDgwIiBoZWlnaHQ9IjIwMCIgZmlsbD0iI2ZmZmFmYSIvPgogIDxsaW5lIHgxPSIwIiB5MT0iMCIgeDI9IjAiIHkyPSIyMDAiIHN0cm9rZT0iI2Y2YzljMiIgc3Ryb2tlLXdpZHRoPSIwLjgiLz48bGluZSB4MT0iMjAiIHkxPSIwIiB4Mj0iMjAiIHkyPSIyMDAiIHN0cm9rZT0iI2Y2YzljMiIgc3Ryb2tlLXdpZHRoPSIwLjgiLz48bGluZSB4MT0iNDAiIHkxPSIwIiB4Mj0iNDAiIHkyPSIyMDAiIHN0cm9rZT0iI2Y2YzljMiIgc3Ryb2tlLXdpZHRoPSIwLjgiLz48bGluZSB4MT0iNjAiIHkxPSIwIiB4Mj0iNjAiIHkyPSIyMDAiIHN0cm9rZT0iI2Y2YzljMiIgc3Ryb2tlLXdpZHRoPSIwLjgiLz48bGluZSB4MT0iODAiIHkxPSIwIiB4Mj0iODAiIHkyPSIyMDAiIHN0cm9rZT0iI2Y2YzljMiIgc3Ryb2tlLXdpZHRoPSIwLjgiLz48bGluZSB4MT0iMTAwIiB5MT0iMCIgeDI9IjEwMCIgeTI9IjIwMCIgc3Ryb2tlPSIjZjZjOWMyIiBzdHJva2Utd2lkdGg9IjAuOCIvPjxsaW5lIHgxPSIxMjAiIHkxPSIwIiB4Mj0iMTIwIiB5Mj0iMjAwIiBzdHJva2U9IiNmNmM5YzIiIHN0cm9rZS13aWR0aD0iMC44Ii8+PGxpbmUgeDE9IjE0MCIgeTE9IjAiIHgyPSIxNDAiIHkyPSIyMDAiIHN0cm9rZT0iI2Y2YzljMiIgc3Ryb2tlLXdpZHRoPSIwLjgiLz48bGluZSB4MT0iMTYwIiB5MT0iMCIgeDI9IjE2MCIgeTI9IjIwMCIgc3Ryb2tlPSIjZjZjOWMyIiBzdHJva2Utd2lkdGg9IjAuOCIvPjxsaW5lIHgxPSIxODAiIHkxPSIwIiB4Mj0iMTgwIiB5Mj0iMjAwIiBzdHJva2U9IiNmNmM5YzIiIHN0cm9rZS13aWR0aD0iMC44Ii8+PGxpbmUgeDE9IjIwMCIgeTE9IjAiIHgyPSIyMDAiIHkyPSIyMDAiIHN0cm9rZT0iI2Y2YzljMiIgc3Ryb2tlLXdpZHRoPSIwLjgiLz48bGluZSB4MT0iMjIwIiB5MT0iMCIgeDI9IjIyMCIgeTI9IjIwMCIgc3Ryb2tlPSIjZjZjOWMyIiBzdHJva2Utd2lkdGg9IjAuOCIvPjxsaW5lIHgxPSIyNDAiIHkxPSIwIiB4Mj0iMjQwIiB5Mj0iMjAwIiBzdHJva2U9IiNmNmM5YzIiIHN0cm9rZS13aWR0aD0iMC44Ii8+PGxpbmUgeDE9IjI2MCIgeTE9IjAiIHgyPSIyNjAiIHkyPSIyMDAiIHN0cm9rZT0iI2Y2YzljMiIgc3Ryb2tlLXdpZHRoPSIwLjgiLz48bGluZSB4MT0iMjgwIiB5MT0iMCIgeDI9IjI4MCIgeTI9IjIwMCIgc3Ryb2tlPSIjZjZjOWMyIiBzdHJva2Utd2lkdGg9IjAuOCIvPjxsaW5lIHgxPSIzMDAiIHkxPSIwIiB4Mj0iMzAwIiB5Mj0iMjAwIiBzdHJva2U9IiNmNmM5YzIiIHN0cm9rZS13aWR0aD0iMC44Ii8+PGxpbmUgeDE9IjMyMCIgeTE9IjAiIHgyPSIzMjAiIHkyPSIyMDAiIHN0cm9rZT0iI2Y2YzljMiIgc3Ryb2tlLXdpZHRoPSIwLjgiLz48bGluZSB4MT0iMzQwIiB5MT0iMCIgeDI9IjM0MCIgeTI9IjIwMCIgc3Ryb2tlPSIjZjZjOWMyIiBzdHJva2Utd2lkdGg9IjAuOCIvPjxsaW5lIHgxPSIzNjAiIHkxPSIwIiB4Mj0iMzYwIiB5Mj0iMjAwIiBzdHJva2U9IiNmNmM5YzIiIHN0cm9rZS13aWR0aD0iMC44Ii8+PGxpbmUgeDE9IjM4MCIgeTE9IjAiIHgyPSIzODAiIHkyPSIyMDAiIHN0cm9rZT0iI2Y2YzljMiIgc3Ryb2tlLXdpZHRoPSIwLjgiLz48bGluZSB4MT0iNDAwIiB5MT0iMCIgeDI9IjQwMCIgeTI9IjIwMCIgc3Ryb2tlPSIjZjZjOWMyIiBzdHJva2Utd2lkdGg9IjAuOCIvPjxsaW5lIHgxPSI0MjAiIHkxPSIwIiB4Mj0iNDIwIiB5Mj0iMjAwIiBzdHJva2U9IiNmNmM5YzIiIHN0cm9rZS13aWR0aD0iMC44Ii8+PGxpbmUgeDE9IjQ0MCIgeTE9IjAiIHgyPSI0NDAiIHkyPSIyMDAiIHN0cm9rZT0iI2Y2YzljMiIgc3Ryb2tlLXdpZHRoPSIwLjgiLz48bGluZSB4MT0iNDYwIiB5MT0iMCIgeDI9IjQ2MCIgeTI9IjIwMCIgc3Ryb2tlPSIjZjZjOWMyIiBzdHJva2Utd2lkdGg9IjAuOCIvPjxsaW5lIHgxPSI0ODAiIHkxPSIwIiB4Mj0iNDgwIiB5Mj0iMjAwIiBzdHJva2U9IiNmNmM5YzIiIHN0cm9rZS13aWR0aD0iMC44Ii8+CiAgPGxpbmUgeDE9IjAiIHkxPSIwIiB4Mj0iNDgwIiB5Mj0iMCIgc3Ryb2tlPSIjZjZjOWMyIiBzdHJva2Utd2lkdGg9IjAuOCIvPjxsaW5lIHgxPSIwIiB5MT0iMjAiIHgyPSI0ODAiIHkyPSIyMCIgc3Ryb2tlPSIjZjZjOWMyIiBzdHJva2Utd2lkdGg9IjAuOCIvPjxsaW5lIHgxPSIwIiB5MT0iNDAiIHgyPSI0ODAiIHkyPSI0MCIgc3Ryb2tlPSIjZjZjOWMyIiBzdHJva2Utd2lkdGg9IjAuOCIvPjxsaW5lIHgxPSIwIiB5MT0iNjAiIHgyPSI0ODAiIHkyPSI2MCIgc3Ryb2tlPSIjZjZjOWMyIiBzdHJva2Utd2lkdGg9IjAuOCIvPjxsaW5lIHgxPSIwIiB5MT0iODAiIHgyPSI0ODAiIHkyPSI4MCIgc3Ryb2tlPSIjZjZjOWMyIiBzdHJva2Utd2lkdGg9IjAuOCIvPjxsaW5lIHgxPSIwIiB5MT0iMTAwIiB4Mj0iNDgwIiB5Mj0iMTAwIiBzdHJva2U9IiNmNmM5YzIiIHN0cm9rZS13aWR0aD0iMC44Ii8+PGxpbmUgeDE9IjAiIHkxPSIxMjAiIHgyPSI0ODAiIHkyPSIxMjAiIHN0cm9rZT0iI2Y2YzljMiIgc3Ryb2tlLXdpZHRoPSIwLjgiLz48bGluZSB4MT0iMCIgeTE9IjE0MCIgeDI9IjQ4MCIgeTI9IjE0MCIgc3Ryb2tlPSIjZjZjOWMyIiBzdHJva2Utd2lkdGg9IjAuOCIvPjxsaW5lIHgxPSIwIiB5MT0iMTYwIiB4Mj0iNDgwIiB5Mj0iMTYwIiBzdHJva2U9IiNmNmM5YzIiIHN0cm9rZS13aWR0aD0iMC44Ii8+PGxpbmUgeDE9IjAiIHkxPSIxODAiIHgyPSI0ODAiIHkyPSIxODAiIHN0cm9rZT0iI2Y2YzljMiIgc3Ryb2tlLXdpZHRoPSIwLjgiLz48bGluZSB4MT0iMCIgeTE9IjIwMCIgeDI9IjQ4MCIgeTI9IjIwMCIgc3Ryb2tlPSIjZjZjOWMyIiBzdHJva2Utd2lkdGg9IjAuOCIvPgogIDxwYXRoIGQ9Ik0wIDEwMC4wIEwyIDk5LjcgTDQgMTAwLjYgTDYgOTkuMSBMOCAxMDEuMiBMMTAgOTguNiBMMTIgMTAxLjcgTDE0IDk4LjAgTDE2IDEwMi4zIEwxOCA5Ny41IEwyMCAxMDIuOCBMMjIgOTcuMCBMMjQgMTAzLjIgTDI2IDk2LjYgTDI4IDEwMy42IEwzMCA5Ni4yIEwzMiAxMDQuMCBMMzQgOTUuOCBMMzYgMTA0LjMgTDM4IDk1LjUgTDQwIDEwNC42IEw0MiA4OS4zIEw0NCA5OC44IEw0NiA4OS4xIEw0OCAxMDQuOSBMNTAgOTUuMCBMNTIgMTE1LjAgTDU0IDEwNS4wIEw1NiA1MC4wIEw1OCA0MC4wIEw2MCAxMjYuOSBMNjIgMTE3LjEgTDY0IDEwNC44IEw2NiA5NS4zIEw2OCAxMDQuNiBMNzAgOTUuNiBMNzIgMTA0LjMgTDc0IDk1LjggTDc2IDkwLjAgTDc4IDgyLjIgTDgwIDg5LjYgTDgyIDgyLjYgTDg0IDg5LjIgTDg2IDgzLjEgTDg4IDg4LjcgTDkwIDk3LjUgTDkyIDEwMi4yIEw5NCA5OC4xIEw5NiAxMDEuNyBMOTggOTguNiBMMTAwIDEwMS4xIEwxMDIgOTkuMiBMMTA0IDEwMC41IEwxMDYgOTkuOCBMMTA4IDk5LjkgTDExMCAxMDAuNCBMMTEyIDk5LjQgTDExNCAxMDAuOSBMMTE2IDk4LjggTDExOCAxMDEuNSBMMTIwIDk4LjIgTDEyMiAxMDIuMCBMMTI0IDk3LjcgTDEyNiAxMDIuNiBMMTI4IDk3LjIgTDEzMCAxMDMuMCBMMTMyIDk2LjcgTDEzNCAxMDMuNSBMMTM2IDk2LjMgTDEzOCAxMDMuOSBMMTQwIDk1LjkgTDE0MiAxMDQuMiBMMTQ0IDk1LjYgTDE0NiAxMDQuNSBMMTQ4IDk1LjQgTDE1MCAxMDQuNyBMMTUyIDk1LjIgTDE1NCAxMDQuOSBMMTU2IDk1LjEgTDE1OCAxMDUuMCBMMTYwIDk1LjAgTDE2MiA5OS4wIEwxNjQgODkuMCBMMTY2IDk5LjAgTDE2OCA5NS4xIEwxNzAgMTA0LjggTDE3MiAxMDUuMiBMMTc0IDExNC43IEwxNzYgNDAuNCBMMTc4IDQ5LjQgTDE4MCAxMTcuNyBMMTgyIDEyNi4xIEwxODQgOTYuMSBMMTg2IDEwMy44IEwxODggOTYuNCBMMTkwIDEwMy40IEwxOTIgOTYuOSBMMTk0IDEwMi45IEwxOTYgODMuMyBMMTk4IDg4LjQgTDIwMCA4My45IEwyMDIgODcuOSBMMjA0IDg0LjQgTDIwNiA4Ny4zIEwyMDggODUuMCBMMjEwIDEwMC43IEwyMTIgOTkuNSBMMjE0IDEwMC4yIEwyMTYgMTAwLjEgTDIxOCA5OS42IEwyMjAgMTAwLjcgTDIyMiA5OS4wIEwyMjQgMTAxLjMgTDIyNiA5OC40IEwyMjggMTAxLjggTDIzMCA5Ny45IEwyMzIgMTAyLjQgTDIzNCA5Ny40IEwyMzYgMTAyLjkgTDIzOCA5Ni45IEwyNDAgMTAzLjMgTDI0MiA5Ni41IEwyNDQgMTAzLjcgTDI0NiA5Ni4xIEwyNDggMTA0LjEgTDI1MCA5NS43IEwyNTIgMTA0LjQgTDI1NCA5NS41IEwyNTYgMTA0LjYgTDI1OCA5NS4zIEwyNjAgMTA0LjggTDI2MiA5NS4xIEwyNjQgMTA0LjkgTDI2NiA5NS4wIEwyNjggMTA1LjAgTDI3MCA5NS4wIEwyNzIgMTA1LjAgTDI3NCA5NS4xIEwyNzYgMTA0LjkgTDI3OCA5NS4yIEwyODAgMTA0LjcgTDI4MiA4OS40IEwyODQgOTguNSBMMjg2IDg5LjYgTDI4OCAxMDQuMiBMMjkwIDk1LjkgTDI5MiAxMTMuOSBMMjk0IDEwNi4zIEwyOTYgNDguNSBMMjk4IDQxLjcgTDMwMCAxMjUuMSBMMzAyIDExOS4yIEwzMDQgMTAyLjYgTDMwNiA5Ny43IEwzMDggMTAyLjEgTDMxMCA5OC4yIEwzMTIgMTAxLjUgTDMxNCA5OC43IEwzMTYgODcuMCBMMzE4IDg1LjMgTDMyMCA4Ni40IEwzMjIgODUuOSBMMzI0IDg1LjggTDMyNiA4Ni41IEwzMjggODUuMiBMMzMwIDEwMS4xIEwzMzIgOTguNyBMMzM0IDEwMS42IEwzMzYgOTguMSBMMzM4IDEwMi4yIEwzNDAgOTcuNiBMMzQyIDEwMi43IEwzNDQgOTcuMSBMMzQ2IDEwMy4xIEwzNDggOTYuNiBMMzUwIDEwMy42IEwzNTIgOTYuMiBMMzU0IDEwNC4wIEwzNTYgOTUuOSBMMzU4IDEwNC4zIEwzNjAgOTUuNiBMMzYyIDEwNC42IEwzNjQgOTUuMyBMMzY2IDEwNC44IEwzNjggOTUuMiBMMzcwIDEwNC45IEwzNzIgOTUuMCBMMzc0IDEwNS4wIEwzNzYgOTUuMCBMMzc4IDEwNS4wIEwzODAgOTUuMCBMMzgyIDEwNC45IEwzODQgOTUuMSBMMzg2IDEwNC44IEwzODggOTUuMyBMMzkwIDEwNC42IEwzOTIgOTUuNSBMMzk0IDEwNC40IEwzOTYgOTUuOCBMMzk4IDEwNC4wIEw0MDAgOTYuMSBMNDAyIDk3LjcgTDQwNCA5MC41IEw0MDYgOTcuMyBMNDA4IDk3LjAgTDQxMCAxMDIuOCBMNDEyIDEwNy41IEw0MTQgMTEyLjMgTDQxNiA0My4wIEw0MTggNDYuOCBMNDIwIDEyMC41IEw0MjIgMTIzLjIgTDQyNCA5OS4xIEw0MjYgMTAwLjYgTDQyOCA5OS43IEw0MzAgMTAwLjAgTDQzMiAxMDAuMiBMNDM0IDk5LjUgTDQzNiA4Ni44IEw0MzggODQuOSBMNDQwIDg3LjQgTDQ0MiA4NC4zIEw0NDQgODcuOSBMNDQ2IDgzLjggTDQ0OCA4OC41IEw0NTAgOTcuMyBMNDUyIDEwMy4wIEw0NTQgOTYuOCBMNDU2IDEwMy40IEw0NTggOTYuNCBMNDYwIDEwMy44IEw0NjIgOTYuMCBMNDY0IDEwNC4yIEw0NjYgOTUuNyBMNDY4IDEwNC41IEw0NzAgOTUuNCAiIGZpbGw9Im5vbmUiIHN0cm9rZT0iIzFhMmEzYSIgc3Ryb2tlLXdpZHRoPSIyLjQiLz4KICA8dGV4dCB4PSIxMiIgeT0iMTg4IiBmb250LXNpemU9IjEzIiBmb250LXdlaWdodD0iNjAwIiBmaWxsPSIjMWEyYTNhIiBmb250LWZhbWlseT0iSW50ZXIsIEFyaWFsLCBzYW5zLXNlcmlmIj5NYWlucyAoNTAgSHopIGludGVyZmVyZW5jZSDigJQgZmluZSwgcmVndWxhciByaXBwbGU8L3RleHQ+Cjwvc3ZnPg==",
+      "size": 7378,
+      "createdAt": 1783850484888
+    },
+    {
+      "id": "ecg0007",
+      "name": "artefact-wandering-baseline.svg",
+      "kind": "image",
+      "src": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA0ODAgMjAwIj4KICA8cmVjdCB3aWR0aD0iNDgwIiBoZWlnaHQ9IjIwMCIgZmlsbD0iI2ZmZmFmYSIvPgogIDxsaW5lIHgxPSIwIiB5MT0iMCIgeDI9IjAiIHkyPSIyMDAiIHN0cm9rZT0iI2Y2YzljMiIgc3Ryb2tlLXdpZHRoPSIwLjgiLz48bGluZSB4MT0iMjAiIHkxPSIwIiB4Mj0iMjAiIHkyPSIyMDAiIHN0cm9rZT0iI2Y2YzljMiIgc3Ryb2tlLXdpZHRoPSIwLjgiLz48bGluZSB4MT0iNDAiIHkxPSIwIiB4Mj0iNDAiIHkyPSIyMDAiIHN0cm9rZT0iI2Y2YzljMiIgc3Ryb2tlLXdpZHRoPSIwLjgiLz48bGluZSB4MT0iNjAiIHkxPSIwIiB4Mj0iNjAiIHkyPSIyMDAiIHN0cm9rZT0iI2Y2YzljMiIgc3Ryb2tlLXdpZHRoPSIwLjgiLz48bGluZSB4MT0iODAiIHkxPSIwIiB4Mj0iODAiIHkyPSIyMDAiIHN0cm9rZT0iI2Y2YzljMiIgc3Ryb2tlLXdpZHRoPSIwLjgiLz48bGluZSB4MT0iMTAwIiB5MT0iMCIgeDI9IjEwMCIgeTI9IjIwMCIgc3Ryb2tlPSIjZjZjOWMyIiBzdHJva2Utd2lkdGg9IjAuOCIvPjxsaW5lIHgxPSIxMjAiIHkxPSIwIiB4Mj0iMTIwIiB5Mj0iMjAwIiBzdHJva2U9IiNmNmM5YzIiIHN0cm9rZS13aWR0aD0iMC44Ii8+PGxpbmUgeDE9IjE0MCIgeTE9IjAiIHgyPSIxNDAiIHkyPSIyMDAiIHN0cm9rZT0iI2Y2YzljMiIgc3Ryb2tlLXdpZHRoPSIwLjgiLz48bGluZSB4MT0iMTYwIiB5MT0iMCIgeDI9IjE2MCIgeTI9IjIwMCIgc3Ryb2tlPSIjZjZjOWMyIiBzdHJva2Utd2lkdGg9IjAuOCIvPjxsaW5lIHgxPSIxODAiIHkxPSIwIiB4Mj0iMTgwIiB5Mj0iMjAwIiBzdHJva2U9IiNmNmM5YzIiIHN0cm9rZS13aWR0aD0iMC44Ii8+PGxpbmUgeDE9IjIwMCIgeTE9IjAiIHgyPSIyMDAiIHkyPSIyMDAiIHN0cm9rZT0iI2Y2YzljMiIgc3Ryb2tlLXdpZHRoPSIwLjgiLz48bGluZSB4MT0iMjIwIiB5MT0iMCIgeDI9IjIyMCIgeTI9IjIwMCIgc3Ryb2tlPSIjZjZjOWMyIiBzdHJva2Utd2lkdGg9IjAuOCIvPjxsaW5lIHgxPSIyNDAiIHkxPSIwIiB4Mj0iMjQwIiB5Mj0iMjAwIiBzdHJva2U9IiNmNmM5YzIiIHN0cm9rZS13aWR0aD0iMC44Ii8+PGxpbmUgeDE9IjI2MCIgeTE9IjAiIHgyPSIyNjAiIHkyPSIyMDAiIHN0cm9rZT0iI2Y2YzljMiIgc3Ryb2tlLXdpZHRoPSIwLjgiLz48bGluZSB4MT0iMjgwIiB5MT0iMCIgeDI9IjI4MCIgeTI9IjIwMCIgc3Ryb2tlPSIjZjZjOWMyIiBzdHJva2Utd2lkdGg9IjAuOCIvPjxsaW5lIHgxPSIzMDAiIHkxPSIwIiB4Mj0iMzAwIiB5Mj0iMjAwIiBzdHJva2U9IiNmNmM5YzIiIHN0cm9rZS13aWR0aD0iMC44Ii8+PGxpbmUgeDE9IjMyMCIgeTE9IjAiIHgyPSIzMjAiIHkyPSIyMDAiIHN0cm9rZT0iI2Y2YzljMiIgc3Ryb2tlLXdpZHRoPSIwLjgiLz48bGluZSB4MT0iMzQwIiB5MT0iMCIgeDI9IjM0MCIgeTI9IjIwMCIgc3Ryb2tlPSIjZjZjOWMyIiBzdHJva2Utd2lkdGg9IjAuOCIvPjxsaW5lIHgxPSIzNjAiIHkxPSIwIiB4Mj0iMzYwIiB5Mj0iMjAwIiBzdHJva2U9IiNmNmM5YzIiIHN0cm9rZS13aWR0aD0iMC44Ii8+PGxpbmUgeDE9IjM4MCIgeTE9IjAiIHgyPSIzODAiIHkyPSIyMDAiIHN0cm9rZT0iI2Y2YzljMiIgc3Ryb2tlLXdpZHRoPSIwLjgiLz48bGluZSB4MT0iNDAwIiB5MT0iMCIgeDI9IjQwMCIgeTI9IjIwMCIgc3Ryb2tlPSIjZjZjOWMyIiBzdHJva2Utd2lkdGg9IjAuOCIvPjxsaW5lIHgxPSI0MjAiIHkxPSIwIiB4Mj0iNDIwIiB5Mj0iMjAwIiBzdHJva2U9IiNmNmM5YzIiIHN0cm9rZS13aWR0aD0iMC44Ii8+PGxpbmUgeDE9IjQ0MCIgeTE9IjAiIHgyPSI0NDAiIHkyPSIyMDAiIHN0cm9rZT0iI2Y2YzljMiIgc3Ryb2tlLXdpZHRoPSIwLjgiLz48bGluZSB4MT0iNDYwIiB5MT0iMCIgeDI9IjQ2MCIgeTI9IjIwMCIgc3Ryb2tlPSIjZjZjOWMyIiBzdHJva2Utd2lkdGg9IjAuOCIvPjxsaW5lIHgxPSI0ODAiIHkxPSIwIiB4Mj0iNDgwIiB5Mj0iMjAwIiBzdHJva2U9IiNmNmM5YzIiIHN0cm9rZS13aWR0aD0iMC44Ii8+CiAgPGxpbmUgeDE9IjAiIHkxPSIwIiB4Mj0iNDgwIiB5Mj0iMCIgc3Ryb2tlPSIjZjZjOWMyIiBzdHJva2Utd2lkdGg9IjAuOCIvPjxsaW5lIHgxPSIwIiB5MT0iMjAiIHgyPSI0ODAiIHkyPSIyMCIgc3Ryb2tlPSIjZjZjOWMyIiBzdHJva2Utd2lkdGg9IjAuOCIvPjxsaW5lIHgxPSIwIiB5MT0iNDAiIHgyPSI0ODAiIHkyPSI0MCIgc3Ryb2tlPSIjZjZjOWMyIiBzdHJva2Utd2lkdGg9IjAuOCIvPjxsaW5lIHgxPSIwIiB5MT0iNjAiIHgyPSI0ODAiIHkyPSI2MCIgc3Ryb2tlPSIjZjZjOWMyIiBzdHJva2Utd2lkdGg9IjAuOCIvPjxsaW5lIHgxPSIwIiB5MT0iODAiIHgyPSI0ODAiIHkyPSI4MCIgc3Ryb2tlPSIjZjZjOWMyIiBzdHJva2Utd2lkdGg9IjAuOCIvPjxsaW5lIHgxPSIwIiB5MT0iMTAwIiB4Mj0iNDgwIiB5Mj0iMTAwIiBzdHJva2U9IiNmNmM5YzIiIHN0cm9rZS13aWR0aD0iMC44Ii8+PGxpbmUgeDE9IjAiIHkxPSIxMjAiIHgyPSI0ODAiIHkyPSIxMjAiIHN0cm9rZT0iI2Y2YzljMiIgc3Ryb2tlLXdpZHRoPSIwLjgiLz48bGluZSB4MT0iMCIgeTE9IjE0MCIgeDI9IjQ4MCIgeTI9IjE0MCIgc3Ryb2tlPSIjZjZjOWMyIiBzdHJva2Utd2lkdGg9IjAuOCIvPjxsaW5lIHgxPSIwIiB5MT0iMTYwIiB4Mj0iNDgwIiB5Mj0iMTYwIiBzdHJva2U9IiNmNmM5YzIiIHN0cm9rZS13aWR0aD0iMC44Ii8+PGxpbmUgeDE9IjAiIHkxPSIxODAiIHgyPSI0ODAiIHkyPSIxODAiIHN0cm9rZT0iI2Y2YzljMiIgc3Ryb2tlLXdpZHRoPSIwLjgiLz48bGluZSB4MT0iMCIgeTE9IjIwMCIgeDI9IjQ4MCIgeTI9IjIwMCIgc3Ryb2tlPSIjZjZjOWMyIiBzdHJva2Utd2lkdGg9IjAuOCIvPgogIDxwYXRoIGQ9Ik0wIDEwMC4wIEwyIDEwMC45IEw0IDEwMS45IEw2IDEwMi44IEw4IDEwMy44IEwxMCAxMDQuNyBMMTIgMTA1LjYgTDE0IDEwNi41IEwxNiAxMDcuNSBMMTggMTA4LjQgTDIwIDEwOS4yIEwyMiAxMTAuMSBMMjQgMTExLjAgTDI2IDExMS44IEwyOCAxMTIuNyBMMzAgMTEzLjUgTDMyIDExNC4zIEwzNCAxMTUuMSBMMzYgMTE1LjggTDM4IDExNi42IEw0MCAxMTcuMyBMNDIgMTEyLjAgTDQ0IDExMi43IEw0NiAxMTMuMyBMNDggMTE5LjkgTDUwIDEyMC41IEw1MiAxMzEuMSBMNTQgMTMxLjYgTDU2IDY3LjEgTDU4IDY3LjYgTDYwIDE0NS4xIEw2MiAxNDUuNSBMNjQgMTIzLjkgTDY2IDEyNC4yIEw2OCAxMjQuNiBMNzAgMTI0LjkgTDcyIDEyNS4xIEw3NCAxMjUuMyBMNzYgMTExLjUgTDc4IDExMS43IEw4MCAxMTEuOCBMODIgMTExLjkgTDg0IDExMi4wIEw4NiAxMTIuMCBMODggMTEyLjAgTDkwIDEyNS45IEw5MiAxMjUuOSBMOTQgMTI1LjggTDk2IDEyNS42IEw5OCAxMjUuNCBMMTAwIDEyNS4yIEwxMDIgMTI1LjAgTDEwNCAxMjQuNyBMMTA2IDEyNC40IEwxMDggMTI0LjAgTDExMCAxMjMuNiBMMTEyIDEyMy4yIEwxMTQgMTIyLjggTDExNiAxMjIuMyBMMTE4IDEyMS44IEwxMjAgMTIxLjMgTDEyMiAxMjAuNyBMMTI0IDEyMC4yIEwxMjYgMTE5LjUgTDEyOCAxMTguOSBMMTMwIDExOC4yIEwxMzIgMTE3LjYgTDEzNCAxMTYuOSBMMTM2IDExNi4xIEwxMzggMTE1LjQgTDE0MCAxMTQuNiBMMTQyIDExMy44IEwxNDQgMTEzLjAgTDE0NiAxMTIuMiBMMTQ4IDExMS4zIEwxNTAgMTEwLjUgTDE1MiAxMDkuNiBMMTU0IDEwOC43IEwxNTYgMTA3LjggTDE1OCAxMDYuOSBMMTYwIDEwNi4wIEwxNjIgOTkuMSBMMTY0IDk4LjEgTDE2NiA5Ny4yIEwxNjggMTAyLjMgTDE3MCAxMDEuMyBMMTcyIDExMC40IEwxNzQgMTA5LjQgTDE3NiA0My41IEwxNzggNDIuNSBMMTgwIDExOC42IEwxODIgMTE3LjcgTDE4NCA5NC43IEwxODYgOTMuOCBMMTg4IDkyLjkgTDE5MCA5Mi4wIEwxOTIgOTEuMSBMMTk0IDkwLjIgTDE5NiA3NS4zIEwxOTggNzQuNSBMMjAwIDczLjcgTDIwMiA3Mi44IEwyMDQgNzIuMCBMMjA2IDcxLjIgTDIwOCA3MC41IEwyMTAgODMuNyBMMjEyIDgzLjAgTDIxNCA4Mi4zIEwyMTYgODEuNiBMMjE4IDgxLjAgTDIyMCA4MC4zIEwyMjIgNzkuNyBMMjI0IDc5LjEgTDIyNiA3OC42IEwyMjggNzguMSBMMjMwIDc3LjYgTDIzMiA3Ny4xIEwyMzQgNzYuNyBMMjM2IDc2LjMgTDIzOCA3NS45IEwyNDAgNzUuNiBMMjQyIDc1LjMgTDI0NCA3NS4wIEwyNDYgNzQuNyBMMjQ4IDc0LjUgTDI1MCA3NC40IEwyNTIgNzQuMiBMMjU0IDc0LjEgTDI1NiA3NC4wIEwyNTggNzQuMCBMMjYwIDc0LjAgTDI2MiA3NC4wIEwyNjQgNzQuMSBMMjY2IDc0LjIgTDI2OCA3NC4zIEwyNzAgNzQuNSBMMjcyIDc0LjcgTDI3NCA3NC45IEwyNzYgNzUuMiBMMjc4IDc1LjUgTDI4MCA3NS44IEwyODIgNzAuMiBMMjg0IDcwLjYgTDI4NiA3MS4wIEwyODggNzcuNSBMMjkwIDc4LjAgTDI5MiA4OC41IEwyOTQgODkuMCBMMjk2IDI0LjYgTDI5OCAyNS4yIEwzMDAgMTAyLjggTDMwMiAxMDMuNSBMMzA0IDgyLjIgTDMwNiA4Mi45IEwzMDggODMuNiBMMzEwIDg0LjMgTDMxMiA4NS4xIEwzMTQgODUuOSBMMzE2IDcyLjcgTDMxOCA3My41IEwzMjAgNzQuMyBMMzIyIDc1LjIgTDMyNCA3Ni4xIEwzMjYgNzYuOSBMMzI4IDc3LjggTDMzMCA5Mi43IEwzMzIgOTMuNiBMMzM0IDk0LjYgTDMzNiA5NS41IEwzMzggOTYuNCBMMzQwIDk3LjQgTDM0MiA5OC4zIEwzNDQgOTkuMyBMMzQ2IDEwMC4yIEwzNDggMTAxLjEgTDM1MCAxMDIuMSBMMzUyIDEwMy4wIEwzNTQgMTA0LjAgTDM1NiAxMDQuOSBMMzU4IDEwNS44IEwzNjAgMTA2LjcgTDM2MiAxMDcuNiBMMzY0IDEwOC41IEwzNjYgMTA5LjQgTDM2OCAxMTAuMyBMMzcwIDExMS4yIEwzNzIgMTEyLjAgTDM3NCAxMTIuOCBMMzc2IDExMy43IEwzNzggMTE0LjUgTDM4MCAxMTUuMiBMMzgyIDExNi4wIEwzODQgMTE2LjcgTDM4NiAxMTcuNCBMMzg4IDExOC4xIEwzOTAgMTE4LjggTDM5MiAxMTkuNCBMMzk0IDEyMC4wIEwzOTYgMTIwLjYgTDM5OCAxMjEuMiBMNDAwIDEyMS43IEw0MDIgMTE2LjIgTDQwNCAxMTYuNyBMNDA2IDExNy4yIEw0MDggMTIzLjYgTDQxMCAxMjQuMCBMNDEyIDEzNC4zIEw0MTQgMTM0LjYgTDQxNiA2OS45IEw0MTggNzAuMiBMNDIwIDE0Ny40IEw0MjIgMTQ3LjYgTDQyNCAxMjUuNyBMNDI2IDEyNS44IEw0MjggMTI1LjkgTDQzMCAxMjYuMCBMNDMyIDEyNi4wIEw0MzQgMTI2LjAgTDQzNiAxMTEuOSBMNDM4IDExMS44IEw0NDAgMTExLjcgTDQ0MiAxMTEuNiBMNDQ0IDExMS40IEw0NDYgMTExLjIgTDQ0OCAxMTAuOSBMNDUwIDEyNC42IEw0NTIgMTI0LjMgTDQ1NCAxMjMuOSBMNDU2IDEyMy42IEw0NTggMTIzLjEgTDQ2MCAxMjIuNyBMNDYyIDEyMi4yIEw0NjQgMTIxLjcgTDQ2NiAxMjEuMiBMNDY4IDEyMC42IEw0NzAgMTIwLjAgIiBmaWxsPSJub25lIiBzdHJva2U9IiMxYTJhM2EiIHN0cm9rZS13aWR0aD0iMi40Ii8+CiAgPHRleHQgeD0iMTIiIHk9IjE4OCIgZm9udC1zaXplPSIxMyIgZm9udC13ZWlnaHQ9IjYwMCIgZmlsbD0iIzFhMmEzYSIgZm9udC1mYW1pbHk9IkludGVyLCBBcmlhbCwgc2Fucy1zZXJpZiI+V2FuZGVyaW5nIGJhc2VsaW5lIOKAlCBzbG93IGRyaWZ0PC90ZXh0Pgo8L3N2Zz4=",
+      "size": 7414,
+      "createdAt": 1783850484888
+    },
+    {
+      "id": "ecg0008",
+      "name": "artefact-muscle-tremor.svg",
+      "kind": "image",
+      "src": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA0ODAgMjAwIj4KICA8cmVjdCB3aWR0aD0iNDgwIiBoZWlnaHQ9IjIwMCIgZmlsbD0iI2ZmZmFmYSIvPgogIDxsaW5lIHgxPSIwIiB5MT0iMCIgeDI9IjAiIHkyPSIyMDAiIHN0cm9rZT0iI2Y2YzljMiIgc3Ryb2tlLXdpZHRoPSIwLjgiLz48bGluZSB4MT0iMjAiIHkxPSIwIiB4Mj0iMjAiIHkyPSIyMDAiIHN0cm9rZT0iI2Y2YzljMiIgc3Ryb2tlLXdpZHRoPSIwLjgiLz48bGluZSB4MT0iNDAiIHkxPSIwIiB4Mj0iNDAiIHkyPSIyMDAiIHN0cm9rZT0iI2Y2YzljMiIgc3Ryb2tlLXdpZHRoPSIwLjgiLz48bGluZSB4MT0iNjAiIHkxPSIwIiB4Mj0iNjAiIHkyPSIyMDAiIHN0cm9rZT0iI2Y2YzljMiIgc3Ryb2tlLXdpZHRoPSIwLjgiLz48bGluZSB4MT0iODAiIHkxPSIwIiB4Mj0iODAiIHkyPSIyMDAiIHN0cm9rZT0iI2Y2YzljMiIgc3Ryb2tlLXdpZHRoPSIwLjgiLz48bGluZSB4MT0iMTAwIiB5MT0iMCIgeDI9IjEwMCIgeTI9IjIwMCIgc3Ryb2tlPSIjZjZjOWMyIiBzdHJva2Utd2lkdGg9IjAuOCIvPjxsaW5lIHgxPSIxMjAiIHkxPSIwIiB4Mj0iMTIwIiB5Mj0iMjAwIiBzdHJva2U9IiNmNmM5YzIiIHN0cm9rZS13aWR0aD0iMC44Ii8+PGxpbmUgeDE9IjE0MCIgeTE9IjAiIHgyPSIxNDAiIHkyPSIyMDAiIHN0cm9rZT0iI2Y2YzljMiIgc3Ryb2tlLXdpZHRoPSIwLjgiLz48bGluZSB4MT0iMTYwIiB5MT0iMCIgeDI9IjE2MCIgeTI9IjIwMCIgc3Ryb2tlPSIjZjZjOWMyIiBzdHJva2Utd2lkdGg9IjAuOCIvPjxsaW5lIHgxPSIxODAiIHkxPSIwIiB4Mj0iMTgwIiB5Mj0iMjAwIiBzdHJva2U9IiNmNmM5YzIiIHN0cm9rZS13aWR0aD0iMC44Ii8+PGxpbmUgeDE9IjIwMCIgeTE9IjAiIHgyPSIyMDAiIHkyPSIyMDAiIHN0cm9rZT0iI2Y2YzljMiIgc3Ryb2tlLXdpZHRoPSIwLjgiLz48bGluZSB4MT0iMjIwIiB5MT0iMCIgeDI9IjIyMCIgeTI9IjIwMCIgc3Ryb2tlPSIjZjZjOWMyIiBzdHJva2Utd2lkdGg9IjAuOCIvPjxsaW5lIHgxPSIyNDAiIHkxPSIwIiB4Mj0iMjQwIiB5Mj0iMjAwIiBzdHJva2U9IiNmNmM5YzIiIHN0cm9rZS13aWR0aD0iMC44Ii8+PGxpbmUgeDE9IjI2MCIgeTE9IjAiIHgyPSIyNjAiIHkyPSIyMDAiIHN0cm9rZT0iI2Y2YzljMiIgc3Ryb2tlLXdpZHRoPSIwLjgiLz48bGluZSB4MT0iMjgwIiB5MT0iMCIgeDI9IjI4MCIgeTI9IjIwMCIgc3Ryb2tlPSIjZjZjOWMyIiBzdHJva2Utd2lkdGg9IjAuOCIvPjxsaW5lIHgxPSIzMDAiIHkxPSIwIiB4Mj0iMzAwIiB5Mj0iMjAwIiBzdHJva2U9IiNmNmM5YzIiIHN0cm9rZS13aWR0aD0iMC44Ii8+PGxpbmUgeDE9IjMyMCIgeTE9IjAiIHgyPSIzMjAiIHkyPSIyMDAiIHN0cm9rZT0iI2Y2YzljMiIgc3Ryb2tlLXdpZHRoPSIwLjgiLz48bGluZSB4MT0iMzQwIiB5MT0iMCIgeDI9IjM0MCIgeTI9IjIwMCIgc3Ryb2tlPSIjZjZjOWMyIiBzdHJva2Utd2lkdGg9IjAuOCIvPjxsaW5lIHgxPSIzNjAiIHkxPSIwIiB4Mj0iMzYwIiB5Mj0iMjAwIiBzdHJva2U9IiNmNmM5YzIiIHN0cm9rZS13aWR0aD0iMC44Ii8+PGxpbmUgeDE9IjM4MCIgeTE9IjAiIHgyPSIzODAiIHkyPSIyMDAiIHN0cm9rZT0iI2Y2YzljMiIgc3Ryb2tlLXdpZHRoPSIwLjgiLz48bGluZSB4MT0iNDAwIiB5MT0iMCIgeDI9IjQwMCIgeTI9IjIwMCIgc3Ryb2tlPSIjZjZjOWMyIiBzdHJva2Utd2lkdGg9IjAuOCIvPjxsaW5lIHgxPSI0MjAiIHkxPSIwIiB4Mj0iNDIwIiB5Mj0iMjAwIiBzdHJva2U9IiNmNmM5YzIiIHN0cm9rZS13aWR0aD0iMC44Ii8+PGxpbmUgeDE9IjQ0MCIgeTE9IjAiIHgyPSI0NDAiIHkyPSIyMDAiIHN0cm9rZT0iI2Y2YzljMiIgc3Ryb2tlLXdpZHRoPSIwLjgiLz48bGluZSB4MT0iNDYwIiB5MT0iMCIgeDI9IjQ2MCIgeTI9IjIwMCIgc3Ryb2tlPSIjZjZjOWMyIiBzdHJva2Utd2lkdGg9IjAuOCIvPjxsaW5lIHgxPSI0ODAiIHkxPSIwIiB4Mj0iNDgwIiB5Mj0iMjAwIiBzdHJva2U9IiNmNmM5YzIiIHN0cm9rZS13aWR0aD0iMC44Ii8+CiAgPGxpbmUgeDE9IjAiIHkxPSIwIiB4Mj0iNDgwIiB5Mj0iMCIgc3Ryb2tlPSIjZjZjOWMyIiBzdHJva2Utd2lkdGg9IjAuOCIvPjxsaW5lIHgxPSIwIiB5MT0iMjAiIHgyPSI0ODAiIHkyPSIyMCIgc3Ryb2tlPSIjZjZjOWMyIiBzdHJva2Utd2lkdGg9IjAuOCIvPjxsaW5lIHgxPSIwIiB5MT0iNDAiIHgyPSI0ODAiIHkyPSI0MCIgc3Ryb2tlPSIjZjZjOWMyIiBzdHJva2Utd2lkdGg9IjAuOCIvPjxsaW5lIHgxPSIwIiB5MT0iNjAiIHgyPSI0ODAiIHkyPSI2MCIgc3Ryb2tlPSIjZjZjOWMyIiBzdHJva2Utd2lkdGg9IjAuOCIvPjxsaW5lIHgxPSIwIiB5MT0iODAiIHgyPSI0ODAiIHkyPSI4MCIgc3Ryb2tlPSIjZjZjOWMyIiBzdHJva2Utd2lkdGg9IjAuOCIvPjxsaW5lIHgxPSIwIiB5MT0iMTAwIiB4Mj0iNDgwIiB5Mj0iMTAwIiBzdHJva2U9IiNmNmM5YzIiIHN0cm9rZS13aWR0aD0iMC44Ii8+PGxpbmUgeDE9IjAiIHkxPSIxMjAiIHgyPSI0ODAiIHkyPSIxMjAiIHN0cm9rZT0iI2Y2YzljMiIgc3Ryb2tlLXdpZHRoPSIwLjgiLz48bGluZSB4MT0iMCIgeTE9IjE0MCIgeDI9IjQ4MCIgeTI9IjE0MCIgc3Ryb2tlPSIjZjZjOWMyIiBzdHJva2Utd2lkdGg9IjAuOCIvPjxsaW5lIHgxPSIwIiB5MT0iMTYwIiB4Mj0iNDgwIiB5Mj0iMTYwIiBzdHJva2U9IiNmNmM5YzIiIHN0cm9rZS13aWR0aD0iMC44Ii8+PGxpbmUgeDE9IjAiIHkxPSIxODAiIHgyPSI0ODAiIHkyPSIxODAiIHN0cm9rZT0iI2Y2YzljMiIgc3Ryb2tlLXdpZHRoPSIwLjgiLz48bGluZSB4MT0iMCIgeTE9IjIwMCIgeDI9IjQ4MCIgeTI9IjIwMCIgc3Ryb2tlPSIjZjZjOWMyIiBzdHJva2Utd2lkdGg9IjAuOCIvPgogIDxwYXRoIGQ9Ik0wIDEwMC4wIEwyIDk5LjkgTDQgOTguNyBMNiAxMDEuMCBMOCAxMDIuMiBMMTAgOTcuNCBMMTIgOTcuOSBMMTQgMTA0LjQgTDE2IDEwMS4xIEwxOCA5NC4wIEwyMCAxMDAuOSBMMjIgMTA2LjkgTDI0IDk2LjQgTDI2IDkzLjQgTDI4IDEwNi40IEwzMCAxMDUuMCBMMzIgOTEuMSBMMzQgOTcuNiBMMzYgMTEwLjQgTDM4IDk4LjkgTDQwIDg5LjQgTDQyIDk4LjkgTDQ0IDEwMy40IEw0NiA4NS43IEw0OCA5My4yIEw1MCAxMTAuOCBMNTIgMTEzLjIgTDU0IDk4LjEgTDU2IDQ1LjggTDU4IDU2LjYgTDYwIDExNy4zIEw2MiAxMTIuMyBMNjQgMTA3LjggTDY2IDEwNi44IEw2OCA5MC4yIEw3MCA5Ni44IEw3MiAxMTAuMiBMNzQgOTkuNiBMNzYgNzYuNiBMNzggODkuNCBMODAgOTMuNCBMODIgODAuNiBMODQgODEuMiBMODYgOTIuMiBMODggODguMiBMOTAgOTQuMiBMOTIgMTAwLjAgTDk0IDEwNC42IEw5NiA5OC43IEw5OCA5Ny4xIEwxMDAgMTAxLjcgTDEwMiAxMDEuMyBMMTA0IDk4LjkgTDEwNiA5OS44IEwxMDggOTkuOSBMMTEwIDEwMC4wIEwxMTIgMTAxLjUgTDExNCA5OS4zIEwxMTYgOTcuNCBMMTE4IDEwMi4yIEwxMjAgMTAyLjkgTDEyMiA5NS45IEwxMjQgOTcuOCBMMTI2IDEwNi4wIEwxMjggMTAwLjQgTDEzMCA5Mi43IEwxMzIgMTAyLjEgTDEzNCAxMDcuNSBMMTM2IDk0LjkgTDEzOCA5My40IEwxNDAgMTA4LjAgTDE0MiAxMDQuMyBMMTQ0IDg5LjkgTDE0NiA5OC45IEwxNDggMTExLjEgTDE1MCA5Ny4zIEwxNTIgODkuNCBMMTU0IDEwNi41IEwxNTYgMTA4LjYgTDE1OCA5MC41IEwxNjAgOTQuNSBMMTYyIDEwNS41IEwxNjQgOTUuNiBMMTY2IDgyLjEgTDE2OCAxMDIuNSBMMTcwIDExMC44IEwxNzIgMTA0LjAgTDE3NCAxMDEuNiBMMTc2IDUzLjUgTDE3OCA1MC4yIEwxODAgMTEyLjMgTDE4MiAxMjAuNCBMMTg0IDEwOS41IEwxODYgOTguNCBMMTg4IDkyLjAgTDE5MCAxMDQuMCBMMTkyIDEwNS44IEwxOTQgOTQuNyBMMTk2IDgyLjcgTDE5OCA5MS40IEwyMDAgODcuMCBMMjAyIDgxLjUgTDIwNCA4Ni41IEwyMDYgODkuMCBMMjA4IDg0LjggTDIxMCA5OC42IEwyMTIgMTAwLjggTDIxNCAxMDAuMiBMMjE2IDEwMC4zIEwyMTggMTAwLjIgTDIyMCA5OC4zIEwyMjIgMTAwLjMgTDIyNCAxMDIuOSBMMjI2IDk4LjQgTDIyOCA5Ni40IEwyMzAgMTAzLjYgTDIzMiAxMDMuMiBMMjM0IDk0LjMgTDIzNiA5OC4yIEwyMzggMTA3LjQgTDI0MCA5OS40IEwyNDIgOTEuOCBMMjQ0IDEwMy42IEwyNDYgMTA3LjggTDI0OCA5My4yIEwyNTAgOTMuOSBMMjUyIDEwOS40IEwyNTQgMTAzLjIgTDI1NiA4OC45IEwyNTggMTAwLjUgTDI2MCAxMTEuMyBMMjYyIDk1LjYgTDI2NCA4OS45IEwyNjYgMTA3LjkgTDI2OCAxMDcuNSBMMjcwIDg5LjUgTDI3MiA5Ni4xIEwyNzQgMTExLjcgTDI3NiA5OS45IEwyNzggODguNiBMMjgwIDEwMy45IEwyODIgMTAzLjcgTDI4NCA4Ny4xIEwyODYgODcuMSBMMjg4IDEwOC43IEwyOTAgMTAzLjUgTDI5MiAxMDAuOCBMMjk0IDEwOS44IEwyOTYgNTMuNCBMMjk4IDQyLjUgTDMwMCAxMTUuNSBMMzAyIDEyNi4yIEwzMDQgMTA0LjIgTDMwNiA5NS4zIEwzMDggOTguMCBMMzEwIDEwNC4yIEwzMTIgMTAwLjIgTDMxNCA5Ny4wIEwzMTYgODYuNyBMMzE4IDg3LjUgTDMyMCA4NS40IEwzMjIgODUuOCBMMzI0IDg1LjYgTDMyNiA4NS41IEwzMjggODcuOCBMMzMwIDEwMC4yIEwzMzIgOTYuOCBMMzM0IDEwMS4wIEwzMzYgMTA0LjEgTDMzOCA5Ny4xIEwzNDAgOTUuOCBMMzQyIDEwNS4xIEwzNDQgMTAzLjIgTDM0NiA5Mi44IEwzNDggOTkuMCBMMzUwIDEwOC42IEwzNTIgOTguMSBMMzU0IDkxLjIgTDM1NiAxMDUuMiBMMzU4IDEwNy43IEwzNjAgOTEuNyBMMzYyIDk0LjcgTDM2NCAxMTAuNiBMMzY2IDEwMS44IEwzNjggODguNCBMMzcwIDEwMi4xIEwzNzIgMTExLjIgTDM3NCA5NC4wIEwzNzYgOTAuOCBMMzc4IDEwOS4xIEwzODAgMTA2LjEgTDM4MiA4OC45IEwzODQgOTcuNyBMMzg2IDExMS41IEwzODggOTguMyBMMzkwIDg5LjUgTDM5MiAxMDUuMSBMMzk0IDEwOC4zIEwzOTYgOTIuNSBMMzk4IDk0LjggTDQwMCAxMDguNiBMNDAyIDk2LjAgTDQwNCA4NS43IEw0MDYgOTQuOSBMNDA4IDEwNy4wIEw0MTAgOTcuMCBMNDEyIDEwNS4wIEw0MTQgMTEzLjkgTDQxNiA0Ny44IEw0MTggNDEuMiBMNDIwIDEyMS4xIEw0MjIgMTI0LjkgTDQyNCA5OS44IEw0MjYgOTguNSBMNDI4IDEwMC4zIEw0MzAgMTAwLjEgTDQzMiAxMDAuNCBMNDM0IDEwMC44IEw0MzYgODQuMiBMNDM4IDg1LjIgTDQ0MCA4OS4zIEw0NDIgODUuOCBMNDQ0IDgxLjQgTDQ0NiA4OC4wIEw0NDggOTEuMCBMNDUwIDk1LjYgTDQ1MiA5NS42IEw0NTQgMTA2LjcgTDQ1NiAxMDIuNiBMNDU4IDkxLjQgTDQ2MCAxMDAuMSBMNDYyIDEwOS40IEw0NjQgOTYuNSBMNDY2IDkxLjAgTDQ2OCAxMDYuOSBMNDcwIDEwNy4xICIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjMWEyYTNhIiBzdHJva2Utd2lkdGg9IjIuNCIvPgogIDx0ZXh0IHg9IjEyIiB5PSIxODgiIGZvbnQtc2l6ZT0iMTMiIGZvbnQtd2VpZ2h0PSI2MDAiIGZpbGw9IiMxYTJhM2EiIGZvbnQtZmFtaWx5PSJJbnRlciwgQXJpYWwsIHNhbnMtc2VyaWYiPlNvbWF0aWMgKG11c2NsZSkgdHJlbW9yIOKAlCBjb2Fyc2UsIGlycmVndWxhcjwvdGV4dD4KPC9zdmc+",
+      "size": 7374,
+      "createdAt": 1783850484888
+    }
+  ],
+  "completion": {
+    "allLessons": true,
+    "quizPass": true,
+    "minScore": 80,
+    "minMinutes": 0
+  },
+  "createdAt": 1783850484889,
+  "updatedAt": 1783850484889
+}

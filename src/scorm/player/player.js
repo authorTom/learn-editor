@@ -823,9 +823,11 @@
     var vars = {};
     Object.keys(base).forEach(function (k) { vars[k] = base[k]; });
     Object.keys(t || {}).forEach(function (k) { vars[k] = t[k]; });
+    // Set these on <html>, not on #app: `body { color: var(--ink) }` resolves
+    // against :root, so overriding lower down would leave body text stale.
     Object.keys(vars).forEach(function (k) {
       if (k === 'dark' || k === 'hero') return;
-      root.style.setProperty(k, vars[k]);
+      document.documentElement.style.setProperty(k, vars[k]);
     });
     document.body.classList.toggle('theme-dark', !!vars.dark);
     ['gradient', 'solid', 'minimal'].forEach(function (h) {

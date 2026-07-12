@@ -84,6 +84,20 @@ Production build: `npm run build` (output in `dist/`, host it as any static site
   - Standalone web zip (single `index.html`)
   - JSON backup (re-importable)
 
+## Example course
+
+[`examples/recording-a-12-lead-ecg-uk.json`](examples/recording-a-12-lead-ecg-uk.json) is a
+complete, production-quality course — *Recording a 12-Lead ECG*, a UK clinical training
+course aligned to the [SCST 2024 guideline](https://scst.org.uk/wp-content/uploads/2024/09/2024_ECG_Recording_Guidelines_26-09-2024_V5_FINAL.pdf).
+Import it from the dashboard (**Import** → choose the file) to see what the tool can do:
+
+9 lessons · 72 blocks · 20 of the 23 block types · 5 quizzes (16 questions) · 9 embedded
+SVG diagrams in the media library · per-lesson theme overrides · completion gated on
+passing every quiz at 80%.
+
+It is worth opening for the interactive chest-electrode diagram (a hotspot block with
+six markers), the sequence and matching interactions, and the artefact gallery.
+
 ## SCORM behaviour
 
 The exported package is a single self-contained SCO. It reports:
