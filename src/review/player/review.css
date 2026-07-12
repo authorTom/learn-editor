@@ -1,0 +1,214 @@
+/* Review layer chrome. Deliberately independent of the course theme: it sits on
+   top of any of the 14 schemes (including the dark ones), so it fixes its own
+   colours rather than inheriting --ink/--bg and disappearing into the page. */
+
+.rv-ui, .rv-ui * { box-sizing: border-box; }
+
+/* The review bar is fixed at the top, so everything the player pins to the
+   viewport has to come down by its height — body padding alone won't move a
+   fixed sidebar, and the bar would sit over the course title. */
+.rv-on { padding-top: 48px; }
+.rv-on .sidebar { top: 48px; }
+.rv-on .topbar { top: 48px; }
+.rv-on .scrim { top: 48px; }
+
+.rv-bar {
+  position: fixed; top: 0; left: 0; right: 0; height: 48px; z-index: 9000;
+  display: flex; align-items: center; gap: 10px; padding: 0 12px;
+  background: #14162a; color: #e9ebf8; font-size: 13px;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  box-shadow: 0 1px 12px rgba(0, 0, 0, .25);
+}
+.rv-badge {
+  background: #6366f1; color: #fff; font-weight: 700; font-size: 11px;
+  letter-spacing: .04em; text-transform: uppercase; padding: 4px 8px; border-radius: 6px;
+}
+.rv-who { color: #b9bedd; }
+.rv-who strong { color: #fff; }
+.rv-bar-sp { flex: 1; }
+
+.rv-btn {
+  font: inherit; font-size: 13px; font-weight: 600; cursor: pointer;
+  border-radius: 8px; padding: 7px 12px; border: 1px solid transparent;
+  display: inline-flex; align-items: center; gap: 6px; white-space: nowrap;
+}
+.rv-btn.primary { background: #6366f1; color: #fff; }
+.rv-btn.primary:hover { background: #4f46e5; }
+.rv-btn.ghost { background: rgba(255, 255, 255, .08); color: #e9ebf8; border-color: rgba(255, 255, 255, .14); }
+.rv-btn.ghost:hover { background: rgba(255, 255, 255, .16); }
+.rv-mini {
+  font: inherit; font-size: 12px; cursor: pointer; background: none; padding: 2px 4px;
+  border: 0; color: #8f94b8; text-decoration: underline; border-radius: 4px;
+}
+.rv-mini:hover { color: #fff; }
+.rv-count {
+  background: #fff; color: #14162a; border-radius: 999px; min-width: 18px; height: 18px;
+  display: none; align-items: center; justify-content: center; font-size: 11px; font-weight: 700;
+  padding: 0 5px;
+}
+
+/* ---- highlights in the course itself ---- */
+
+mark.rv-hl {
+  background: rgba(250, 204, 21, .38);
+  box-shadow: inset 0 -2px 0 rgba(202, 138, 4, .55);
+  color: inherit; padding: 1px 0; border-radius: 2px; cursor: pointer;
+}
+mark.rv-hl:hover { background: rgba(250, 204, 21, .6); }
+mark.rv-hl.flash { animation: rv-flash 1.2s ease; }
+@keyframes rv-flash {
+  0%, 100% { background: rgba(250, 204, 21, .38); }
+  30% { background: rgba(249, 115, 22, .75); }
+}
+
+/* ---- per-block "comment on this block" button ---- */
+
+.blocks [data-bid] { position: relative; }
+.rv-add {
+  position: absolute; top: 4px; right: -34px; width: 26px; height: 26px;
+  border-radius: 50%; border: 1px solid #d4d7e6; background: #fff; color: #6b7194;
+  font-size: 14px; font-weight: 700; line-height: 1; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  opacity: 0; transition: opacity .12s ease; z-index: 20;
+}
+[data-bid]:hover > .rv-add, .rv-add:focus { opacity: 1; }
+.rv-add:hover { border-color: #6366f1; color: #6366f1; }
+.rv-add.has {
+  opacity: 1; background: #6366f1; border-color: #6366f1; color: #fff; font-size: 12px;
+}
+/* On narrow screens there's no gutter to hang it in — tuck it inside. */
+@media (max-width: 1100px) {
+  .rv-add { right: 4px; }
+}
+
+/* ---- selection bubble ---- */
+
+.rv-bubble {
+  position: absolute; z-index: 9200; display: none; gap: 4px; padding: 5px;
+  background: #14162a; border-radius: 10px; box-shadow: 0 8px 24px rgba(0, 0, 0, .3);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+/* ---- composer ---- */
+
+.rv-composer {
+  position: absolute; z-index: 9300; display: none; width: 360px; max-width: calc(100vw - 24px);
+  background: #fff; color: #1f2437; border-radius: 12px; padding: 14px;
+  box-shadow: 0 16px 48px rgba(15, 18, 40, .28); border: 1px solid #e6e8f0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-size: 13px;
+}
+.rv-c-head { font-weight: 700; margin-bottom: 8px; font-size: 14px; }
+.rv-lab {
+  display: block; font-size: 11px; font-weight: 700; text-transform: uppercase;
+  letter-spacing: .04em; color: #7c819f; margin: 10px 0 4px;
+}
+.rv-composer textarea, .rv-name {
+  width: 100%; font: inherit; padding: 8px 10px; border: 1px solid #d9dceb;
+  border-radius: 8px; resize: vertical; background: #fff; color: #1f2437;
+}
+.rv-composer textarea:focus, .rv-name:focus {
+  outline: none; border-color: #6366f1; box-shadow: 0 0 0 3px rgba(99, 102, 241, .15);
+}
+.rv-c-foot { display: flex; justify-content: flex-end; gap: 8px; margin-top: 12px; }
+.rv-composer .rv-btn.ghost { background: #f1f2f7; color: #4b5169; border-color: #e0e3ee; }
+.rv-composer .rv-btn.ghost:hover { background: #e7e9f2; }
+
+.rv-quote {
+  margin: 0; padding: 7px 10px; border-left: 3px solid #facc15; background: #fffbeb;
+  color: #4b5169; font-style: italic; border-radius: 0 6px 6px 0;
+  max-height: 88px; overflow: auto; font-size: 12.5px;
+}
+
+/* ---- rail ---- */
+
+.rv-rail {
+  position: fixed; top: 48px; right: 0; bottom: 0; width: 340px; z-index: 8900;
+  background: #fff; border-left: 1px solid #e6e8f0; display: flex; flex-direction: column;
+  transform: translateX(100%); transition: transform .18s ease;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  color: #1f2437; font-size: 13px; box-shadow: -8px 0 32px rgba(15, 18, 40, .1);
+}
+.rv-rail-open .rv-rail { transform: none; }
+.rv-rail-open { --rv-rail: 340px; }
+.rv-rail-head {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 12px 14px; border-bottom: 1px solid #eceef5;
+}
+.rv-rail-head .rv-mini { color: #7c819f; }
+.rv-rail-head .rv-mini:hover { color: #1f2437; }
+.rv-list { flex: 1; overflow: auto; padding: 10px; }
+.rv-rail-foot {
+  padding: 10px; border-top: 1px solid #eceef5; display: flex; gap: 8px;
+}
+.rv-rail-foot .rv-btn { flex: 1; justify-content: center; }
+.rv-rail-foot .rv-btn.ghost { background: #f1f2f7; color: #4b5169; border-color: #e0e3ee; }
+
+.rv-group {
+  font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .04em;
+  color: #7c819f; padding: 8px 4px 6px;
+}
+.rv-card {
+  border: 1px solid #e6e8f0; border-radius: 10px; padding: 10px; margin-bottom: 8px;
+  cursor: pointer; background: #fff;
+}
+.rv-card:hover { border-color: #c7cbdd; }
+.rv-card.flash { border-color: #6366f1; box-shadow: 0 0 0 3px rgba(99, 102, 241, .15); }
+.rv-card-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px; }
+.rv-tag {
+  font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .04em;
+  background: #eef0f6; color: #5b6178; padding: 3px 6px; border-radius: 5px;
+}
+.rv-tag.sug { background: #e0e7ff; color: #4338ca; }
+.rv-card-acts { display: flex; gap: 2px; opacity: 0; transition: opacity .12s; }
+.rv-card:hover .rv-card-acts { opacity: 1; }
+.rv-sug-new {
+  margin-top: 6px; padding: 7px 10px; background: #eef2ff; border-left: 3px solid #6366f1;
+  border-radius: 0 6px 6px 0; color: #3730a3; font-size: 12.5px;
+}
+.rv-body-txt { margin-top: 7px; color: #4b5169; white-space: pre-wrap; }
+.rv-empty { color: #7c819f; padding: 18px 10px; line-height: 1.55; }
+.rv-empty p { margin: 0 0 10px; }
+.rv-chip {
+  display: inline-flex; align-items: center; justify-content: center; width: 18px; height: 18px;
+  border-radius: 50%; background: #6366f1; color: #fff; font-weight: 700; font-size: 11px;
+}
+.rv-other {
+  margin-top: 10px; padding: 10px; border-radius: 8px; background: #f6f7fb;
+  color: #7c819f; font-size: 12px; line-height: 1.5;
+}
+
+/* ---- name gate ---- */
+
+.rv-gate {
+  position: fixed; inset: 0; z-index: 9500; background: rgba(12, 14, 28, .72);
+  display: flex; align-items: center; justify-content: center; padding: 20px;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+.rv-gate-box {
+  background: #fff; color: #1f2437; border-radius: 16px; padding: 26px; width: 440px;
+  max-width: 100%; box-shadow: 0 24px 64px rgba(0, 0, 0, .35);
+}
+.rv-gate-box h2 { margin: 0 0 6px; font-size: 19px; }
+.rv-gate-box p { margin: 0 0 10px; color: #5b6178; font-size: 13.5px; line-height: 1.55; }
+.rv-gate-how {
+  background: #f6f7fb; padding: 11px 13px; border-radius: 9px; font-size: 12.5px !important;
+}
+.rv-gate-box .rv-btn { width: 100%; justify-content: center; margin-top: 14px; padding: 10px; }
+
+/* ---- toast ---- */
+
+.rv-toast {
+  position: fixed; bottom: 22px; left: 50%; transform: translate(-50%, 14px); z-index: 9600;
+  background: #14162a; color: #fff; padding: 11px 16px; border-radius: 10px; font-size: 13px;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, .3); opacity: 0; transition: all .25s ease;
+  max-width: calc(100vw - 32px);
+}
+.rv-toast.in { opacity: 1; transform: translate(-50%, 0); }
+
+@media (max-width: 720px) {
+  .rv-rail { width: 100%; }
+  .rv-bar { flex-wrap: nowrap; overflow-x: auto; }
+  .rv-btn[data-act="lesson"] { display: none; }
+}

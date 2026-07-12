@@ -58,6 +58,30 @@ Production build: `npm run build` (output in `dist/`, host it as any static site
     then start from any template instead of blank.
   - Manage both from **Templates** on the dashboard, and export/import the whole
     library as JSON to move it between browsers or share it with colleagues.
+- **Send for review** — get comments from subject-matter experts without an account
+  or a server:
+  - **Start a round** and the app freezes a *copy* of the course into one
+    self-contained `.html` file. Put it anywhere reviewers can reach — SharePoint,
+    Drive, Dropbox, a static host — and send that link, or just email the file.
+    Keep editing the live course meanwhile.
+  - **Reviewers** open it and read the real course, as a learner sees it. They
+    select any text to leave a **comment** or a **suggested rewrite**, or comment
+    on a whole block or lesson. Their work is kept in the browser as they go, so
+    they can close the tab and come back. When done they click *Send feedback*,
+    which downloads a small JSON file (anchors and text only — kilobytes, no media)
+    to send back.
+  - **The author** imports those files — one per reviewer, several at a time — and
+    every comment lands in a **review inbox** beside the editor: filter by open /
+    suggestions / reviewer, click through to the exact block, then **reply**,
+    **resolve**, **decline**, or **apply**. Applying writes the suggested text
+    straight into the course as a normal, undoable edit.
+  - Comments are anchored to the *quoted text plus its surrounding context*, not to
+    character offsets, so they survive you editing the course around them. If a
+    quote is edited away, the comment degrades to a block-level note flagged
+    "you've edited this since" rather than silently vanishing or overwriting your
+    work — Apply is disabled and you handle it by hand.
+  - Re-importing the same feedback file twice is a no-op, so there's no way to
+    double up on comments.
 - **Preview** — phone / tablet / desktop frames rendering the *actual* exported
   player, so preview is pixel-identical to what the LMS shows.
 - **Theming** — applied across the whole course player:
@@ -127,6 +151,14 @@ src/
   utils/assets.ts        media asset refs: one visitor teaches every block about media
   utils/importContent.ts Markdown/HTML → blocks (bulk import)
   components/            editor UI (dashboard, outline, canvas, block editors, dialogs)
+  review/
+    types.ts             review rounds, comments, anchors, the reviewer bundle format
+    anchor.ts            quote+context anchoring: re-find a comment's text after edits
+    blockText.ts         text visitor: one place to teach every block about its prose
+    reviewStore.ts       review rounds in IndexedDB (`review:`), merge, triage, apply
+    buildReviewHtml.ts   wraps the exported player in the review layer — one file to share
+    player/review.js     reviewer-side annotation layer (highlight, comment, suggest)
+    player/review.css    review chrome, independent of the course theme
   scorm/
     player/player.js     self-contained vanilla-JS course player + SCORM adapter
     player/player.css    responsive player styles
@@ -138,3 +170,9 @@ src/
 The in-app preview and the exported package share the same player code, imported
 as raw text and inlined — one renderer to maintain, zero drift between preview
 and what learners see.
+
+The review build is the same player again, with an annotation layer appended: the
+player renders the course, and `review.js` decorates the DOM it produced. The only
+concession the player makes to it is a `data-bid` attribute on each rendered block,
+which is what comments anchor to. So reviewers comment on exactly the course
+learners will get — not a separate "review mode" rendering that could drift from it.

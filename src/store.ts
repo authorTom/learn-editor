@@ -104,6 +104,9 @@ interface EditorState {
   addBlock: (block: Block, index?: number, assets?: Asset[]) => void
   addBlocks: (blocks: Block[], index?: number) => void
   updateBlock: (id: string, patch: Partial<Block>) => void
+  /** Patch a block in a named lesson, not just the selected one — used when
+      applying a review suggestion, which can land anywhere in the course. */
+  updateBlockIn: (lessonId: string, blockId: string, patch: Partial<Block>) => void
   deleteBlock: (id: string) => void
   duplicateBlock: (id: string) => void
   moveBlock: (from: number, to: number) => void
@@ -523,6 +526,20 @@ export const useStore = create<EditorState>((set, get) => {
         }),
         'block:' + id
       ),
+
+    /** No coalesce key: each applied suggestion is its own undo step. */
+    updateBlockIn: (lessonId, blockId, patch) =>
+      mutate((c) => ({
+        ...c,
+        lessons: c.lessons.map((l) =>
+          l.id === lessonId
+            ? {
+                ...l,
+                blocks: l.blocks.map((b) => (b.id === blockId ? ({ ...b, ...patch } as Block) : b)),
+              }
+            : l
+        ),
+      })),
 
     deleteBlock: (id) =>
       mutateLesson((l) => ({ ...l, blocks: l.blocks.filter((b) => b.id !== id) })),

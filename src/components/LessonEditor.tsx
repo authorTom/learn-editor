@@ -110,6 +110,7 @@ function BlockShell({
   return (
     <div
       ref={setNodeRef}
+      id={'blk-' + block.id}
       style={{ transform: CSS.Transform.toString(transform), transition }}
       className={'block-shell' + (selected ? ' selected' : '') + (isDragging ? ' dragging' : '')}
       onClick={onSelect}

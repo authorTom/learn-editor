@@ -256,6 +256,7 @@
 
   function renderBlock(b) {
     var w = el('div', 'block b-' + b.type.toLowerCase());
+    w.setAttribute('data-bid', b.id); // review layer anchors comments to this
     switch (b.type) {
       case 'text':
         if (b.layout && b.layout !== 'normal') w.className += ' layout-' + b.layout;
@@ -858,6 +859,7 @@
     content.appendChild(hero);
 
     var blocksWrap = el('div', 'blocks');
+    blocksWrap.setAttribute('data-lid', lesson.id);
     var prog = computeProgress();
     if (prog.finished) {
       blocksWrap.appendChild(el('div', 'complete-banner', '🎉 <span>Course complete — great job!</span>'));
