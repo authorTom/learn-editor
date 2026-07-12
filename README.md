@@ -32,7 +32,12 @@ Production build: `npm run build` (output in `dist/`, host it as any static site
 - **Drag to reorder** lessons and blocks; hover between blocks to insert.
 - **Preview** — phone / tablet / desktop frames rendering the *actual* exported
   player, so preview is pixel-identical to what the LMS shows.
-- **Theming** — accent colour and font applied across the whole course player.
+- **Theming** — applied across the whole course player:
+  - Colour schemes: Light, Warm, Cool, Dark, plus a custom accent colour
+  - Font packs: Modern (Inter), Elegant (Playfair Display + Source Sans),
+    Friendly (Nunito), Classic (Georgia), Technical (Space Grotesk + IBM Plex Sans)
+  - Layout: sidebar or top-bar navigation, gradient/solid/minimal lesson headers,
+    narrow/normal/wide content width, rounded or square corners, heading weight
 - **Export**:
   - **SCORM 1.2** zip — works in virtually every LMS
   - **SCORM 2004 (4th Ed.)** zip

@@ -1,7 +1,7 @@
 import { create } from 'zustand'
 import { get as idbGet, set as idbSet, del as idbDel, keys as idbKeys } from 'idb-keyval'
 import type { Block, Course, CourseMeta, Lesson } from './types'
-import { defaultTheme } from './types'
+import { defaultTheme, normalizeTheme } from './types'
 import { uid } from './utils/id'
 
 const COURSE_PREFIX = 'course:'
@@ -127,7 +127,10 @@ export const useStore = create<EditorState>((set, get) => {
 
     openCourse: async (id) => {
       const c = (await idbGet(COURSE_PREFIX + id)) as Course | undefined
-      if (c) set({ course: c, lessonId: c.lessons[0]?.id ?? null, saveState: 'saved' })
+      if (c) {
+        c.theme = normalizeTheme(c.theme)
+        set({ course: c, lessonId: c.lessons[0]?.id ?? null, saveState: 'saved' })
+      }
     },
 
     closeCourse: () => {
@@ -160,7 +163,7 @@ export const useStore = create<EditorState>((set, get) => {
     },
 
     importCourse: async (data) => {
-      const c: Course = { ...data, id: uid(), updatedAt: Date.now() }
+      const c: Course = { ...data, id: uid(), theme: normalizeTheme(data.theme), updatedAt: Date.now() }
       await idbSet(COURSE_PREFIX + c.id, c)
       set((s) => ({ courses: [toMeta(c), ...s.courses] }))
     },

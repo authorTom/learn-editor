@@ -601,10 +601,7 @@
   }
 
   function build() {
-    var theme = COURSE.theme || {};
-    if (theme.primaryColor) document.documentElement.style.setProperty('--accent', theme.primaryColor);
-    if (theme.headingWeight === 'bold') document.documentElement.style.setProperty('--heading-weight', '700');
-    if (theme.font === 'serif') document.body.classList.add('font-serif');
+    // Theme (colors, fonts, layout classes) is baked into the page at export time.
     document.title = COURSE.title;
 
     root.className = 'player';

@@ -189,10 +189,96 @@ export interface Lesson {
   blocks: Block[]
 }
 
+export type FontPackId = 'modern' | 'elegant' | 'friendly' | 'classic' | 'technical'
+export type SchemeId = 'light' | 'warm' | 'cool' | 'dark'
+
 export interface CourseTheme {
   primaryColor: string
-  font: 'inter' | 'serif' | 'system'
+  scheme: SchemeId
+  fontPack: FontPackId
+  nav: 'side' | 'top'
+  hero: 'gradient' | 'solid' | 'minimal'
+  width: 'narrow' | 'normal' | 'wide'
+  corners: 'soft' | 'sharp'
   headingWeight: 'bold' | 'extrabold'
+}
+
+export interface FontPack {
+  id: FontPackId
+  label: string
+  description: string
+  body: string // CSS font-family stack
+  heading: string
+  google?: string // css2 family query, when webfonts are needed
+}
+
+export const FONT_PACKS: FontPack[] = [
+  {
+    id: 'modern',
+    label: 'Modern',
+    description: 'Inter — crisp and neutral',
+    body: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
+    heading: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
+    google: 'family=Inter:wght@400;500;600;700;800',
+  },
+  {
+    id: 'elegant',
+    label: 'Elegant',
+    description: 'Playfair Display + Source Sans',
+    body: "'Source Sans 3', 'Segoe UI', sans-serif",
+    heading: "'Playfair Display', Georgia, serif",
+    google: 'family=Playfair+Display:wght@600;700;800&family=Source+Sans+3:wght@400;600;700',
+  },
+  {
+    id: 'friendly',
+    label: 'Friendly',
+    description: 'Nunito — soft and rounded',
+    body: "'Nunito', 'Segoe UI', sans-serif",
+    heading: "'Nunito', 'Segoe UI', sans-serif",
+    google: 'family=Nunito:wght@400;600;700;800',
+  },
+  {
+    id: 'classic',
+    label: 'Classic',
+    description: 'Georgia — traditional serif',
+    body: "Georgia, 'Times New Roman', serif",
+    heading: "Georgia, 'Times New Roman', serif",
+  },
+  {
+    id: 'technical',
+    label: 'Technical',
+    description: 'Space Grotesk + IBM Plex Sans',
+    body: "'IBM Plex Sans', 'Segoe UI', sans-serif",
+    heading: "'Space Grotesk', 'Segoe UI', sans-serif",
+    google: 'family=IBM+Plex+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700',
+  },
+]
+
+export interface ColorScheme {
+  id: SchemeId
+  label: string
+  bg: string // panels: sidebar, cards, quiz
+  bgSoft: string // page background
+  ink: string
+  inkSoft: string
+  line: string
+}
+
+export const SCHEMES: ColorScheme[] = [
+  { id: 'light', label: 'Light', bg: '#ffffff', bgSoft: '#f6f7fb', ink: '#1f2437', inkSoft: '#5b6178', line: '#e6e8f0' },
+  { id: 'warm', label: 'Warm', bg: '#fffdf8', bgSoft: '#f7f2e7', ink: '#2e2921', inkSoft: '#6f665a', line: '#eae2d0' },
+  { id: 'cool', label: 'Cool', bg: '#fafbfe', bgSoft: '#ecf0f8', ink: '#182035', inkSoft: '#56607a', line: '#dde4f0' },
+  { id: 'dark', label: 'Dark', bg: '#1a1d2e', bgSoft: '#111320', ink: '#e9ebf8', inkSoft: '#9ba0bd', line: '#2d3150' },
+]
+
+/** Fill in defaults and migrate the legacy `font` field from early saves. */
+export function normalizeTheme(t?: Partial<CourseTheme> & { font?: string }): CourseTheme {
+  const merged = { ...defaultTheme, ...(t ?? {}) }
+  if (t && !('fontPack' in t) && t.font) {
+    merged.fontPack = t.font === 'serif' ? 'classic' : 'modern'
+  }
+  delete (merged as Partial<CourseTheme> & { font?: string }).font
+  return merged
 }
 
 export interface Course {
@@ -218,6 +304,11 @@ export interface CourseMeta {
 
 export const defaultTheme: CourseTheme = {
   primaryColor: '#4f46e5',
-  font: 'inter',
+  scheme: 'light',
+  fontPack: 'modern',
+  nav: 'side',
+  hero: 'gradient',
+  width: 'normal',
+  corners: 'soft',
   headingWeight: 'extrabold',
 }
