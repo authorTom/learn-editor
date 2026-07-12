@@ -86,10 +86,15 @@ Production build: `npm run build` (output in `dist/`, host it as any static site
 
 ## Example course
 
-[`examples/recording-a-12-lead-ecg-uk.json`](examples/recording-a-12-lead-ecg-uk.json) is a
-complete, production-quality course — *Recording a 12-Lead ECG*, a UK clinical training
-course aligned to the [SCST 2024 guideline](https://scst.org.uk/wp-content/uploads/2024/09/2024_ECG_Recording_Guidelines_26-09-2024_V5_FINAL.pdf).
-Import it from the dashboard (**Import** → choose the file) to see what the tool can do:
+The app ships with a complete, production-quality course — *Recording a 12-Lead ECG*, a UK
+clinical training course aligned to the
+[SCST 2024 guideline](https://scst.org.uk/wp-content/uploads/2024/09/2024_ECG_Recording_Guidelines_26-09-2024_V5_FINAL.pdf).
+Click **Example** on the dashboard (or **Open the example course** on a fresh install) and it
+loads straight into the editor. The source is
+[`public/examples/recording-a-12-lead-ecg-uk.json`](public/examples/recording-a-12-lead-ecg-uk.json),
+served as a static asset and fetched on demand, so it costs nothing in the JS bundle.
+
+It's there to show what the tool can do:
 
 9 lessons · 72 blocks · 20 of the 23 block types · 5 quizzes (16 questions) · 9 embedded
 SVG diagrams in the media library · per-lesson theme overrides · completion gated on

@@ -76,7 +76,7 @@ interface EditorState {
   closeCourse: () => void
   deleteCourse: (id: string) => Promise<void>
   duplicateCourse: (id: string) => Promise<void>
-  importCourse: (data: Course) => Promise<void>
+  importCourse: (data: Course) => Promise<Course>
 
   saveBlockTemplate: (name: string, block: Block) => Promise<void>
   deleteBlockTemplate: (id: string) => Promise<void>
@@ -339,6 +339,7 @@ export const useStore = create<EditorState>((set, get) => {
       const c = normalizeCourse({ ...data, id: uid(), updatedAt: Date.now() })
       await idbSet(COURSE_PREFIX + c.id, c)
       set((s) => ({ courses: [toMeta(c), ...s.courses] }))
+      return c
     },
 
     saveBlockTemplate: async (name, block) => {

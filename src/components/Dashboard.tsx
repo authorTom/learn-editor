@@ -1,10 +1,11 @@
 import { useRef, useState } from 'react'
 import {
-  BookOpen, Plus, Upload, Copy, Trash2, GraduationCap, LayoutTemplate, FilePlus2, Check,
+  BookOpen, Plus, Upload, Copy, Trash2, GraduationCap, LayoutTemplate, FilePlus2, Check, Sparkles,
 } from 'lucide-react'
 import { useStore } from '../store'
 import SaveTemplateDialog from './SaveTemplateDialog'
 import TemplateLibrary from './TemplateLibrary'
+import { EXAMPLE_COURSE, fetchExampleCourse } from '../exampleCourse'
 import type { Course } from '../types'
 
 function timeAgo(ts: number): string {
@@ -33,6 +34,7 @@ export default function Dashboard() {
   const [templateId, setTemplateId] = useState<string | null>(null) // null = blank course
   const [title, setTitle] = useState('')
   const [savingTplFor, setSavingTplFor] = useState<string | null>(null) // course id
+  const [loadingExample, setLoadingExample] = useState(false)
   const fileRef = useRef<HTMLInputElement>(null)
 
   async function handleImport(file: File) {
@@ -43,6 +45,25 @@ export default function Dashboard() {
       await importCourse(data)
     } catch {
       alert('Could not import: this is not a valid Learn Editor course file.')
+    }
+  }
+
+  /** Seed the bundled exemplar — or just open it if it is already here, so the
+      button can't quietly fill the dashboard with copies. */
+  async function loadExample() {
+    const existing = courses.find((c) => c.title === EXAMPLE_COURSE.title)
+    if (existing) {
+      openCourse(existing.id)
+      return
+    }
+    setLoadingExample(true)
+    try {
+      const course = await importCourse(await fetchExampleCourse())
+      await openCourse(course.id)
+    } catch {
+      alert('Could not load the example course. Check your connection and try again.')
+    } finally {
+      setLoadingExample(false)
     }
   }
 
@@ -74,6 +95,14 @@ export default function Dashboard() {
           </div>
         </div>
         <div className="dash-actions">
+          <button
+            className="btn"
+            title={EXAMPLE_COURSE.blurb}
+            disabled={loadingExample}
+            onClick={loadExample}
+          >
+            <Sparkles size={15} /> {loadingExample ? 'Loading…' : 'Example'}
+          </button>
           <button className="btn" onClick={() => setShowLibrary(true)}>
             <LayoutTemplate size={15} /> Templates
           </button>
@@ -102,9 +131,15 @@ export default function Dashboard() {
           <div className="big">🎓</div>
           <h2>Create your first course</h2>
           <p>Build beautiful, responsive e-learning and export it as SCORM for any LMS.</p>
-          <button className="btn primary" onClick={() => openNew()}>
-            <Plus size={15} /> New course
-          </button>
+          <div className="empty-actions">
+            <button className="btn primary" onClick={() => openNew()}>
+              <Plus size={15} /> New course
+            </button>
+            <button className="btn" disabled={loadingExample} onClick={loadExample}>
+              <Sparkles size={15} /> {loadingExample ? 'Loading…' : 'Open the example course'}
+            </button>
+          </div>
+          <p className="example-blurb">{EXAMPLE_COURSE.blurb}</p>
         </div>
       ) : (
         <div className="course-grid">
