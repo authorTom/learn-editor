@@ -1,24 +1,16 @@
 import { create } from 'zustand'
-import { get as idbGet, set as idbSet, del as idbDel, keys as idbKeys } from 'idb-keyval'
+import { get as idbGet, set as idbSet, keys as idbKeys } from 'idb-keyval'
 import type { Course } from '../types'
 import { useStore } from '../store'
 import { uid } from '../utils/id'
 import { applySuggestionToBlock } from './anchor'
-import type { CommentStatus, Review, ReviewBundle, ReviewComment } from './types'
-import { isReviewBundle } from './types'
-
-const REVIEW_PREFIX = 'review:'
-/** The frozen course copy for a round, kept out of the Review itself so triage
-    writes stay small. Loaded only when the share file is built. */
-const SNAP_PREFIX = 'rsnap:'
-
-export function getSnapshot(reviewId: string): Promise<Course | undefined> {
-  return idbGet(SNAP_PREFIX + reviewId) as Promise<Course | undefined>
-}
+import { REVIEW_PREFIX, SNAP_PREFIX, deleteReviewData } from './storage'
+import type { CommentStatus, Review, ReviewComment } from './types'
+import { sanitizeBundle } from './types'
 
 export interface ImportResult {
   added: number
-  duplicates: number
+  skipped: number
   reviewer: string
 }
 
@@ -30,6 +22,9 @@ interface ReviewState {
   createReview: (course: Course, name: string) => Promise<Review>
   deleteReview: (id: string) => Promise<void>
   closeReview: (id: string, closed: boolean) => Promise<void>
+  /** Drop a deleted course's rounds from memory. The store that owns courses
+      purges them from IndexedDB and calls this to keep the two in step. */
+  forgetCourse: (courseId: string) => void
 
   /** Merge a reviewer's returned bundle. Comments are deduped by id, so the same
       file can be dropped in twice without doubling up. */
@@ -117,10 +112,12 @@ export const useReviews = create<ReviewState>((set, get) => {
     },
 
     deleteReview: async (id) => {
-      await idbDel(REVIEW_PREFIX + id)
-      await idbDel(SNAP_PREFIX + id)
+      await deleteReviewData(id)
       set((s) => ({ reviews: s.reviews.filter((r) => r.id !== id) }))
     },
+
+    forgetCourse: (courseId) =>
+      set((s) => ({ reviews: s.reviews.filter((r) => r.courseId !== courseId) })),
 
     closeReview: async (id, closed) => {
       const r = get().reviews.find((x) => x.id === id)
@@ -128,33 +125,38 @@ export const useReviews = create<ReviewState>((set, get) => {
       await persist({ ...r, status: closed ? 'closed' : 'open' })
     },
 
+    /** Feedback files arrive by email from other people — a truncated download or
+        a hand-edited file must never take the inbox down, so every comment is
+        validated and anything malformed is dropped rather than trusted. */
     importBundle: async (raw) => {
-      if (!isReviewBundle(raw)) throw new Error('That file is not Learn Editor review feedback.')
-      const bundle = raw as ReviewBundle
+      const bundle = sanitizeBundle(raw)
+      if (!bundle) throw new Error('That file is not Learn Editor review feedback.')
+
       const review = get().reviews.find((r) => r.id === bundle.reviewId)
       if (!review) {
         throw new Error(
           'This feedback is for a review round that no longer exists in this browser.'
         )
       }
+      if (bundle.courseId !== review.courseId) {
+        throw new Error('That feedback belongs to a different course.')
+      }
 
       const have = new Set(review.comments.map((c) => c.id))
-      const incoming = bundle.comments.filter((c) => c && c.id && !have.has(c.id))
-      const cleaned: ReviewComment[] = incoming.map((c) => ({
+      const fresh = bundle.comments.filter((c) => !have.has(c.id))
+      const cleaned: ReviewComment[] = fresh.map((c) => ({
         ...c,
         reviewId: review.id,
-        author: c.author || bundle.reviewer || 'Reviewer',
-        // A reviewer's file only ever carries their own new comments; the author
-        // owns triage, so everything lands as open regardless of what's in the file.
+        author: c.author || bundle.reviewer,
+        // The author owns triage, so everything lands open however the file arrived.
         status: 'open',
-        replies: Array.isArray(c.replies) ? c.replies : [],
       }))
 
       await persist({ ...review, comments: [...review.comments, ...cleaned] })
       return {
         added: cleaned.length,
-        duplicates: bundle.comments.length - cleaned.length,
-        reviewer: bundle.reviewer || 'Reviewer',
+        skipped: bundle.skipped + (bundle.comments.length - cleaned.length),
+        reviewer: bundle.reviewer,
       }
     },
 

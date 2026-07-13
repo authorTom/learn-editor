@@ -319,8 +319,18 @@ export const useStore = create<EditorState>((set, get) => {
         assets: c.assets.map((a) => (a.id === id ? { ...a, name } : a)),
       })),
 
+    /** Takes the course's review rounds with it. Each round stores a full copy of
+        the course, media and all, so leaving them behind would strand megabytes
+        in IndexedDB with nothing left to reference them.
+
+        The review store is pulled in dynamically: it imports this one (to apply
+        suggestions), and a static import back would make that a cycle. */
     deleteCourse: async (id) => {
       await idbDel(COURSE_PREFIX + id)
+      const { purgeCourseReviews } = await import('./review/storage')
+      await purgeCourseReviews(id)
+      const { useReviews } = await import('./review/reviewStore')
+      useReviews.getState().forgetCourse(id)
       set((s) => ({ courses: s.courses.filter((m) => m.id !== id) }))
     },
 

@@ -155,6 +155,35 @@ export function canApply(course: Course, c: ReviewComment): boolean {
   return applySuggestionToBlock(r.block, c.target.text, c.suggestion) !== null
 }
 
+/** Is a suggestion's replacement text actually in the course right now?
+ *
+ *  Applying a suggestion is an ordinary undoable edit, so ⌘Z can take the text
+ *  back out while the comment still says "Applied". Checking the course itself,
+ *  rather than trusting the stored status, keeps the inbox honest about what is
+ *  really in the course. */
+export function suggestionIsInCourse(course: Course, c: ReviewComment): boolean {
+  if (!c.suggestion || !c.target.blockId) return false
+  const r = resolveTarget(course, c.target)
+  if (!r.block) return false
+  return blockPlainText(r.block).includes(c.suggestion)
+}
+
+/** Why a suggestion's Apply button is disabled — so the author is told the truth
+    rather than a guess. `spans-fields` is the case where the quoted text is still
+    there but runs across two separate fields (two list items, an accordion's
+    title into its body), which no single-field replacement can safely rewrite. */
+export type ApplyBlocker = 'none' | 'not-a-suggestion' | 'orphaned' | 'drifted' | 'spans-fields'
+
+export function applyBlocker(course: Course, c: ReviewComment): ApplyBlocker {
+  if (!c.suggestion || !c.target.text || !c.target.blockId) return 'not-a-suggestion'
+  const r = resolveTarget(course, c.target)
+  if (r.state === 'orphaned' || !r.block) return 'orphaned'
+  if (r.state === 'drifted') return 'drifted'
+  return applySuggestionToBlock(r.block, c.target.text, c.suggestion) === null
+    ? 'spans-fields'
+    : 'none'
+}
+
 /** Short label for where a comment points, e.g. "Lesson 2 · Quiz". */
 export function targetLabel(course: Course, target: CommentTarget): string {
   const idx = course.lessons.findIndex((l) => l.id === target.lessonId)

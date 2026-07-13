@@ -1,8 +1,9 @@
 import { useEffect, useMemo, useState } from 'react'
 import { X, Check, Ban, Wand2, CornerDownRight, AlertTriangle } from 'lucide-react'
 import { useStore } from '../store'
-import { canApply, resolveTarget, targetLabel } from '../review/anchor'
+import { applyBlocker, resolveTarget, suggestionIsInCourse, targetLabel } from '../review/anchor'
 import { reviewsForCourse, useReviews } from '../review/reviewStore'
+import type { ApplyBlocker } from '../review/anchor'
 import type { CommentStatus, Review, ReviewComment } from '../review/types'
 
 type Filter = 'open' | 'all' | 'suggestions'
@@ -134,6 +135,14 @@ const STATUS_ICON: Partial<Record<CommentStatus, string>> = {
   applied: 'Applied',
 }
 
+const APPLY_HINT: Record<ApplyBlocker, string> = {
+  none: 'Write this change into the course',
+  'not-a-suggestion': 'Nothing to apply',
+  orphaned: 'The block this refers to has been deleted',
+  drifted: "You've changed this text since — apply by hand",
+  'spans-fields': "The selection crosses two fields — apply by hand",
+}
+
 function CommentCard({
   review,
   comment,
@@ -152,8 +161,19 @@ function CommentCard({
   const [err, setErr] = useState('')
 
   const anchor = resolveTarget(course, comment.target)
-  const applicable = canApply(course, comment)
+  const blocker = applyBlocker(course, comment)
   const isSug = typeof comment.suggestion === 'string'
+
+  // An applied suggestion whose replacement text is no longer in the course has
+  // been undone (⌘Z) or edited away. Saying "Applied" then would be a lie, so
+  // the card offers to apply it again.
+  const undone =
+    comment.status === 'applied' &&
+    isSug &&
+    !!comment.target.blockId &&
+    !suggestionIsInCourse(course, comment)
+
+  const canApplyNow = blocker === 'none' && (comment.status === 'open' || undone)
 
   async function onApply() {
     setErr('')
@@ -174,9 +194,10 @@ function CommentCard({
       <div className="rp-card-head">
         <span className="rp-author">{comment.author}</span>
         {isSug && <span className="rp-tag sug">Suggestion</span>}
-        {STATUS_ICON[comment.status] && (
+        {STATUS_ICON[comment.status] && !undone && (
           <span className="rp-tag">{STATUS_ICON[comment.status]}</span>
         )}
+        {undone && <span className="rp-tag">Undone</span>}
       </div>
 
       <button className="rp-loc" onClick={onJump}>
@@ -192,6 +213,18 @@ function CommentCard({
         <div className="rp-warn">
           <AlertTriangle size={13} /> You've edited this text since — the quote below is what the
           reviewer saw.
+        </div>
+      )}
+      {blocker === 'spans-fields' && (
+        <div className="rp-warn">
+          <AlertTriangle size={13} /> This selection crosses two separate fields, so it can't be
+          rewritten in one step — apply it by hand.
+        </div>
+      )}
+      {undone && (
+        <div className="rp-warn">
+          <AlertTriangle size={13} /> This was applied, but the text is no longer in the course —
+          you probably undid it.
         </div>
       )}
 
@@ -236,18 +269,14 @@ function CommentCard({
         </div>
       ) : (
         <div className="rp-acts">
-          {isSug && comment.status === 'open' && (
+          {isSug && (comment.status === 'open' || undone) && (
             <button
               className="btn sm primary"
-              disabled={!applicable}
-              title={
-                applicable
-                  ? 'Write this change into the course'
-                  : 'The original text no longer exists — apply by hand'
-              }
+              disabled={!canApplyNow}
+              title={APPLY_HINT[blocker]}
               onClick={onApply}
             >
-              <Wand2 size={13} /> Apply
+              <Wand2 size={13} /> {undone ? 'Apply again' : 'Apply'}
             </button>
           )}
           <button className="btn sm" onClick={() => setReplying(true)}>

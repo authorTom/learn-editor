@@ -21,6 +21,7 @@
   var state = { reviewer: '', comments: [] };
   var curLesson = '';
   var pending = null; // selection captured, waiting on the composer
+  var storageOk = true; // false on file:// and in some private windows
   var bubble, composer, rail, bar, countEl;
 
   /* ================= storage ================= */
@@ -29,7 +30,12 @@
     return Math.random().toString(36).slice(2, 10) + Date.now().toString(36).slice(-4);
   }
 
+  /* Every localStorage read has to sit inside the try: in a browser that blocks
+     storage outright, *getting* an item throws just as readily as setting one,
+     and an escaped exception here would kill the whole review layer before any
+     of its UI exists. */
   function load() {
+    if (!storageOk) return;
     try {
       var raw = localStorage.getItem(DATA_KEY);
       if (raw) {
@@ -37,15 +43,56 @@
         state.comments = d.comments || [];
         state.reviewer = d.reviewer || '';
       }
+      if (!state.reviewer) state.reviewer = localStorage.getItem(NAME_KEY) || '';
     } catch (e) { /* corrupt or unavailable storage — start clean */ }
-    if (!state.reviewer) state.reviewer = localStorage.getItem(NAME_KEY) || '';
+  }
+
+  /* Browsers restrict localStorage on file:// origins and in private windows. A
+     reviewer who opened this straight from an email attachment would then lose
+     every comment on refresh, silently — so find out up front and say so, rather
+     than letting them discover it the hard way. */
+  function probeStorage() {
+    try {
+      localStorage.setItem(DATA_KEY + ':probe', '1');
+      localStorage.removeItem(DATA_KEY + ':probe');
+      return true;
+    } catch (e) {
+      return false;
+    }
   }
 
   function save() {
+    if (!storageOk) return; // nothing to do; the reviewer has been warned
     try {
       localStorage.setItem(DATA_KEY, JSON.stringify(state));
       if (state.reviewer) localStorage.setItem(NAME_KEY, state.reviewer);
-    } catch (e) { /* private mode — the reviewer can still download */ }
+    } catch (e) {
+      storageOk = false;
+      warnNoStorage();
+    }
+  }
+
+  /** A standing, non-dismissable warning: their work only exists in this tab. */
+  function warnNoStorage() {
+    if (document.querySelector('.rv-nostore')) return;
+    var w = el('div', 'rv-nostore rv-ui',
+      '⚠️ <strong>This browser will not remember your comments.</strong> They are held in this ' +
+      'tab only — if you reload or close it, they are gone. Click <strong>Send feedback</strong> ' +
+      'before you leave. (Opening the file from a web address, rather than straight from an ' +
+      'email attachment, fixes this.)');
+    document.body.appendChild(w);
+    measureChrome();
+  }
+
+  /* Height of the fixed review chrome, published as --rv-top so the player's own
+     fixed sidebar and sticky topbar can be pushed clear of it. Measured, not
+     assumed: the storage warning wraps to a different number of lines depending
+     on the viewport, and a hardcoded offset would let it cover the sidebar. */
+  function measureChrome() {
+    var h = bar ? bar.offsetHeight : 48;
+    var w = document.querySelector('.rv-nostore');
+    if (w) h += w.offsetHeight;
+    document.documentElement.style.setProperty('--rv-top', h + 'px');
   }
 
   /* ================= text anchoring =================
@@ -384,16 +431,27 @@
     return card;
   }
 
+  /* Scroll to what a comment points at: its highlight if it has one, otherwise
+     the block itself. The block lookup has to match this comment's own block id —
+     an attribute-presence selector would just find the first block on the page. */
   function focusComment(cid) {
+    var c = null;
+    for (var i = 0; i < state.comments.length; i++) {
+      if (state.comments[i].id === cid) { c = state.comments[i]; break; }
+    }
     var mark = document.querySelector('mark.rv-hl[data-cid="' + cid + '"]');
-    var node = mark || document.querySelector('.rv-add[data-cid-block]');
     if (mark) {
       mark.scrollIntoView({ block: 'center', behavior: 'smooth' });
       mark.classList.add('flash');
       setTimeout(function () { mark.classList.remove('flash'); }, 1200);
-    } else if (node) {
-      node.scrollIntoView({ block: 'center' });
+      return;
     }
+    if (!c || !c.target.blockId) return; // lesson-level comment — nothing to scroll to
+    var block = document.querySelector('[data-bid="' + c.target.blockId + '"]');
+    if (!block) return;
+    block.scrollIntoView({ block: 'center', behavior: 'smooth' });
+    block.classList.add('rv-flash-block');
+    setTimeout(function () { block.classList.remove('rv-flash-block'); }, 1200);
   }
 
   /* ================= decorate the rendered lesson ================= */
@@ -613,13 +671,26 @@
     document.body.appendChild(composer);
 
     updateBar();
+    measureChrome();
+    // The bar and the warning both rewrap as the viewport narrows.
+    window.addEventListener('resize', measureChrome);
   }
 
   /* ================= wiring ================= */
 
   function init() {
+    storageOk = probeStorage();
     load();
     buildChrome();
+    if (!storageOk) warnNoStorage();
+
+    // Unsaved comments would die with the tab, so don't let it close quietly.
+    window.addEventListener('beforeunload', function (e) {
+      if (!storageOk && state.comments.length) {
+        e.preventDefault();
+        e.returnValue = '';
+      }
+    });
 
     document.addEventListener('mouseup', function (e) {
       if (e.target.closest && e.target.closest('.rv-ui')) return;
