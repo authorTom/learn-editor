@@ -1,0 +1,42 @@
+# Learn Editor - static SPA (Vite/React) served by nginx.
+#
+# Default: pull the prebuilt image published to GHCR by GitHub Actions.
+# Compose auto-reads a sibling `.env` file - copy `.env.example` to `.env` first.
+#
+# NOTE: GHCR forces owner/repo to lowercase, so the path is `authortom`
+# (not `authorTom`).
+
+services:
+  learn-editor:
+    # --- Deploy option A (default): pull the published image ----------------
+    image: ghcr.io/authortom/learn-editor:${IMAGE_TAG:-latest}
+
+    # --- Deploy option B: build from source ---------------------------------
+    # Comment out the `image:` line above and uncomment this block, then run
+    # `docker compose up -d --build`. (Keep it here for local/offline builds.)
+    # build:
+    #   context: .
+    #   dockerfile: Dockerfile
+
+    container_name: learn-editor
+    init: true                 # PID 1 that reaps zombies + forwards signals
+    restart: unless-stopped
+
+    ports:
+      - "${PORT:-8080}:80"     # host:container - quoted so YAML keeps it a string
+
+    healthcheck:
+      # nginx:alpine has BusyBox wget (-q --spider) but no curl.
+      # Use 127.0.0.1, not localhost: nginx listens on IPv4 only, and
+      # localhost resolves to IPv6 [::1] first -> "connection refused".
+      # Exec-array form avoids the colon-space YAML mapping gotcha.
+      test: ["CMD", "wget", "-q", "--spider", "http://127.0.0.1:80/"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+
+# No named volume is defined on purpose: this is a stateless static site.
+# All learner/course data lives in the browser's IndexedDB, so there is
+# nothing server-side to persist. Add a volume only if you later introduce
+# server state.
