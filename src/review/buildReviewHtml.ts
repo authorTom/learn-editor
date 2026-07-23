@@ -2,7 +2,7 @@ import reviewCss from './player/review.css?raw'
 import reviewJs from './player/review.js?raw'
 import { buildPlayerHtml } from '../scorm/buildPlayerHtml'
 import { downloadBlob, slugify } from '../utils/file'
-import { getSnapshot } from './reviewStore'
+import { getSnapshot } from './storage'
 import type { Review, ReviewSnapshot } from './types'
 
 /** The reviewable course: the real exported player, plus the review layer.

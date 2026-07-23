@@ -92,7 +92,11 @@
           ? this.api.LMSGetValue('cmi.suspend_data')
           : this.api.GetValue('cmi.suspend_data');
       } else {
-        raw = localStorage.getItem('le-progress-' + COURSE.id) || '';
+        // No LMS: fall back to the browser. Storage is denied outright in some
+        // private windows and file:// contexts, where even *reading* throws — so
+        // this can never be left unguarded, or the course dies on load.
+        try { raw = localStorage.getItem('le-progress-' + COURSE.id) || ''; }
+        catch (e) { raw = ''; }
       }
       if (!raw) return null;
       try { return JSON.parse(raw); } catch (e) { return null; }
@@ -131,7 +135,10 @@
           this.api.Commit('');
         }
       } else {
-        localStorage.setItem('le-progress-' + COURSE.id, raw);
+        // Progress simply isn't kept if the browser refuses storage; that beats
+        // throwing on every page turn.
+        try { localStorage.setItem('le-progress-' + COURSE.id, raw); }
+        catch (e) { /* storage denied — carry on without resume */ }
       }
     },
 

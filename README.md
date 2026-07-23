@@ -13,6 +13,65 @@ npm run dev      # open the printed localhost URL
 
 Production build: `npm run build` (output in `dist/`, host it as any static site).
 
+## Deploy with Docker
+
+Learn Editor ships as a prebuilt container image (a multi-stage build that serves
+the static site with nginx). GitHub Actions publishes it to the GitHub Container
+Registry on every push to `main`:
+
+```
+ghcr.io/authortom/learn-editor:latest
+```
+
+The image is public, so no login is needed to pull it.
+
+### Pull-based deploy (recommended)
+
+On the server, grab just the two files you need and start it — no source checkout,
+no local build. Compose automatically reads a sibling `.env` file.
+
+```bash
+mkdir -p learn-editor && cd learn-editor
+
+# 1. Fetch the compose file and the env template
+curl -fsSL -o compose.yaml     https://raw.githubusercontent.com/authorTom/learn-editor/main/compose.yaml
+curl -fsSL -o .env.example     https://raw.githubusercontent.com/authorTom/learn-editor/main/.env.example
+
+# 2. Create your real env from the template (PORT, image tag)
+cp .env.example .env
+#    edit .env if you want a different host port (default 8080)
+
+# 3. Pull and run
+docker compose pull
+docker compose up -d
+
+# 4. Confirm it's healthy
+docker compose ps          # STATUS should show "Up (healthy)"
+```
+
+Then open `http://<server>:8080` (or whatever `PORT` you set).
+
+### Build from source instead
+
+If you'd rather build locally (e.g. an air-gapped host, or to run a fork), open
+`compose.yaml`, comment out the `image:` line, uncomment the `build:` block, then:
+
+```bash
+docker compose up -d --build
+```
+
+### Configuration
+
+| Variable    | Default  | Meaning                                            |
+| ----------- | -------- | -------------------------------------------------- |
+| `PORT`      | `8080`   | Host port to expose (the container listens on 80). |
+| `IMAGE_TAG` | `latest` | Which published tag to run; pin to `sha-…` for reproducible deploys. |
+
+Copy `.env.example` to `.env` and adjust. Real `.env` files are gitignored; only
+the `.env.example` template is tracked. This is a **stateless** static site — all
+learner/course data lives in the browser's IndexedDB — so there's no server-side
+volume to persist.
+
 ## What it does
 
 - **Course dashboard** — create, duplicate, delete, import/export courses.

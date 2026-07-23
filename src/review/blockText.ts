@@ -104,13 +104,21 @@ export function htmlToText(html: string): string {
 }
 
 /** Everything a reader would see in this block, as one string. Used to test
-    whether a reviewer's quoted text still exists in the live course. */
+    whether a reviewer's quoted text still exists in the live course.
+
+    The fields are joined with *nothing* between them, because that is what the
+    reviewer's browser did: their quote was sliced out of the block's rendered
+    text nodes, which run straight into one another. Joining with a separator
+    here would put a character inside any quote that spans two fields — two list
+    items, an accordion's title and its body — so the quote could never be found
+    again, and the author would be told they had edited text they had not
+    touched. Mirror the DOM exactly and the comparison stays honest. */
 export function blockPlainText(block: Block): string {
   const parts: string[] = []
   mapBlockText(block, (value, kind) => {
     const s = kind === 'html' ? htmlToText(value) : value
-    if (s.trim()) parts.push(s)
+    if (s) parts.push(s)
     return value
   })
-  return parts.join('\n')
+  return parts.join('')
 }
