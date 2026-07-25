@@ -8,9 +8,15 @@ WORKDIR /app
 COPY package.json package-lock.json ./
 RUN npm ci
 
-# Build the SPA -> /app/dist
+# Seed a fresh install with the exemplar course + starter templates.
+# Set --build-arg SEED_EXAMPLES=false to ship an empty dashboard instead.
+ARG SEED_EXAMPLES=true
+ENV VITE_SEED_EXAMPLES=$SEED_EXAMPLES
+
+# Build the SPA -> /app/dist (regenerate the seed library first so it can't
+# drift from the exemplar it's derived from).
 COPY . .
-RUN npm run build
+RUN node scripts/build-seed-templates.mjs && npm run build
 
 # --- Stage 2: serve dist/ with nginx ----------------------------------------
 FROM nginx:1.27-alpine AS runtime

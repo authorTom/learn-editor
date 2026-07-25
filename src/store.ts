@@ -3,6 +3,7 @@ import { get as idbGet, set as idbSet, del as idbDel, keys as idbKeys } from 'id
 import type { Asset, Block, BlockTemplate, Course, CourseMeta, CourseTemplate, Lesson } from './types'
 import { defaultCompletion, defaultTheme, normalizeCompletion, normalizeTheme } from './types'
 import { cloneBlock } from './blockDefaults'
+import { fetchExampleCourse, fetchSeedTemplates } from './exampleCourse'
 import { assetsForBlock, assetsForBlocks, mergeAssets } from './utils/assets'
 import { readFileAsDataURL, readImageFile } from './utils/file'
 import { uid } from './utils/id'
@@ -10,6 +11,9 @@ import { uid } from './utils/id'
 const COURSE_PREFIX = 'course:'
 const BLOCK_TPL_PREFIX = 'btpl:'
 const COURSE_TPL_PREFIX = 'ctpl:'
+// Set once the fresh-install seed has run, so it never repeats (and deleting
+// the seeded course/templates makes them stay gone).
+const SEED_MARKER = 'meta:seeded-examples'
 
 function newLesson(title = 'New lesson'): Lesson {
   return { id: uid(), title, icon: '📄', blocks: [] }
@@ -70,6 +74,7 @@ interface EditorState {
   future: Course[]
 
   loadCourseList: () => Promise<void>
+  seedExamples: () => Promise<void>
   createCourse: (title: string) => Promise<Course>
   createCourseFromTemplate: (title: string, templateId: string) => Promise<Course | undefined>
   openCourse: (id: string) => Promise<void>
@@ -219,6 +224,30 @@ export const useStore = create<EditorState>((set, get) => {
       blockTpls.sort((a, b) => b.createdAt - a.createdAt)
       courseTpls.sort((a, b) => b.createdAt - a.createdAt)
       set({ courses: metas, blockTemplates: blockTpls, courseTemplates: courseTpls, loaded: true })
+    },
+
+    /** Fresh-install seed: on a brand-new browser, drop in the ECG exemplar and
+        the starter template library. Runs at most once (guarded by SEED_MARKER)
+        and only into an empty library, so it never clobbers real work and stays
+        gone once the user deletes it. Call after `loadCourseList`. */
+    seedExamples: async () => {
+      if (await idbGet(SEED_MARKER)) return
+      const s = get()
+      if (s.courses.length || s.blockTemplates.length || s.courseTemplates.length) {
+        // Not a fresh install — record that seeding is settled and do nothing.
+        await idbSet(SEED_MARKER, true)
+        return
+      }
+      try {
+        const [course, tpls] = await Promise.all([fetchExampleCourse(), fetchSeedTemplates()])
+        await get().importTemplates(tpls.blockTemplates ?? [], tpls.courseTemplates ?? [])
+        await get().importCourse(course)
+        await idbSet(SEED_MARKER, true)
+      } catch (e) {
+        // Non-fatal (e.g. a fetch hiccup): leave the marker unset so the next
+        // load retries rather than leaving a permanently empty dashboard.
+        console.warn('Example seeding failed; will retry on next load.', e)
+      }
     },
 
     createCourse: async (title) => {

@@ -25,6 +25,15 @@ ghcr.io/authortom/learn-editor:latest
 
 The image is public, so no login is needed to pull it.
 
+**Pre-seeded content.** The Docker image ships with the dashboard pre-populated
+on first visit: the *Recording a 12-Lead ECG* exemplar course, plus a starter
+template library (9 reusable blocks — callouts, quizzes, matching, sequence,
+flashcards, hotspots and more — and one course template). Seeding runs once per
+browser and only into an empty library, so deleting the seeded items makes them
+stay gone. To ship an empty dashboard instead, build with
+`--build-arg SEED_EXAMPLES=false`. (Plain `npm run dev` / `npm run build` never
+seed — it's opt-in via the `VITE_SEED_EXAMPLES` build flag the image sets.)
+
 ### Pull-based deploy (recommended)
 
 On the server, grab just the two files you need and start it — no source checkout,
