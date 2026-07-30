@@ -1,0 +1,125 @@
+/* ===== Block picker =====
+   Shared by the insert popover, the "/" slash command and the command palette.
+   Chrome tokens throughout — it floats above the canvas, it is not content. */
+
+.picker-pop,
+.slash-pop {
+  width: min(380px, calc(100vw - 24px));
+  padding: 0;
+  overflow: hidden;
+
+  /* Floats over the course canvas, so it opts back out of the canvas's
+     course-colour remap and uses editor chrome. */
+  --surface: var(--chrome-surface);
+  --surface-hover: var(--chrome-surface-hover);
+  --text: var(--chrome-text);
+  --text-muted: var(--chrome-text-muted);
+  --text-subtle: var(--chrome-text-subtle);
+  --border: var(--chrome-border);
+}
+
+/* The slash picker is positioned in normal flow under its block rather than
+   portalled, so it follows the block if the canvas scrolls. */
+.slash-anchor {
+  position: relative;
+  z-index: var(--z-popover);
+}
+.slash-pop {
+  position: absolute;
+  top: var(--space-2);
+  left: 0;
+}
+
+.picker {
+  display: flex;
+  flex-direction: column;
+  max-height: min(420px, 60vh);
+}
+.picker__search {
+  flex-shrink: 0;
+  padding: var(--space-2);
+  border-bottom: 1px solid var(--border);
+}
+.picker__list {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding: var(--space-1);
+}
+.picker__group {
+  padding: var(--space-3) var(--space-2) var(--space-1);
+  font-size: var(--text-2xs);
+  font-weight: var(--weight-semibold);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-subtle);
+}
+.picker__item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-2);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+}
+/* Highlight follows the keyboard cursor, not :hover — one visible cursor at a
+   time, whichever input is driving. */
+.picker__item.is-active {
+  background: var(--accent-subtle);
+}
+.picker__icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 30px;
+  height: 30px;
+  border-radius: var(--radius-sm);
+  background: var(--surface-hover);
+  color: var(--text-muted);
+}
+.picker__item.is-active .picker__icon {
+  background: var(--accent);
+  color: var(--accent-contrast);
+}
+.picker__icon.is-saved {
+  background: var(--warning-subtle);
+  color: var(--warning);
+}
+.picker__text {
+  flex: 1;
+  min-width: 0;
+}
+.picker__label {
+  display: block;
+  font-size: var(--text-sm);
+  font-weight: var(--weight-medium);
+  color: var(--text);
+}
+.picker__desc {
+  display: block;
+  font-size: var(--text-xs);
+  line-height: 1.4;
+  /* --text-muted, not --text-subtle: this sits on --accent-subtle when the row
+     is the keyboard cursor, where subtle drops to 4.32:1. */
+  color: var(--text-muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.picker__del {
+  opacity: 0;
+  flex-shrink: 0;
+}
+.picker__item:hover .picker__del,
+.picker__item.is-active .picker__del,
+.picker__item:focus-within .picker__del {
+  opacity: 1;
+}
+.picker__empty {
+  margin: 0;
+  padding: var(--space-5) var(--space-3);
+  font-size: var(--text-sm);
+  color: var(--text-subtle);
+  text-align: center;
+}
