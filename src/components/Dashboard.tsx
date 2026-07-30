@@ -1,12 +1,18 @@
-import { useRef, useState } from 'react'
+import { useMemo, useRef, useState } from 'react'
 import {
-  BookOpen, Plus, Upload, Copy, Trash2, GraduationCap, LayoutTemplate, FilePlus2, Check, Sparkles,
+  BookOpen, Plus, Upload, Copy, Trash2, GraduationCap, LayoutTemplate, FilePlus2,
+  Check, Sparkles, Search, MoreHorizontal, LayoutGrid, Rows3,
 } from 'lucide-react'
 import { useStore } from '../store'
+import { Button, Dialog, Field, IconButton, Input, Popover, Segmented, useConfirm, useToast } from '../ui'
 import SaveTemplateDialog from './SaveTemplateDialog'
 import TemplateLibrary from './TemplateLibrary'
+import AppearanceMenu from './AppearanceMenu'
 import { EXAMPLE_COURSE, fetchExampleCourse } from '../exampleCourse'
 import type { Course } from '../types'
+
+type Sort = 'recent' | 'title' | 'lessons'
+type View = 'grid' | 'list'
 
 function timeAgo(ts: number): string {
   const s = Math.floor((Date.now() - ts) / 1000)
@@ -14,6 +20,16 @@ function timeAgo(ts: number): string {
   if (s < 3600) return `${Math.floor(s / 60)}m ago`
   if (s < 86400) return `${Math.floor(s / 3600)}h ago`
   return `${Math.floor(s / 86400)}d ago`
+}
+
+/** Deterministic cover for courses with no image, so cards are distinguishable
+    at a glance instead of all sharing the same indigo→violet gradient. */
+function coverFor(id: string): string {
+  const hues = [212, 258, 288, 330, 12, 32, 152, 186]
+  let h = 0
+  for (let i = 0; i < id.length; i++) h = (h * 31 + id.charCodeAt(i)) >>> 0
+  const hue = hues[h % hues.length]
+  return `linear-gradient(135deg, hsl(${hue} 62% 52%), hsl(${(hue + 38) % 360} 58% 42%))`
 }
 
 export default function Dashboard() {
@@ -29,22 +45,43 @@ export default function Dashboard() {
     importCourse,
     saveCourseTemplateById,
   } = useStore()
+  const confirm = useConfirm()
+  const toast = useToast()
   const [showNew, setShowNew] = useState(false)
   const [showLibrary, setShowLibrary] = useState(false)
   const [templateId, setTemplateId] = useState<string | null>(null) // null = blank course
   const [title, setTitle] = useState('')
-  const [savingTplFor, setSavingTplFor] = useState<string | null>(null) // course id
+  const [savingTplFor, setSavingTplFor] = useState<string | null>(null)
   const [loadingExample, setLoadingExample] = useState(false)
+  const [query, setQuery] = useState('')
+  const [sort, setSort] = useState<Sort>('recent')
+  const [view, setView] = useState<View>('grid')
   const fileRef = useRef<HTMLInputElement>(null)
+
+  const visible = useMemo(() => {
+    const q = query.trim().toLowerCase()
+    const filtered = q
+      ? courses.filter(
+          (c) =>
+            c.title.toLowerCase().includes(q) || (c.description ?? '').toLowerCase().includes(q)
+        )
+      : courses
+    const sorted = [...filtered]
+    if (sort === 'title') sorted.sort((a, b) => a.title.localeCompare(b.title))
+    else if (sort === 'lessons') sorted.sort((a, b) => b.lessonCount - a.lessonCount)
+    else sorted.sort((a, b) => b.updatedAt - a.updatedAt)
+    return sorted
+  }, [courses, query, sort])
 
   async function handleImport(file: File) {
     try {
       const text = await file.text()
       const data = JSON.parse(text) as Course
       if (!data.lessons || !Array.isArray(data.lessons)) throw new Error('bad format')
-      await importCourse(data)
+      const course = await importCourse(data)
+      toast.success(`Imported “${course.title || 'Untitled course'}”.`)
     } catch {
-      alert('Could not import: this is not a valid Learn Editor course file.')
+      toast.error('That file isn’t a Learn Editor course export. Look for the JSON file you saved from Export → JSON backup.')
     }
   }
 
@@ -61,7 +98,7 @@ export default function Dashboard() {
       const course = await importCourse(await fetchExampleCourse())
       await openCourse(course.id)
     } catch {
-      alert('Could not load the example course. Check your connection and try again.')
+      toast.error('Could not load the example course. Check your connection and try again.')
     } finally {
       setLoadingExample(false)
     }
@@ -82,36 +119,48 @@ export default function Dashboard() {
     setTemplateId(null)
   }
 
+  async function removeCourse(c: (typeof courses)[number]) {
+    const ok = await confirm({
+      title: `Delete “${c.title || 'Untitled course'}”?`,
+      message:
+        'This permanently removes the course and its media from this browser. Unlike edits inside a course, deleting one cannot be undone — export a JSON backup first if you might want it back.',
+      confirmLabel: 'Delete course',
+      destructive: true,
+    })
+    if (ok) {
+      await deleteCourse(c.id)
+      toast.show(`Deleted “${c.title || 'Untitled course'}”.`)
+    }
+  }
+
+  const isEmpty = loaded && courses.length === 0
+
   return (
     <div className="dash">
-      <div className="dash-head">
+      <header className="dash-head">
         <div className="dash-brand">
-          <div className="logo">
-            <GraduationCap size={23} />
+          <div className="dash-brand__logo" aria-hidden="true">
+            <GraduationCap size={22} />
           </div>
           <div>
             <h1>Learn Editor</h1>
-            <div className="sub">Author responsive SCORM e-learning courses</div>
+            <p className="dash-brand__sub">Author responsive SCORM e-learning courses</p>
           </div>
         </div>
         <div className="dash-actions">
-          <button
-            className="btn"
-            title={EXAMPLE_COURSE.blurb}
-            disabled={loadingExample}
-            onClick={loadExample}
-          >
-            <Sparkles size={15} /> {loadingExample ? 'Loading…' : 'Example'}
-          </button>
-          <button className="btn" onClick={() => setShowLibrary(true)}>
-            <LayoutTemplate size={15} /> Templates
-          </button>
-          <button className="btn" onClick={() => fileRef.current?.click()}>
-            <Upload size={15} /> Import
-          </button>
-          <button className="btn primary" onClick={() => openNew()}>
-            <Plus size={15} /> New course
-          </button>
+          <AppearanceMenu />
+          <Button icon={<Sparkles size={15} />} disabled={loadingExample} onClick={loadExample}>
+            {loadingExample ? 'Loading…' : 'Example'}
+          </Button>
+          <Button icon={<LayoutTemplate size={15} />} onClick={() => setShowLibrary(true)}>
+            Templates
+          </Button>
+          <Button icon={<Upload size={15} />} onClick={() => fileRef.current?.click()}>
+            Import
+          </Button>
+          <Button variant="primary" icon={<Plus size={15} />} onClick={() => openNew()}>
+            New course
+          </Button>
           <input
             ref={fileRef}
             type="file"
@@ -124,149 +173,233 @@ export default function Dashboard() {
             }}
           />
         </div>
-      </div>
+      </header>
 
-      {loaded && courses.length === 0 ? (
-        <div className="empty-state">
-          <div className="big">🎓</div>
-          <h2>Create your first course</h2>
-          <p>Build beautiful, responsive e-learning and export it as SCORM for any LMS.</p>
-          <div className="empty-actions">
-            <button className="btn primary" onClick={() => openNew()}>
-              <Plus size={15} /> New course
-            </button>
-            <button className="btn" disabled={loadingExample} onClick={loadExample}>
-              <Sparkles size={15} /> {loadingExample ? 'Loading…' : 'Open the example course'}
-            </button>
+      {isEmpty ? (
+        <div className="dash-empty">
+          <div className="dash-empty__icon" aria-hidden="true">
+            <GraduationCap size={30} />
           </div>
-          <p className="example-blurb">{EXAMPLE_COURSE.blurb}</p>
+          <h2>Create your first course</h2>
+          <p>Build responsive e-learning and export it as SCORM for any LMS.</p>
+          <div className="dash-empty__actions">
+            <Button variant="primary" icon={<Plus size={15} />} onClick={() => openNew()}>
+              New course
+            </Button>
+            <Button icon={<Sparkles size={15} />} disabled={loadingExample} onClick={loadExample}>
+              {loadingExample ? 'Loading…' : 'Open the example course'}
+            </Button>
+          </div>
+          <p className="dash-empty__blurb">{EXAMPLE_COURSE.blurb}</p>
         </div>
       ) : (
-        <div className="course-grid">
-          {courses.map((c) => (
-            <div key={c.id} className="course-card" onClick={() => openCourse(c.id)}>
-              <div
-                className="card-cover"
-                style={c.coverImage ? { backgroundImage: `url(${c.coverImage})` } : undefined}
-              />
-              <div className="card-body">
-                <h3>{c.title || 'Untitled course'}</h3>
-                <div className="desc">{c.description || 'No description yet.'}</div>
-                <div className="card-meta">
-                  <span>
-                    <BookOpen size={11} style={{ verticalAlign: '-1px' }} /> {c.lessonCount} lesson
-                    {c.lessonCount === 1 ? '' : 's'} · {timeAgo(c.updatedAt)}
-                  </span>
-                  <span className="card-menu" onClick={(e) => e.stopPropagation()}>
-                    <button
-                      className="icon-btn"
-                      title="Save as course template"
-                      onClick={() => setSavingTplFor(c.id)}
-                    >
-                      <LayoutTemplate size={14} />
-                    </button>
-                    <button
-                      className="icon-btn"
-                      title="Duplicate"
-                      onClick={() => duplicateCourse(c.id)}
-                    >
-                      <Copy size={14} />
-                    </button>
-                    <button
-                      className="icon-btn danger"
-                      title="Delete"
-                      onClick={() => {
-                        if (confirm(`Delete "${c.title}"? This cannot be undone.`)) deleteCourse(c.id)
-                      }}
-                    >
-                      <Trash2 size={14} />
-                    </button>
-                  </span>
-                </div>
+        <>
+          {/* Only worth showing once there is enough to search through. */}
+          {courses.length > 3 && (
+            <div className="dash-toolbar">
+              <div className="dash-search">
+                <Search size={15} aria-hidden="true" />
+                <Input
+                  type="search"
+                  aria-label="Search courses"
+                  placeholder="Search courses…"
+                  value={query}
+                  onChange={(e) => setQuery(e.target.value)}
+                />
               </div>
+              <Segmented
+                label="Sort by"
+                size="sm"
+                value={sort}
+                options={[
+                  { value: 'recent', label: 'Recent' },
+                  { value: 'title', label: 'Title' },
+                  { value: 'lessons', label: 'Lessons' },
+                ]}
+                onChange={setSort}
+              />
+              <Segmented
+                label="View"
+                size="sm"
+                value={view}
+                options={[
+                  { value: 'grid', label: <LayoutGrid size={14} />, srLabel: 'Grid view' },
+                  { value: 'list', label: <Rows3 size={14} />, srLabel: 'List view' },
+                ]}
+                onChange={setView}
+              />
             </div>
-          ))}
-        </div>
+          )}
+
+          {visible.length === 0 ? (
+            <p className="dash-none">No courses match “{query}”.</p>
+          ) : (
+            <ul className={'course-list course-list--' + view}>
+              {visible.map((c) => (
+                <li key={c.id}>
+                  <div className="course-card">
+                    {/* The whole card is clickable, but the accessible control
+                        is this one button, so the menu inside is not nested
+                        inside an interactive element. */}
+                    <button
+                      className="course-card__open"
+                      onClick={() => openCourse(c.id)}
+                    >
+                      <span
+                        className="course-card__cover"
+                        style={
+                          c.coverImage
+                            ? { backgroundImage: `url(${c.coverImage})` }
+                            : { backgroundImage: coverFor(c.id) }
+                        }
+                        aria-hidden="true"
+                      />
+                      <span className="course-card__body">
+                        <span className="course-card__title">{c.title || 'Untitled course'}</span>
+                        <span className="course-card__desc">
+                          {c.description || 'No description yet.'}
+                        </span>
+                        <span className="course-card__meta">
+                          <BookOpen size={12} aria-hidden="true" />
+                          {c.lessonCount} lesson{c.lessonCount === 1 ? '' : 's'} · {timeAgo(c.updatedAt)}
+                        </span>
+                      </span>
+                    </button>
+
+                    <div className="course-card__menu">
+                      <Popover
+                        label={`Actions for ${c.title || 'Untitled course'}`}
+                        align="end"
+                        className="menu-pop"
+                        trigger={
+                          <IconButton
+                            label={`Actions for ${c.title || 'Untitled course'}`}
+                            icon={<MoreHorizontal size={16} />}
+                          />
+                        }
+                      >
+                        {({ close }) => (
+                          <div>
+                            <button
+                              className="menu-item"
+                              onClick={() => {
+                                duplicateCourse(c.id)
+                                close()
+                              }}
+                            >
+                              <Copy size={15} aria-hidden="true" /> Duplicate
+                            </button>
+                            <button
+                              className="menu-item"
+                              onClick={() => {
+                                setSavingTplFor(c.id)
+                                close()
+                              }}
+                            >
+                              <LayoutTemplate size={15} aria-hidden="true" /> Save as template
+                            </button>
+                            <button
+                              className="menu-item is-danger"
+                              onClick={() => {
+                                close()
+                                removeCourse(c)
+                              }}
+                            >
+                              <Trash2 size={15} aria-hidden="true" /> Delete
+                            </button>
+                          </div>
+                        )}
+                      </Popover>
+                    </div>
+                  </div>
+                </li>
+              ))}
+            </ul>
+          )}
+        </>
       )}
 
       {showNew && (
-        <div className="modal-scrim" onClick={() => setShowNew(false)}>
-          <div className="modal" onClick={(e) => e.stopPropagation()}>
-            <div className="modal-head">
-              <h2>New course</h2>
-            </div>
-            <div className="modal-body">
-              <div className="field">
-                <label>Course title</label>
-                <input
-                  type="text"
-                  autoFocus
-                  placeholder="e.g. Workplace Safety Essentials"
-                  value={title}
-                  onChange={(e) => setTitle(e.target.value)}
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter') create()
-                  }}
-                />
-              </div>
-
-              <div className="field">
-                <label>Start from</label>
-                <div className="tpl-choice">
-                  <button
-                    className={'tpl-option' + (templateId === null ? ' sel' : '')}
-                    onClick={() => setTemplateId(null)}
-                  >
-                    <span className="to-icon">
-                      <FilePlus2 size={16} />
-                    </span>
-                    <span className="tpl-text">
-                      <div className="tpl-name">Blank course</div>
-                      <div className="tpl-meta">One empty lesson, default theme</div>
-                    </span>
-                    {templateId === null && <Check size={15} className="to-check" />}
-                  </button>
-
-                  {courseTemplates.map((t) => (
-                    <button
-                      key={t.id}
-                      className={'tpl-option' + (templateId === t.id ? ' sel' : '')}
-                      onClick={() => setTemplateId(t.id)}
-                    >
-                      <span
-                        className="to-icon"
-                        style={{ background: t.theme.primaryColor, color: '#fff' }}
-                      >
-                        <LayoutTemplate size={16} />
-                      </span>
-                      <span className="tpl-text">
-                        <div className="tpl-name">{t.name}</div>
-                        <div className="tpl-meta">
-                          {t.lessons.length} lesson{t.lessons.length === 1 ? '' : 's'} ·{' '}
-                          {t.lessons.reduce((n, l) => n + l.blocks.length, 0)} blocks
-                        </div>
-                      </span>
-                      {templateId === t.id && <Check size={15} className="to-check" />}
-                    </button>
-                  ))}
-                </div>
-                {courseTemplates.length === 0 && (
-                  <p className="drop-hint">
-                    Tip: save any course as a template to reuse its lessons and theme here.
-                  </p>
-                )}
-              </div>
-            </div>
-            <div className="modal-foot">
-              <button className="btn" onClick={() => setShowNew(false)}>
-                Cancel
-              </button>
-              <button className="btn primary" disabled={!title.trim()} onClick={create}>
+        <Dialog
+          title="New course"
+          onClose={() => setShowNew(false)}
+          footer={
+            <>
+              <Button onClick={() => setShowNew(false)}>Cancel</Button>
+              <Button variant="primary" disabled={!title.trim()} onClick={create}>
                 Create course
+              </Button>
+            </>
+          }
+        >
+          <Field label="Course title" required>
+            <Input
+              data-autofocus
+              placeholder="e.g. Workplace Safety Essentials"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') create()
+              }}
+            />
+          </Field>
+
+          <div className="ui-field">
+            <span className="ui-field__label" id="start-from-label">
+              Start from
+            </span>
+            <div className="tpl-choice" role="radiogroup" aria-labelledby="start-from-label">
+              <button
+                type="button"
+                role="radio"
+                aria-checked={templateId === null}
+                className={'tpl-option' + (templateId === null ? ' sel' : '')}
+                onClick={() => setTemplateId(null)}
+              >
+                <span className="to-icon" aria-hidden="true">
+                  <FilePlus2 size={16} />
+                </span>
+                <span className="tpl-text">
+                  <div className="tpl-name">Blank course</div>
+                  <div className="tpl-meta">One empty lesson, default theme</div>
+                </span>
+                {templateId === null && <Check size={15} className="to-check" aria-hidden="true" />}
               </button>
+
+              {courseTemplates.map((t) => (
+                <button
+                  key={t.id}
+                  type="button"
+                  role="radio"
+                  aria-checked={templateId === t.id}
+                  className={'tpl-option' + (templateId === t.id ? ' sel' : '')}
+                  onClick={() => setTemplateId(t.id)}
+                >
+                  <span
+                    className="to-icon"
+                    aria-hidden="true"
+                    style={{ background: t.theme.primaryColor, color: '#fff' }}
+                  >
+                    <LayoutTemplate size={16} />
+                  </span>
+                  <span className="tpl-text">
+                    <div className="tpl-name">{t.name}</div>
+                    <div className="tpl-meta">
+                      {t.lessons.length} lesson{t.lessons.length === 1 ? '' : 's'} ·{' '}
+                      {t.lessons.reduce((n, l) => n + l.blocks.length, 0)} blocks
+                    </div>
+                  </span>
+                  {templateId === t.id && <Check size={15} className="to-check" aria-hidden="true" />}
+                </button>
+              ))}
             </div>
+            {courseTemplates.length === 0 && (
+              <p className="ui-field__hint">
+                Tip: save any course as a template to reuse its lessons and theme here.
+              </p>
+            )}
           </div>
-        </div>
+        </Dialog>
       )}
 
       {savingTplFor && (
@@ -277,9 +410,7 @@ export default function Dashboard() {
             (courses.find((c) => c.id === savingTplFor)?.title || 'Untitled course') + ' template'
           }
           withDescription
-          onSave={(name, description) =>
-            saveCourseTemplateById(name, description, savingTplFor)
-          }
+          onSave={(name, description) => saveCourseTemplateById(name, description, savingTplFor)}
           onClose={() => setSavingTplFor(null)}
         />
       )}

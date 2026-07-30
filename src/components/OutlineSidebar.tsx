@@ -2,6 +2,7 @@ import { useState } from 'react'
 import {
   DndContext,
   closestCenter,
+  KeyboardSensor,
   PointerSensor,
   useSensor,
   useSensors,
@@ -9,12 +10,15 @@ import {
 } from '@dnd-kit/core'
 import {
   SortableContext,
+  sortableKeyboardCoordinates,
   useSortable,
   verticalListSortingStrategy,
 } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
 import { GripVertical, Plus, Copy, Trash2 } from 'lucide-react'
 import { useStore } from '../store'
+import { Button, IconButton, useConfirm } from '../ui'
+import { dragInstructions, makeAnnouncements } from '../dndA11y'
 import type { Lesson } from '../types'
 
 const LESSON_EMOJI = [
@@ -25,6 +29,7 @@ const LESSON_EMOJI = [
 
 function OutlineItem({ lesson, index }: { lesson: Lesson; index: number }) {
   const { lessonId, selectLesson, updateLesson, deleteLesson, duplicateLesson, course } = useStore()
+  const confirm = useConfirm()
   const [renaming, setRenaming] = useState(false)
   const [showEmoji, setShowEmoji] = useState(false)
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
@@ -44,19 +49,29 @@ function OutlineItem({ lesson, index }: { lesson: Lesson; index: number }) {
       className={'outline-item' + (lesson.id === lessonId ? ' active' : '')}
       onClick={() => selectLesson(lesson.id)}
     >
-      <span className="grip" {...attributes} {...listeners} onClick={(e) => e.stopPropagation()}>
-        <GripVertical size={14} />
-      </span>
-      <span
+      <button
+        type="button"
+        className="grip"
+        aria-label={`Reorder ${lesson.title}`}
+        data-dnd-id={lesson.id}
+        {...attributes}
+        {...listeners}
+        onClick={(e) => e.stopPropagation()}
+      >
+        <GripVertical size={14} aria-hidden="true" />
+      </button>
+      <button
+        type="button"
         className="o-icon"
-        title="Change icon"
+        aria-label={`Change icon for ${lesson.title}`}
+        aria-expanded={showEmoji}
         onClick={(e) => {
           e.stopPropagation()
           setShowEmoji((v) => !v)
         }}
       >
         {lesson.icon}
-      </span>
+      </button>
       {renaming ? (
         <input
           className="o-rename"
@@ -78,25 +93,38 @@ function OutlineItem({ lesson, index }: { lesson: Lesson; index: number }) {
         </span>
       )}
       <span className="o-actions" onClick={(e) => e.stopPropagation()}>
-        <button className="icon-btn" title="Duplicate lesson" onClick={() => duplicateLesson(lesson.id)}>
-          <Copy size={13} />
-        </button>
-        <button
-          className="icon-btn danger"
-          title="Delete lesson"
+        <IconButton
+          label={`Duplicate ${lesson.title}`}
+          size="sm"
+          icon={<Copy size={13} />}
+          onClick={() => duplicateLesson(lesson.id)}
+        />
+        <IconButton
+          label={`Delete ${lesson.title}`}
+          size="sm"
+          variant="danger"
+          icon={<Trash2 size={13} />}
           disabled={!canDelete}
-          onClick={() => {
-            if (confirm(`Delete lesson "${lesson.title}"?`)) deleteLesson(lesson.id)
+          onClick={async () => {
+            const ok = await confirm({
+              title: `Delete "${lesson.title}"?`,
+              message: `This removes the lesson and its ${lesson.blocks.length} block${
+                lesson.blocks.length === 1 ? '' : 's'
+              }. You can undo it with ⌘Z.`,
+              confirmLabel: 'Delete lesson',
+              destructive: true,
+            })
+            if (ok) deleteLesson(lesson.id)
           }}
-        >
-          <Trash2 size={13} />
-        </button>
+        />
       </span>
       {showEmoji && (
         <div className="emoji-pop" onClick={(e) => e.stopPropagation()}>
           {LESSON_EMOJI.map((em) => (
             <button
               key={em}
+              type="button"
+              aria-label={`Use ${em} as the lesson icon`}
               onClick={() => {
                 updateLesson(lesson.id, { icon: em })
                 setShowEmoji(false)
@@ -115,7 +143,11 @@ export default function OutlineSidebar() {
   const course = useStore((s) => s.course)!
   const addLesson = useStore((s) => s.addLesson)
   const moveLesson = useStore((s) => s.moveLesson)
-  const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 6 } }))
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 6 } }),
+    // Lessons were mouse-only to reorder before this — WCAG 2.1.1.
+    useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates })
+  )
 
   function onDragEnd(e: DragEndEvent) {
     const { active, over } = e
@@ -132,7 +164,15 @@ export default function OutlineSidebar() {
         <span>{course.lessons.length}</span>
       </div>
       <div className="outline-list">
-        <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={onDragEnd}>
+        <DndContext
+          sensors={sensors}
+          collisionDetection={closestCenter}
+          onDragEnd={onDragEnd}
+          accessibility={{
+            announcements: makeAnnouncements('Lesson'),
+            screenReaderInstructions: dragInstructions,
+          }}
+        >
           <SortableContext
             items={course.lessons.map((l) => l.id)}
             strategy={verticalListSortingStrategy}
@@ -144,9 +184,9 @@ export default function OutlineSidebar() {
         </DndContext>
       </div>
       <div className="outline-foot">
-        <button className="btn ghost" style={{ width: '100%' }} onClick={addLesson}>
-          <Plus size={15} /> Add lesson
-        </button>
+        <Button variant="ghost" block icon={<Plus size={15} />} onClick={addLesson}>
+          Add lesson
+        </Button>
       </div>
     </aside>
   )

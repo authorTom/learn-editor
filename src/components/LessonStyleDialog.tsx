@@ -1,6 +1,6 @@
-import { X } from 'lucide-react'
 import { useStore } from '../store'
 import { SCHEMES } from '../types'
+import { Button, Dialog } from '../ui'
 import type { Lesson, LessonTheme, SchemeId } from '../types'
 
 const ACCENTS = [
@@ -33,25 +33,31 @@ export default function LessonStyleDialog({
   const overrides = Object.keys(t).length
 
   return (
-    <div className="modal-scrim" onClick={onClose}>
-      <div className="modal wide" onClick={(e) => e.stopPropagation()}>
-        <div className="modal-head">
-          <h2>Style for “{lesson.title || 'Untitled lesson'}”</h2>
-          <button className="icon-btn" onClick={onClose}>
-            <X size={17} />
-          </button>
-        </div>
-        <div className="modal-body">
-          <p className="drop-hint" style={{ marginTop: 0 }}>
-            Overrides apply to this lesson only, in the player and in Preview. Anything left as
-            “Course default” follows the course theme.
-          </p>
-
+    <Dialog
+      title={`Style for “${lesson.title || 'Untitled lesson'}”`}
+      description="Overrides apply to this lesson only, in the player and in Preview. Anything left as “Course default” follows the course theme."
+      size="lg"
+      onClose={onClose}
+      footer={
+        <>
+          <Button
+            disabled={!overrides}
+            onClick={() => updateLesson(lesson.id, { theme: undefined })}
+          >
+            Reset to course theme
+          </Button>
+          <span style={{ flex: 1 }} />
+          <Button variant="primary" onClick={onClose}>
+            Done
+          </Button>
+        </>
+      }
+    >
           <div className="settings-section-title">Accent colour</div>
           <div className="swatches">
             <button
               className={'swatch inherit' + (t.primaryColor === undefined ? ' sel' : '')}
-              title="Course default"
+              aria-label="Course default" title="Course default"
               onClick={() => set({ primaryColor: undefined })}
             >
               A
@@ -61,6 +67,9 @@ export default function LessonStyleDialog({
                 key={c}
                 className={'swatch' + (t.primaryColor === c ? ' sel' : '')}
                 style={{ background: c }}
+                aria-label={`Accent ${c}`}
+                aria-checked={t.primaryColor === c}
+                role="radio"
                 title={c}
                 onClick={() => set({ primaryColor: c })}
               />
@@ -68,7 +77,7 @@ export default function LessonStyleDialog({
             <input
               type="color"
               value={t.primaryColor ?? course.theme.primaryColor}
-              title="Custom colour"
+              aria-label="Custom accent colour" title="Custom colour"
               style={{ width: 34, height: 34, border: 'none', background: 'none', cursor: 'pointer' }}
               onChange={(e) => set({ primaryColor: e.target.value })}
             />
@@ -119,21 +128,6 @@ export default function LessonStyleDialog({
               ))}
             </span>
           </div>
-        </div>
-        <div className="modal-foot">
-          <button
-            className="btn"
-            disabled={!overrides}
-            onClick={() => updateLesson(lesson.id, { theme: undefined })}
-          >
-            Reset to course theme
-          </button>
-          <span style={{ flex: 1 }} />
-          <button className="btn primary" onClick={onClose}>
-            Done
-          </button>
-        </div>
-      </div>
-    </div>
+    </Dialog>
   )
 }

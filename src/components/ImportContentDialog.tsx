@@ -1,8 +1,8 @@
 import { useMemo, useState } from 'react'
-import { X } from 'lucide-react'
 import { useStore } from '../store'
 import { parseContent } from '../utils/importContent'
 import { blockDefs } from '../blockDefaults'
+import { Button, Checkbox, Dialog, Field, Textarea } from '../ui'
 
 const SAMPLE = `## Why fire safety matters
 Every workplace fire starts small. **Spotting the risk early** is what keeps people safe.
@@ -48,67 +48,60 @@ export default function ImportContentDialog({ onClose }: { onClose: () => void }
   }
 
   return (
-    <div className="modal-scrim" onClick={onClose}>
-      <div className="modal wide" onClick={(e) => e.stopPropagation()}>
-        <div className="modal-head">
-          <h2>Import content</h2>
-          <button className="icon-btn" onClick={onClose}>
-            <X size={17} />
-          </button>
-        </div>
-        <div className="modal-body">
-          <div className="field">
-            <label>Paste Markdown or HTML</label>
-            <textarea
-              autoFocus
-              className="import-area"
-              value={text}
-              placeholder={SAMPLE}
-              onChange={(e) => setText(e.target.value)}
-            />
-          </div>
-          <label className="check-row">
-            <input type="checkbox" checked={split} onChange={(e) => setSplit(e.target.checked)} />
-            <span>
-              Split into a lesson per top-level heading
-              <span className="lo-sub">
-                Off: everything is added to the current lesson as blocks.
-              </span>
-            </span>
-          </label>
-
-          <div className="import-preview">
-            {blockCount === 0 ? (
-              <span className="drop-hint">
-                Headings, paragraphs, lists, quotes, images, rules and tables are recognised.
-              </span>
-            ) : (
-              <>
-                <strong>
-                  {blockCount} block{blockCount === 1 ? '' : 's'}
-                  {sections.length > 1 || sections[0].title
-                    ? ` across ${sections.length} lesson${sections.length === 1 ? '' : 's'}`
-                    : ' into this lesson'}
-                </strong>
-                <div className="drop-hint" style={{ marginTop: 4 }}>{summary.join(' · ')}</div>
-                {sections.some((s) => s.title) && (
-                  <div className="drop-hint" style={{ marginTop: 4 }}>
-                    Lessons: {sections.map((s) => s.title || 'Untitled').join(' · ')}
-                  </div>
-                )}
-              </>
-            )}
-          </div>
-        </div>
-        <div className="modal-foot">
-          <button className="btn" onClick={onClose}>
-            Cancel
-          </button>
-          <button className="btn primary" disabled={blockCount === 0} onClick={run}>
+    <Dialog
+      title="Import content"
+      description="Paste from Word, Confluence, an intranet page or a Markdown file — it becomes blocks."
+      size="lg"
+      onClose={onClose}
+      footer={
+        <>
+          <Button onClick={onClose}>Cancel</Button>
+          <Button variant="primary" disabled={blockCount === 0} onClick={run}>
             Import {blockCount > 0 ? `${blockCount} block${blockCount === 1 ? '' : 's'}` : ''}
-          </button>
-        </div>
+          </Button>
+        </>
+      }
+    >
+      <Field label="Markdown or HTML">
+        <Textarea
+          data-autofocus
+          className="import-area"
+          value={text}
+          placeholder={SAMPLE}
+          onChange={(e) => setText(e.target.value)}
+        />
+      </Field>
+      <Checkbox
+        label="Split into a lesson per top-level heading"
+        hint="Off: everything is added to the current lesson as blocks."
+        checked={split}
+        onChange={(e) => setSplit(e.target.checked)}
+      />
+
+      {/* aria-live: the summary updates as you type, and a screen reader user
+          needs to know what the Import button is about to do. */}
+      <div className="import-preview" aria-live="polite">
+        {blockCount === 0 ? (
+          <span className="drop-hint">
+            Headings, paragraphs, lists, quotes, images, rules and tables are recognised.
+          </span>
+        ) : (
+          <>
+            <strong>
+              {blockCount} block{blockCount === 1 ? '' : 's'}
+              {sections.length > 1 || sections[0].title
+                ? ` across ${sections.length} lesson${sections.length === 1 ? '' : 's'}`
+                : ' into this lesson'}
+            </strong>
+            <div className="drop-hint" style={{ marginTop: 4 }}>{summary.join(' · ')}</div>
+            {sections.some((s) => s.title) && (
+              <div className="drop-hint" style={{ marginTop: 4 }}>
+                Lessons: {sections.map((s) => s.title || 'Untitled').join(' · ')}
+              </div>
+            )}
+          </>
+        )}
       </div>
-    </div>
+    </Dialog>
   )
 }

@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useEditor, EditorContent, type Editor } from '@tiptap/react'
 import StarterKit from '@tiptap/starter-kit'
 import Link from '@tiptap/extension-link'
@@ -10,28 +10,36 @@ import {
   List, ListOrdered, Quote, Link as LinkIcon, Undo, Redo,
   AlignLeft, AlignCenter, AlignRight, Heading2, Heading3,
 } from 'lucide-react'
+import { Button, Dialog, Field, Input } from '../ui'
 
 interface RichTextProps {
   value: string
   onChange: (html: string) => void
   placeholder?: string
   compact?: boolean // fewer toolbar buttons for small inline editors
+  /** Called when the user types "/" into an otherwise empty editor. The "/" is
+      removed first, so the caller can open the block picker cleanly. */
+  onSlash?: () => void
 }
 
 function ToolBtn({
-  editor, action, active, title, children,
+  editor, action, active, label, children,
 }: {
   editor: Editor
   action: () => void
   active?: boolean
-  title: string
+  label: string
   children: React.ReactNode
 }) {
   return (
     <button
       type="button"
       className={'rt-btn' + (active ? ' on' : '')}
-      title={title}
+      // Both: the title is the mouse affordance, aria-label the accessible
+      // name. title alone is not exposed reliably and never on touch.
+      title={label}
+      aria-label={label}
+      aria-pressed={active}
       onMouseDown={(e) => e.preventDefault()} // keep editor focus
       onClick={() => {
         action()
@@ -43,9 +51,13 @@ function ToolBtn({
   )
 }
 
-export default function RichText({ value, onChange, placeholder, compact }: RichTextProps) {
+export default function RichText({ value, onChange, placeholder, compact, onSlash }: RichTextProps) {
   // avoid feeding our own output back in as an external change
   const lastEmitted = useRef(value)
+  const [linkOpen, setLinkOpen] = useState(false)
+  const [linkUrl, setLinkUrl] = useState('')
+  const slashRef = useRef(onSlash)
+  slashRef.current = onSlash
 
   const editor = useEditor({
     extensions: [
@@ -57,6 +69,16 @@ export default function RichText({ value, onChange, placeholder, compact }: Rich
     ],
     content: value || '',
     onUpdate: ({ editor }) => {
+      // Slash command: a lone "/" in an empty block opens the block picker.
+      // Detected on the emitted text rather than a keydown so it can't fire
+      // mid-sentence, and the character is removed before handing off.
+      if (slashRef.current && editor.getText() === '/') {
+        editor.commands.clearContent(true)
+        lastEmitted.current = ''
+        onChange('')
+        slashRef.current()
+        return
+      }
       const html = editor.isEmpty ? '' : editor.getHTML()
       lastEmitted.current = html
       onChange(html)
@@ -72,56 +94,92 @@ export default function RichText({ value, onChange, placeholder, compact }: Rich
 
   if (!editor) return null
 
-  function setLink() {
+  function openLink() {
     if (!editor) return
-    const prev = editor.getAttributes('link').href as string | undefined
-    const url = window.prompt('Link URL', prev || 'https://')
-    if (url === null) return
-    if (url === '' || url === 'https://') {
-      editor.chain().focus().unsetLink().run()
-    } else {
-      editor.chain().focus().extendMarkRange('link').setLink({ href: url }).run()
-    }
+    setLinkUrl((editor.getAttributes('link').href as string | undefined) ?? '')
+    setLinkOpen(true)
+  }
+
+  function applyLink() {
+    if (!editor) return
+    const url = linkUrl.trim()
+    if (!url) editor.chain().focus().unsetLink().run()
+    else editor.chain().focus().extendMarkRange('link').setLink({ href: url }).run()
+    setLinkOpen(false)
   }
 
   return (
     <div className="rt-wrap">
-      <div className="rt-toolbar">
-        <ToolBtn editor={editor} title="Bold (⌘B)" active={editor.isActive('bold')} action={() => editor.chain().toggleBold().run()}><Bold size={14} /></ToolBtn>
-        <ToolBtn editor={editor} title="Italic (⌘I)" active={editor.isActive('italic')} action={() => editor.chain().toggleItalic().run()}><Italic size={14} /></ToolBtn>
-        <ToolBtn editor={editor} title="Underline (⌘U)" active={editor.isActive('underline')} action={() => editor.chain().toggleUnderline().run()}><UnderlineIcon size={14} /></ToolBtn>
-        <ToolBtn editor={editor} title="Strikethrough" active={editor.isActive('strike')} action={() => editor.chain().toggleStrike().run()}><Strikethrough size={14} /></ToolBtn>
-        <ToolBtn editor={editor} title="Inline code" active={editor.isActive('code')} action={() => editor.chain().toggleCode().run()}><Code size={14} /></ToolBtn>
+      <div className="rt-toolbar" role="toolbar" aria-label="Text formatting">
+        <ToolBtn editor={editor} label="Bold (⌘B)" active={editor.isActive('bold')} action={() => editor.chain().toggleBold().run()}><Bold size={14} /></ToolBtn>
+        <ToolBtn editor={editor} label="Italic (⌘I)" active={editor.isActive('italic')} action={() => editor.chain().toggleItalic().run()}><Italic size={14} /></ToolBtn>
+        <ToolBtn editor={editor} label="Underline (⌘U)" active={editor.isActive('underline')} action={() => editor.chain().toggleUnderline().run()}><UnderlineIcon size={14} /></ToolBtn>
+        <ToolBtn editor={editor} label="Strikethrough" active={editor.isActive('strike')} action={() => editor.chain().toggleStrike().run()}><Strikethrough size={14} /></ToolBtn>
+        <ToolBtn editor={editor} label="Inline code" active={editor.isActive('code')} action={() => editor.chain().toggleCode().run()}><Code size={14} /></ToolBtn>
         <span className="rt-sep" />
         {!compact && (
           <>
-            <ToolBtn editor={editor} title="Heading" active={editor.isActive('heading', { level: 2 })} action={() => editor.chain().toggleHeading({ level: 2 }).run()}><Heading2 size={14} /></ToolBtn>
-            <ToolBtn editor={editor} title="Subheading" active={editor.isActive('heading', { level: 3 })} action={() => editor.chain().toggleHeading({ level: 3 }).run()}><Heading3 size={14} /></ToolBtn>
+            <ToolBtn editor={editor} label="Heading" active={editor.isActive('heading', { level: 2 })} action={() => editor.chain().toggleHeading({ level: 2 }).run()}><Heading2 size={14} /></ToolBtn>
+            <ToolBtn editor={editor} label="Subheading" active={editor.isActive('heading', { level: 3 })} action={() => editor.chain().toggleHeading({ level: 3 }).run()}><Heading3 size={14} /></ToolBtn>
             <span className="rt-sep" />
           </>
         )}
-        <ToolBtn editor={editor} title="Bullet list" active={editor.isActive('bulletList')} action={() => editor.chain().toggleBulletList().run()}><List size={14} /></ToolBtn>
-        <ToolBtn editor={editor} title="Numbered list" active={editor.isActive('orderedList')} action={() => editor.chain().toggleOrderedList().run()}><ListOrdered size={14} /></ToolBtn>
+        <ToolBtn editor={editor} label="Bullet list" active={editor.isActive('bulletList')} action={() => editor.chain().toggleBulletList().run()}><List size={14} /></ToolBtn>
+        <ToolBtn editor={editor} label="Numbered list" active={editor.isActive('orderedList')} action={() => editor.chain().toggleOrderedList().run()}><ListOrdered size={14} /></ToolBtn>
         {!compact && (
-          <ToolBtn editor={editor} title="Quote" active={editor.isActive('blockquote')} action={() => editor.chain().toggleBlockquote().run()}><Quote size={14} /></ToolBtn>
+          <ToolBtn editor={editor} label="Quote" active={editor.isActive('blockquote')} action={() => editor.chain().toggleBlockquote().run()}><Quote size={14} /></ToolBtn>
         )}
         <span className="rt-sep" />
-        <ToolBtn editor={editor} title="Link" active={editor.isActive('link')} action={setLink}><LinkIcon size={14} /></ToolBtn>
+        <ToolBtn editor={editor} label="Link" active={editor.isActive('link')} action={openLink}><LinkIcon size={14} /></ToolBtn>
         {!compact && (
           <>
             <span className="rt-sep" />
-            <ToolBtn editor={editor} title="Align left" active={editor.isActive({ textAlign: 'left' })} action={() => editor.chain().setTextAlign('left').run()}><AlignLeft size={14} /></ToolBtn>
-            <ToolBtn editor={editor} title="Align center" active={editor.isActive({ textAlign: 'center' })} action={() => editor.chain().setTextAlign('center').run()}><AlignCenter size={14} /></ToolBtn>
-            <ToolBtn editor={editor} title="Align right" active={editor.isActive({ textAlign: 'right' })} action={() => editor.chain().setTextAlign('right').run()}><AlignRight size={14} /></ToolBtn>
+            <ToolBtn editor={editor} label="Align left" active={editor.isActive({ textAlign: 'left' })} action={() => editor.chain().setTextAlign('left').run()}><AlignLeft size={14} /></ToolBtn>
+            <ToolBtn editor={editor} label="Align centre" active={editor.isActive({ textAlign: 'center' })} action={() => editor.chain().setTextAlign('center').run()}><AlignCenter size={14} /></ToolBtn>
+            <ToolBtn editor={editor} label="Align right" active={editor.isActive({ textAlign: 'right' })} action={() => editor.chain().setTextAlign('right').run()}><AlignRight size={14} /></ToolBtn>
             <span className="rt-sep" />
-            <ToolBtn editor={editor} title="Undo" action={() => editor.chain().undo().run()}><Undo size={14} /></ToolBtn>
-            <ToolBtn editor={editor} title="Redo" action={() => editor.chain().redo().run()}><Redo size={14} /></ToolBtn>
+            <ToolBtn editor={editor} label="Undo" action={() => editor.chain().undo().run()}><Undo size={14} /></ToolBtn>
+            <ToolBtn editor={editor} label="Redo" action={() => editor.chain().redo().run()}><Redo size={14} /></ToolBtn>
           </>
         )}
       </div>
       <div className="rt-editor">
         <EditorContent editor={editor} />
       </div>
+
+      {/* Replaces window.prompt(), which could not be styled, was announced as
+          browser chrome rather than part of the page, and on some platforms
+          offers a checkbox that permanently suppresses further prompts. */}
+      {linkOpen && (
+        <div onClick={(e) => e.stopPropagation()}>
+          <Dialog
+            size="sm"
+            title="Link"
+            onClose={() => setLinkOpen(false)}
+            footer={
+              <>
+                <Button onClick={() => setLinkOpen(false)}>Cancel</Button>
+                <Button variant="primary" onClick={applyLink}>
+                  {linkUrl.trim() ? 'Apply' : 'Remove link'}
+                </Button>
+              </>
+            }
+          >
+            <Field label="URL" hint="Leave empty to remove the link.">
+              <Input
+                data-autofocus
+                type="url"
+                value={linkUrl}
+                placeholder="https://example.com"
+                onChange={(e) => setLinkUrl(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') applyLink()
+                }}
+              />
+            </Field>
+          </Dialog>
+        </div>
+      )}
     </div>
   )
 }

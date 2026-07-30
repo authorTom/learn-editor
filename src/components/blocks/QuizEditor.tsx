@@ -3,6 +3,7 @@ import type { QuizBlock, QuizQuestion, QuestionType } from '../../types'
 import { newQuestion } from '../../blockDefaults'
 import { uid } from '../../utils/id'
 import { usePatch } from './SimpleBlocks'
+import { CheckRow, Group, NumberRow } from './inspectorFields'
 
 const Q_TYPES: { v: QuestionType; label: string }[] = [
   { v: 'choice', label: 'Multiple choice' },
@@ -61,13 +62,13 @@ function QuestionEditor({
           ))}
         </select>
         <span style={{ flex: 1 }} />
-        <button className="icon-btn" disabled={index === 0} title="Move up" onClick={() => onMove(-1)}>
+        <button className="icon-btn" disabled={index === 0} title="Move up" aria-label="Move up" onClick={() => onMove(-1)}>
           <ArrowUp size={13} />
         </button>
-        <button className="icon-btn" disabled={index === count - 1} title="Move down" onClick={() => onMove(1)}>
+        <button className="icon-btn" disabled={index === count - 1} title="Move down" aria-label="Move down" onClick={() => onMove(1)}>
           <ArrowDown size={13} />
         </button>
-        <button className="icon-btn danger" disabled={count <= 1} title="Delete question" onClick={onDelete}>
+        <button className="icon-btn danger" disabled={count <= 1} title="Delete question" onClick={onDelete} aria-label="Delete question">
           <X size={14} />
         </button>
       </div>
@@ -120,7 +121,7 @@ function QuestionEditor({
                 <button
                   className={'correct-toggle' + (c.correct ? ' on' : '')}
                   title={c.correct ? 'Correct answer' : 'Mark as correct'}
-                  onClick={() => toggleCorrect(c.id)}
+                  aria-label={c.correct ? 'Correct answer' : 'Mark as correct'} onClick={() => toggleCorrect(c.id)}
                 >
                   <Check size={15} />
                 </button>
@@ -216,41 +217,48 @@ export default function QuizEditor({ block }: { block: QuizBlock }) {
         />
       ))}
 
-      <div className="blk-options">
+      <div className="blk-actions">
         <button className="btn sm" onClick={() => patch({ questions: [...block.questions, newQuestion()] })}>
           <Plus size={13} /> Add question
         </button>
-        <span className="lbl">Pass mark</span>
-        <input
-          className="mini-input"
-          type="number"
+      </div>
+    </div>
+  )
+}
+
+export function QuizOptions({ block }: { block: QuizBlock }) {
+  const patch = usePatch(block)
+  return (
+    <>
+      <Group title="Scoring">
+        <NumberRow
+          label="Pass mark"
           min={0}
           max={100}
-          style={{ width: 74 }}
+          step={5}
+          suffix="%"
           value={block.passingScore}
-          onChange={(e) => patch({ passingScore: Math.max(0, Math.min(100, Number(e.target.value) || 0)) })}
+          onChange={(passingScore) => patch({ passingScore })}
+          hint="Scores report to the LMS over SCORM."
         />
-        <span className="lbl">%</span>
-        <label style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 13 }}>
-          <input
-            type="checkbox"
-            checked={block.shuffle}
-            onChange={(e) => patch({ shuffle: e.target.checked })}
-          />
-          Shuffle questions
-        </label>
-        <label style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 13 }}>
-          <input
-            type="checkbox"
-            checked={block.showFeedback}
-            onChange={(e) => patch({ showFeedback: e.target.checked })}
-          />
-          Show feedback
-        </label>
-      </div>
-      <p className="drop-hint">
-        Learners must complete this quiz before they can continue past the lesson. Scores report to the LMS via SCORM.
-      </p>
-    </div>
+      </Group>
+      <Group title="Behaviour">
+        <CheckRow
+          label="Shuffle questions"
+          hint="Each learner sees them in a different order."
+          checked={block.shuffle}
+          onChange={(shuffle) => patch({ shuffle })}
+        />
+        <CheckRow
+          label="Show feedback"
+          hint="Reveal the per-question feedback after submitting."
+          checked={block.showFeedback}
+          onChange={(showFeedback) => patch({ showFeedback })}
+        />
+        <p className="insp-note">
+          Learners must submit this quiz before they can continue past the lesson.
+        </p>
+      </Group>
+    </>
   )
 }

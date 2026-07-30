@@ -26,10 +26,41 @@ preview is pixel-identical to what the LMS shows. And **review works without a
 server** — a round exports one self-contained HTML file that reviewers open and
 annotate, returning a few kilobytes of JSON.
 
+## The editor
+
+Three columns: the **course outline** on the left, the **lesson canvas** in the
+middle, and a **dock** on the right holding the block inspector, media library,
+templates and review feedback — one at a time, so opening any of them never
+loses your place in the lesson.
+
+- **The canvas wears the course's own theme.** Colour scheme, font pack, text
+  size, spacing and content width are derived by `src/theme.ts` — the same
+  function the exported player uses — and applied to the canvas, so a Sand or
+  Midnight course looks like itself while you author it. Per-lesson overrides
+  apply too.
+- **Blocks hold content only.** How a block looks or behaves — layout,
+  alignment, width, alt text, quiz pass mark, interaction feedback, background —
+  lives in the inspector, so the canvas reads as the course rather than as a
+  column of forms.
+- **Insert** with the `+` between blocks, the button at the end of the lesson,
+  or by typing `/` in an empty paragraph. The picker is searchable and fully
+  keyboard-driven, with your saved blocks and recent choices first.
+- **⌘K** opens a command palette over every command and lesson; **⌘/** lists
+  every shortcut. Blocks answer to ↑/↓, ⌘D, ⌫ and Escape, and drag handles can
+  be driven from the keyboard (space to lift, arrows to move, space to drop).
+- **Light, dark or system** appearance for the editor itself, independent of the
+  course's own colour scheme.
+
+Accessibility is held to WCAG 2.2 AA: every control carries an accessible name,
+dialogs trap and restore focus, drag-and-drop is announced to screen readers,
+and all text clears 4.5:1 (3:1 for large text and control boundaries) in both
+appearances.
+
 ## What it does
 
-- **Course dashboard** — create, duplicate, delete, import and export courses.
-  Everything autosaves to your browser's IndexedDB.
+- **Course dashboard** — search, sort, and switch between grid and list views;
+  create, duplicate, delete, import and export courses. Everything autosaves to
+  your browser's IndexedDB.
 - **Block-based lesson editor** — 20 block types across Text, Media, Layout,
   Interactive and Assessment categories:
   - Rich text paragraphs (TipTap: bold/italic/underline/strike/code, headings,
@@ -53,9 +84,11 @@ annotate, returning a few kilobytes of JSON.
     fill-in-the-blank; per-question feedback, pass mark, shuffle; gates lesson
     progression
 - **Per-block backgrounds** — none, theme panel, accent tint, preset pastels or
-  any custom colour (text colour auto-adjusts for contrast).
-- **Reorder** lessons and blocks by dragging or with move up/down arrows; hover
-  between blocks to insert.
+  any custom colour (text colour auto-adjusts for contrast), set from the block
+  inspector.
+- **Reorder** lessons and blocks by dragging, with move up/down arrows, or from
+  the keyboard: focus a drag handle, space to lift, arrows to move, space to
+  drop.
 - **Undo / redo** across the whole course (⌘Z / ⇧⌘Z, or the toolbar), 60 steps
   deep. Rapid typing collapses into one step; inside a rich-text block TipTap's
   own history takes over.
@@ -69,7 +102,7 @@ annotate, returning a few kilobytes of JSON.
 - **Template library** — reuse work across courses:
   - **Saved blocks** — bookmark any block (content, styling and background
     included) from the block toolbar; it then appears under "Saved blocks" at
-    the top of the Add-a-block menu in *every* course. Inserting one drops in an
+    the top of the block picker in *every* course. Inserting one drops in an
     independent copy.
   - **Course templates** — save a whole course (lessons, blocks and theme) as a
     template from Settings → Reuse, or from its dashboard card. New courses can
@@ -226,11 +259,24 @@ six markers), the sequence and matching interactions, and the artefact gallery.
 ```
 src/
   types.ts               course → lessons → blocks data model, themes, completion
+  theme.ts               course theme → CSS custom properties, shared by the
+                         exported player and the editor canvas
   store.ts               Zustand store, undo/redo history, debounced IndexedDB autosave
+  uiStore.ts             editor UI state: appearance, dock, selection, recent blocks
+  hotkeys.ts             the shortcut registry the palette and help sheet read from
+  dndA11y.ts             screen-reader announcements for keyboard drag-and-drop
   blockDefaults.ts       block registry + factories + deep clone
   utils/assets.ts        media asset refs: one visitor teaches every block about media
   utils/importContent.ts Markdown/HTML → blocks (bulk import)
-  components/            editor UI (dashboard, outline, canvas, block editors, dialogs)
+  ui/                    design-system primitives — Button, IconButton, Dialog,
+                         Sheet, Popover, Field, Segmented, Toast, Confirm
+  styles/                tokens.css (two-layer design tokens, light + dark) and
+                         one stylesheet per surface
+  components/            editor UI (dashboard, shell, outline, canvas, dock,
+                         inspector, block picker, command palette, dialogs)
+    blocks/              per block type, a content editor for the canvas and an
+                         options editor for the inspector, paired in
+                         BlockEditor.tsx and BlockOptions.tsx
   review/
     types.ts             review rounds, comments, anchors, the reviewer bundle format
     anchor.ts            quote+context anchoring: re-find a comment's text after edits
@@ -250,6 +296,18 @@ src/
 The in-app preview and the exported package share the same player code, imported
 as raw text and inlined — one renderer to maintain, zero drift between preview
 and what learners see.
+
+`theme.ts` extends that principle to the editor: the exporter and the lesson
+canvas call the same function to turn a course theme into CSS custom
+properties, so the canvas is not approximating the player's colours but
+computing them from the same inputs.
+
+Two token systems meet on the canvas. Course tokens (`--ink`, `--bg`, `--line`,
+`--accent`) style the content; chrome tokens (`--surface`, `--text`, `--border`)
+style the editor. Widgets sitting inline in the content adopt the course palette
+— the scheme guarantees they are contrast-paired with it — while editor
+furniture floating above the content reads `--chrome-*` copies that are never
+remapped.
 
 The review build is the same player again, with an annotation layer appended:
 the player renders the course, and `review.js` decorates the DOM it produced.

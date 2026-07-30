@@ -1,0 +1,252 @@
+/* ===== Dashboard / course library ===== */
+
+.dash {
+  max-width: 1120px;
+  margin: 0 auto;
+  padding: var(--space-6) var(--space-5) var(--space-7);
+}
+
+.dash-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+  flex-wrap: wrap;
+  margin-bottom: var(--space-6);
+}
+.dash-brand {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+.dash-brand__logo {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius-md);
+  background: var(--accent-gradient);
+  color: #fff;
+}
+.dash-brand h1 {
+  margin: 0;
+  font-size: var(--text-lg);
+  font-weight: var(--weight-bold);
+  letter-spacing: -0.02em;
+}
+.dash-brand__sub {
+  margin: 2px 0 0;
+  font-size: var(--text-xs);
+  color: var(--text-subtle);
+}
+.dash-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+}
+
+/* ---------- toolbar ---------- */
+.dash-toolbar {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+  margin-bottom: var(--space-4);
+}
+.dash-search {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  flex: 1;
+  min-width: 200px;
+  max-width: 340px;
+  color: var(--text-subtle);
+}
+.dash-search .ui-input {
+  flex: 1;
+}
+.dash-none {
+  padding: var(--space-6);
+  text-align: center;
+  color: var(--text-subtle);
+  font-size: var(--text-sm);
+}
+
+/* ---------- cards ---------- */
+.course-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: var(--space-4);
+}
+.course-list--grid {
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+}
+.course-list--list {
+  grid-template-columns: 1fr;
+  gap: var(--space-2);
+}
+
+.course-card {
+  position: relative;
+  height: 100%;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  background: var(--surface);
+  overflow: hidden;
+  transition:
+    border-color var(--dur-fast) var(--ease),
+    box-shadow var(--dur-fast) var(--ease);
+}
+.course-card:hover {
+  border-color: var(--border-strong);
+  box-shadow: var(--shadow-md);
+}
+.course-card__open {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+.course-card__cover {
+  display: block;
+  height: 96px;
+  background-size: cover;
+  background-position: center;
+}
+.course-card__body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  flex: 1;
+  padding: var(--space-3) var(--space-4) var(--space-4);
+}
+.course-card__title {
+  font-size: var(--text-base);
+  font-weight: var(--weight-semibold);
+  color: var(--text);
+}
+.course-card__desc {
+  flex: 1;
+  font-size: var(--text-sm);
+  line-height: 1.5;
+  color: var(--text-muted);
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.course-card__meta {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin-top: var(--space-2);
+  font-size: var(--text-xs);
+  color: var(--text-subtle);
+}
+/* Sits above the card button rather than inside it — a menu nested in a button
+   is invalid and unreachable by keyboard. */
+.course-card__menu {
+  position: absolute;
+  top: var(--space-2);
+  right: var(--space-2);
+}
+.course-list--grid .course-card__menu .ui-iconbtn {
+  background: var(--surface);
+  border: 1px solid var(--border);
+}
+
+/* List view: cover becomes a small leading tile. */
+.course-list--list .course-card__open {
+  flex-direction: row;
+  align-items: center;
+  gap: var(--space-4);
+  padding: var(--space-3);
+}
+.course-list--list .course-card__cover {
+  width: 56px;
+  height: 56px;
+  flex-shrink: 0;
+  border-radius: var(--radius-sm);
+}
+.course-list--list .course-card__body {
+  padding: 0;
+  padding-right: 40px;
+}
+.course-list--list .course-card__desc {
+  -webkit-line-clamp: 1;
+}
+.course-list--list .course-card__meta {
+  margin-top: 0;
+}
+
+.menu-item.is-danger {
+  color: var(--danger);
+}
+.menu-item.is-danger:hover {
+  background: var(--danger-subtle);
+}
+
+/* ---------- empty state ---------- */
+.dash-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: var(--space-7) var(--space-5);
+  border: 1px dashed var(--border-strong);
+  border-radius: var(--radius-lg);
+  text-align: center;
+}
+.dash-empty__icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 56px;
+  height: 56px;
+  margin-bottom: var(--space-4);
+  border-radius: var(--radius-lg);
+  background: var(--accent-subtle);
+  color: var(--accent-text);
+}
+.dash-empty h2 {
+  margin: 0 0 var(--space-2);
+  font-size: var(--text-lg);
+  font-weight: var(--weight-semibold);
+}
+.dash-empty p {
+  margin: 0 0 var(--space-5);
+  font-size: var(--text-base);
+  color: var(--text-muted);
+}
+.dash-empty__actions {
+  display: flex;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+  justify-content: center;
+}
+.dash-empty__blurb {
+  max-width: 46ch;
+  margin: var(--space-5) 0 0 !important;
+  font-size: var(--text-xs) !important;
+  color: var(--text-subtle) !important;
+}
+
+@media (max-width: 640px) {
+  .dash {
+    padding: var(--space-4) var(--space-3) var(--space-6);
+  }
+  .dash-actions {
+    width: 100%;
+  }
+}

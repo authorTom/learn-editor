@@ -1,6 +1,7 @@
 import { useRef, useState } from 'react'
-import { X, Trash2, Upload, Music, Search } from 'lucide-react'
+import { Trash2, Upload, Music, Search } from 'lucide-react'
 import { useStore } from '../store'
+import { Button, Input, Surface, useConfirm } from '../ui'
 import { assetUsageCount } from '../utils/assets'
 import { ASSET_REF } from '../types'
 import type { Asset } from '../types'
@@ -16,11 +17,15 @@ export default function MediaLibrary({
   kind,
   onPick,
   onClose,
+  as = 'dialog',
 }: {
   kind?: Asset['kind'] // limit to images or audio when picking
   onPick?: (ref: string) => void
   onClose: () => void
+  /** 'panel' renders it bare for the right-hand dock. */
+  as?: 'dialog' | 'panel'
 }) {
+  const confirm = useConfirm()
   const course = useStore((s) => s.course)!
   const addAsset = useStore((s) => s.addAsset)
   const deleteAsset = useStore((s) => s.deleteAsset)
@@ -53,28 +58,43 @@ export default function MediaLibrary({
   }
 
   return (
-    <div className="modal-scrim" onClick={onClose}>
-      <div className="modal wide" onClick={(e) => e.stopPropagation()}>
-        <div className="modal-head">
-          <h2>{onPick ? 'Choose from media library' : 'Media library'}</h2>
-          <button className="icon-btn" onClick={onClose}>
-            <X size={17} />
-          </button>
-        </div>
-
-        <div className="insert-search" style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-          <Search size={15} style={{ color: 'var(--ink-3)', flexShrink: 0 }} />
-          <input
-            className="input"
-            autoFocus
+    <Surface
+      as={as}
+      title={onPick ? 'Choose from media library' : 'Media library'}
+      size="lg"
+      onClose={onClose}
+      footer={
+        <>
+          <span className="drop-hint" style={{ flex: 1, marginTop: 0 }}>
+            {course.assets.length} file{course.assets.length === 1 ? '' : 's'} · {kb(totalSize)} in
+            this course. Each file is stored once, however many blocks use it.
+          </span>
+          {as === 'dialog' && (
+            <Button variant="primary" onClick={onClose}>
+              Done
+            </Button>
+          )}
+        </>
+      }
+    >
+        <div className="media-toolbar">
+          <Search size={15} aria-hidden="true" style={{ color: 'var(--text-subtle)', flexShrink: 0 }} />
+          <Input
+            data-autofocus
+            type="search"
+            aria-label="Search media by file name"
             placeholder="Search media by file name…"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            onKeyDown={(e) => e.key === 'Escape' && onClose()}
           />
-          <button className="btn primary" disabled={busy} onClick={() => fileRef.current?.click()}>
-            <Upload size={15} /> {busy ? 'Uploading…' : 'Upload'}
-          </button>
+          <Button
+            variant="primary"
+            disabled={busy}
+            icon={<Upload size={15} />}
+            onClick={() => fileRef.current?.click()}
+          >
+            {busy ? 'Uploading…' : 'Upload'}
+          </Button>
           <input
             ref={fileRef}
             type="file"
@@ -88,7 +108,7 @@ export default function MediaLibrary({
           />
         </div>
 
-        <div className="modal-body">
+        <div>
           {assets.length === 0 ? (
             <p className="drop-hint">
               {course.assets.length === 0
@@ -124,18 +144,26 @@ export default function MediaLibrary({
                       </span>
                       <button
                         className="icon-btn danger"
+                        aria-label={`Delete ${a.name}`}
                         title={
                           uses > 0
                             ? `Used by ${uses} block${uses === 1 ? '' : 's'} — deleting will break them`
                             : 'Delete'
                         }
-                        onClick={(e) => {
+                        onClick={async (e) => {
                           e.stopPropagation()
-                          const warn =
-                            uses > 0
-                              ? `"${a.name}" is used by ${uses} block${uses === 1 ? '' : 's'}. Delete it anyway?`
-                              : `Delete "${a.name}"?`
-                          if (confirm(warn)) deleteAsset(a.id)
+                          const ok = await confirm({
+                            title: `Delete “${a.name}”?`,
+                            message:
+                              uses > 0
+                                ? `${uses} block${uses === 1 ? '' : 's'} still reference${
+                                    uses === 1 ? 's' : ''
+                                  } this file and will show a missing-media placeholder. You can undo with ⌘Z.`
+                                : 'Nothing currently uses this file. You can undo with ⌘Z.',
+                            confirmLabel: 'Delete',
+                            destructive: true,
+                          })
+                          if (ok) deleteAsset(a.id)
                         }}
                       >
                         <Trash2 size={13} />
@@ -147,17 +175,6 @@ export default function MediaLibrary({
             </div>
           )}
         </div>
-
-        <div className="modal-foot">
-          <span className="drop-hint" style={{ flex: 1, marginTop: 0 }}>
-            {course.assets.length} file{course.assets.length === 1 ? '' : 's'} · {kb(totalSize)} in
-            this course. Each file is stored once, however many blocks use it.
-          </span>
-          <button className="btn primary" onClick={onClose}>
-            Done
-          </button>
-        </div>
-      </div>
-    </div>
+    </Surface>
   )
 }

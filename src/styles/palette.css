@@ -1,0 +1,123 @@
+/* ===== Command palette + shortcut sheet ===== */
+
+.cmdk-scrim {
+  align-items: flex-start;
+  padding-top: 12vh;
+}
+.cmdk {
+  display: flex;
+  flex-direction: column;
+  width: min(560px, calc(100vw - 32px));
+  max-height: 60vh;
+  background: var(--surface-raised);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
+  overflow: hidden;
+  animation: ui-pop var(--dur-base) var(--ease);
+}
+.cmdk__search {
+  flex-shrink: 0;
+  padding: var(--space-3);
+  border-bottom: 1px solid var(--border);
+}
+.cmdk__search .ui-input {
+  border: 0;
+  padding: 0;
+  font-size: var(--text-md);
+  background: transparent;
+}
+.cmdk__search .ui-input:focus {
+  box-shadow: none;
+}
+.cmdk__list {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding: var(--space-1);
+}
+.cmdk__group {
+  padding: var(--space-3) var(--space-2) var(--space-1);
+  font-size: var(--text-2xs);
+  font-weight: var(--weight-semibold);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-subtle);
+}
+.cmdk__item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-sm);
+  font-size: var(--text-sm);
+  color: var(--text);
+  cursor: pointer;
+}
+.cmdk__item.is-active {
+  background: var(--accent-subtle);
+  color: var(--accent-text);
+}
+.cmdk__icon {
+  flex-shrink: 0;
+  color: var(--text-subtle);
+}
+.cmdk__label {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.cmdk__kbd,
+.sc-key {
+  flex-shrink: 0;
+  padding: 2px var(--space-2);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  background: var(--surface-sunken);
+  color: var(--text-muted);
+  font-family: var(--font-ui);
+  font-size: var(--text-2xs);
+  font-weight: var(--weight-medium);
+  white-space: nowrap;
+}
+.cmdk__enter {
+  flex-shrink: 0;
+  color: var(--accent-text);
+}
+.cmdk__empty {
+  margin: 0;
+  padding: var(--space-5);
+  text-align: center;
+  font-size: var(--text-sm);
+  color: var(--text-subtle);
+}
+
+/* ---------- shortcut sheet ---------- */
+.sc-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: var(--space-5);
+}
+.sc-group__title {
+  margin: 0 0 var(--space-2);
+  font-size: var(--text-2xs);
+  font-weight: var(--weight-semibold);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-subtle);
+}
+.sc-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  padding: var(--space-2) 0;
+  border-bottom: 1px solid var(--border);
+  font-size: var(--text-sm);
+  color: var(--text-muted);
+}
+.sc-row:last-child {
+  border-bottom: 0;
+}

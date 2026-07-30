@@ -1,0 +1,168 @@
+/* ===== Course settings sheet ===== */
+
+.set-sheet .ui-dialog__body {
+  padding: 0;
+}
+
+.set-layout {
+  display: grid;
+  grid-template-columns: 190px 1fr;
+  min-height: 100%;
+}
+
+.set-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: var(--space-3);
+  border-right: 1px solid var(--border);
+  background: var(--surface-sunken);
+}
+.set-nav__item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-2) var(--space-3);
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--text-muted);
+  font-family: inherit;
+  font-size: var(--text-sm);
+  font-weight: var(--weight-medium);
+  text-align: left;
+  cursor: pointer;
+}
+.set-nav__item:hover {
+  background: var(--surface-hover);
+  color: var(--text);
+}
+.set-nav__item.is-active {
+  background: var(--accent-subtle);
+  color: var(--accent-text);
+}
+
+.set-main {
+  padding: var(--space-4);
+  min-width: 0;
+}
+
+.set-h {
+  margin: var(--space-5) 0 var(--space-3);
+  font-size: var(--text-2xs);
+  font-weight: var(--weight-semibold);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-subtle);
+}
+.set-h:first-child {
+  margin-top: 0;
+}
+.set-sub {
+  margin: var(--space-3) 0 var(--space-2);
+  font-size: var(--text-xs);
+  color: var(--text-subtle);
+}
+.set-note {
+  margin: var(--space-4) 0 0;
+  font-size: var(--text-xs);
+  line-height: 1.6;
+  color: var(--text-subtle);
+}
+.set-warn {
+  margin: var(--space-3) 0 0;
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid color-mix(in srgb, var(--warning) 40%, transparent);
+  border-radius: var(--radius-sm);
+  background: var(--warning-subtle);
+  color: var(--warning);
+  font-size: var(--text-xs);
+  line-height: 1.5;
+}
+
+.set-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  flex-wrap: wrap;
+  margin-bottom: var(--space-3);
+}
+.set-row__label {
+  min-width: 130px;
+  font-size: var(--text-sm);
+  font-weight: var(--weight-medium);
+  color: var(--text);
+}
+
+/* ---------- live theme preview ---------- */
+/* Uses courseVars(), the same derivation the exported player uses, so what it
+   shows is what the course actually renders as. */
+.set-preview {
+  margin-bottom: var(--space-4);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+}
+.set-preview__page {
+  background: var(--bg-soft);
+  color: var(--ink);
+  font-family: var(--font);
+}
+.set-preview__hero {
+  padding: var(--space-4);
+  background: linear-gradient(135deg, var(--accent), color-mix(in srgb, var(--accent) 55%, #000));
+}
+.set-preview__title {
+  font-family: var(--font-heading);
+  font-weight: var(--heading-weight);
+  font-size: 17px;
+  color: #fff;
+}
+.set-preview__body {
+  display: flex;
+  flex-direction: column;
+  gap: calc(8px * var(--space, 1));
+  padding: var(--space-4);
+  background: var(--bg);
+}
+.set-preview__h {
+  font-family: var(--font-heading);
+  font-weight: var(--heading-weight);
+  font-size: calc(var(--font-size, 17px) * 1.15);
+}
+.set-preview__p {
+  font-size: var(--font-size, 17px);
+  line-height: 1.6;
+  color: var(--ink-soft);
+}
+.set-preview__note {
+  padding: var(--space-3);
+  border-left: 3px solid var(--accent);
+  border-radius: 0 var(--radius) var(--radius) 0;
+  background: var(--accent-soft);
+  font-size: calc(var(--font-size, 17px) * 0.9);
+}
+.set-preview__btn {
+  align-self: flex-start;
+  padding: 8px 16px;
+  border-radius: var(--radius);
+  background: var(--accent);
+  color: #fff;
+  font-size: calc(var(--font-size, 17px) * 0.88);
+  font-weight: 600;
+}
+
+@media (max-width: 720px) {
+  .set-layout {
+    grid-template-columns: 1fr;
+  }
+  .set-nav {
+    flex-direction: row;
+    overflow-x: auto;
+    border-right: 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .set-nav__item {
+    white-space: nowrap;
+  }
+}
