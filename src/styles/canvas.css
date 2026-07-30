@@ -1,0 +1,310 @@
+/* ===== Lesson canvas =====
+
+   The canvas element carries the *course's* CSS custom properties
+   (--bg, --ink, --accent, --font, --content-max…), computed by src/theme.ts —
+   the same derivation the exported player uses.
+
+   Two token systems therefore meet in this file:
+     course tokens  --bg --ink --line --accent --font …   the content
+     chrome tokens  --surface --text --border --focus …   the editor's own UI
+
+   Rule: anything that exists only for the author — grips, insert points,
+   toolbars, focus rings — MUST use chrome tokens. Use a course token for those
+   and they vanish on a dark-scheme course. */
+
+.canvas {
+  flex: 1;
+  min-width: 0;
+  overflow-y: auto;
+  background: var(--bg-soft);
+  color: var(--ink);
+  font-family: var(--font);
+
+  /* Remap the semantic + legacy chrome names onto the course's own palette.
+     Every inline block-editor widget (rich-text toolbars, the STYLE/LAYOUT
+     segmented controls, mini inputs) is written against these names, so this
+     one block makes all of them follow the course instead of the editor.
+     Crucially they stay *contrast-paired*: --ink is defined by the scheme to
+     read against --bg, which a chrome token could never guarantee here. */
+  --surface: var(--bg);
+  --surface-raised: var(--bg);
+  --surface-sunken: var(--bg-soft);
+  --surface-hover: color-mix(in srgb, var(--ink) 7%, var(--bg));
+  --surface-active: color-mix(in srgb, var(--ink) 12%, var(--bg));
+  --text: var(--ink);
+  --text-muted: var(--ink-soft);
+  --text-subtle: var(--ink-soft);
+  --border: var(--line);
+  --border-strong: color-mix(in srgb, var(--ink) 35%, var(--bg));
+  --accent-subtle: var(--accent-soft);
+  --focus: var(--accent);
+
+  /* legacy aliases used by the block editors still in styles.css.
+     --bg / --ink / --line are already supplied as inline custom properties by
+     LessonEditor, so they are deliberately not redeclared here. */
+  --panel: var(--bg);
+  --ink-2: var(--ink-soft);
+  --ink-3: var(--ink-soft);
+  --line-2: var(--line);
+  --brand: var(--accent);
+  --brand-soft: var(--accent-soft);
+}
+.canvas:focus {
+  outline: none;
+}
+
+.canvas-inner {
+  /* Match the player's own measure, so line lengths while authoring are the
+     line lengths learners get. */
+  max-width: calc(var(--content-max, 760px) + 96px);
+  margin: 0 auto;
+  padding: var(--space-6) var(--space-6) 160px;
+}
+
+/* ---------- lesson header ---------- */
+.lesson-head {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  margin-bottom: var(--space-6);
+  flex-wrap: wrap;
+}
+.lesson-title {
+  flex: 1;
+  min-width: 220px;
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid transparent;
+  border-radius: var(--radius-md);
+  background: transparent;
+  color: var(--ink);
+  font-family: var(--font-heading, var(--font));
+  font-size: clamp(24px, 3vw, 32px);
+  font-weight: var(--heading-weight, 800);
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+}
+.lesson-title::placeholder {
+  color: var(--ink-soft);
+  opacity: 0.6;
+}
+.lesson-title:hover {
+  border-color: var(--line);
+}
+.lesson-title:focus {
+  outline: none;
+  border-color: var(--focus);
+  box-shadow: 0 0 0 3px var(--accent-subtle);
+}
+.lesson-head__actions {
+  display: flex;
+  gap: var(--space-2);
+  flex-shrink: 0;
+}
+
+/* ---------- block ----------
+   No resting card, no shadow, no coloured type tag. A block is just content on
+   the course background until you point at it — which is what stops the canvas
+   reading as a stack of Rise cards. */
+.block {
+  position: relative;
+  margin-bottom: 2px;
+  border-radius: var(--radius-md);
+}
+.block__body {
+  position: relative;
+  padding: var(--space-4);
+  border: 1px solid transparent;
+  border-radius: var(--radius-md);
+  transition:
+    border-color var(--dur-fast) var(--ease),
+    background var(--dur-fast) var(--ease);
+}
+.block:hover > .block__body {
+  border-color: var(--line);
+}
+.block.is-selected > .block__body {
+  border-color: var(--focus);
+  box-shadow: 0 0 0 3px var(--accent-subtle);
+}
+.block.is-dragging {
+  opacity: 0.5;
+  z-index: 5;
+}
+
+/* Toolbar floats above the content rather than sitting in it, so it uses the
+   never-remapped --chrome-* copies: it should read as editor furniture, not as
+   part of the course. Its own tokens are re-pointed locally so the IconButtons
+   inside it inherit chrome colours too. */
+.block__tools {
+  position: absolute;
+  top: -13px;
+  left: var(--space-3);
+  right: var(--space-3);
+  z-index: 16; /* above the sticky rich-text toolbar (15) */
+  display: flex;
+  align-items: center;
+  gap: 1px;
+  padding: 2px;
+  border: 1px solid var(--chrome-border);
+  border-radius: var(--radius-sm);
+  background: var(--chrome-surface);
+  box-shadow: var(--shadow-md);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--dur-fast) var(--ease);
+
+  --surface: var(--chrome-surface);
+  --surface-hover: var(--chrome-surface-hover);
+  --text: var(--chrome-text);
+  --text-muted: var(--chrome-text-muted);
+  --text-subtle: var(--chrome-text-subtle);
+  --border: var(--chrome-border);
+}
+.block:hover > .block__tools,
+.block.is-selected > .block__tools,
+.block:focus-within > .block__tools {
+  opacity: 1;
+  pointer-events: auto;
+}
+.block__tools-spacer {
+  flex: 1;
+}
+.block__grip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 26px;
+  border: 0;
+  border-radius: 4px;
+  background: transparent;
+  color: var(--text-subtle);
+  cursor: grab;
+}
+.block__grip:hover {
+  background: var(--surface-hover);
+  color: var(--text);
+}
+.block__grip:active {
+  cursor: grabbing;
+}
+/* Type name lives in the toolbar now, as quiet text rather than a coloured
+   uppercase badge pinned to the corner of a card. */
+.block__type {
+  padding: 0 var(--space-1);
+  font-size: var(--text-2xs);
+  font-weight: var(--weight-medium);
+  color: var(--text-subtle);
+  white-space: nowrap;
+}
+
+/* ---------- insert point ---------- */
+.insert-point {
+  position: relative;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.insert-point__line {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 2px;
+  border-radius: 1px;
+  background: var(--focus);
+  opacity: 0;
+  transition: opacity var(--dur-fast) var(--ease);
+}
+.insert-point__btn {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-full);
+  background: var(--surface-raised);
+  color: var(--text-subtle);
+  opacity: 0;
+  cursor: pointer;
+  transition:
+    opacity var(--dur-fast) var(--ease),
+    transform var(--dur-fast) var(--ease),
+    background var(--dur-fast) var(--ease);
+}
+.insert-point:hover .insert-point__line {
+  opacity: 0.4;
+}
+.insert-point:hover .insert-point__btn,
+.insert-point__btn:focus-visible {
+  opacity: 1;
+}
+.insert-point__btn:hover {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--accent-contrast);
+  transform: scale(1.1);
+}
+
+/* ---------- add block ---------- */
+.add-block {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  width: 100%;
+  margin-top: var(--space-4);
+  padding: var(--space-5);
+  border: 1px dashed var(--line);
+  border-radius: var(--radius-md);
+  background: transparent;
+  color: var(--ink-soft);
+  font-family: inherit;
+  font-size: var(--text-base);
+  font-weight: var(--weight-medium);
+  cursor: pointer;
+  transition:
+    border-color var(--dur-fast) var(--ease),
+    background var(--dur-fast) var(--ease),
+    color var(--dur-fast) var(--ease);
+}
+.add-block:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+  background: var(--accent-soft);
+}
+
+/* ---------- background picker ---------- */
+.bg-pop {
+  min-width: auto;
+}
+.bg-pop-inner {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+.bg-pop-row {
+  display: flex;
+  gap: var(--space-2);
+  align-items: center;
+}
+
+/* ---------- dark-scheme courses ----------
+   On a dark canvas the block editors' own inputs would otherwise stay white.
+   Nudge the legacy editor surfaces to follow the course instead. */
+.canvas[data-dark] {
+  color-scheme: dark;
+}
+
+@media (max-width: 1023px) {
+  .canvas-inner {
+    padding: var(--space-5) var(--space-4) 140px;
+  }
+  .block__tools {
+    left: var(--space-2);
+    right: var(--space-2);
+  }
+}
