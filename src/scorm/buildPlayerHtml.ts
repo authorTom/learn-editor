@@ -1,38 +1,30 @@
 import playerCss from './player/player.css?raw'
 import playerJs from './player/player.js?raw'
 import type { Course, Lesson } from '../types'
-import { FONT_PACKS, FONT_SCALES, SCHEMES, SPACING_SCALES, normalizeTheme } from '../types'
+import { FONT_PACKS, SCHEMES, normalizeTheme } from '../types'
+import { courseVars, schemeOf, schemeVars } from '../theme'
 import { escapeHtml } from '../utils/file'
 
 export type ScormVersion = '1.2' | '2004' | 'preview'
 
-const CONTENT_WIDTH = { narrow: '640px', normal: '760px', wide: '920px' } as const
-
-/** The CSS custom properties a scheme + accent produce. The player swaps these
-    at lesson boundaries when a lesson overrides the course theme. */
+/** The CSS custom properties a scheme + accent produce, plus the `dark` flag
+    the player uses to toggle its body class. Colours come from the shared
+    derivation in theme.ts, which the editor canvas reads from too. */
 function themeVars(scheme: (typeof SCHEMES)[number], accent: string) {
-  return {
-    '--accent': accent,
-    '--accent-soft': `color-mix(in srgb, ${accent} ${scheme.dark ? '22%' : '10%'}, ${scheme.bg})`,
-    '--bg': scheme.bg,
-    '--bg-soft': scheme.bgSoft,
-    '--ink': scheme.ink,
-    '--ink-soft': scheme.inkSoft,
-    '--line': scheme.line,
-    dark: !!scheme.dark,
-  }
+  return { ...schemeVars(scheme, accent), dark: !!scheme.dark }
 }
 
 /** Only the lessons that actually override something get an entry. */
 function lessonThemes(course: Course) {
   const theme = normalizeTheme(course.theme)
-  const baseScheme = SCHEMES.find((s) => s.id === theme.scheme) ?? SCHEMES[0]
+  const baseScheme = schemeOf(theme.scheme)
   const map: Record<string, unknown> = {
     __base: { ...themeVars(baseScheme, theme.primaryColor), hero: theme.hero },
   }
   course.lessons.forEach((l: Lesson) => {
     const t = l.theme
     if (!t || Object.keys(t).length === 0) return
+    // An unrecognised id must fall back to the *course* scheme, not to light.
     const scheme = SCHEMES.find((s) => s.id === t.scheme) ?? baseScheme
     map[l.id] = {
       ...themeVars(scheme, t.primaryColor ?? theme.primaryColor),
@@ -57,22 +49,12 @@ export function buildPlayerHtml(course: Course, version: ScormVersion): string {
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?${pack.google}&display=swap" rel="stylesheet">`
     : ''
-  const themeCss = `:root {
-  --accent: ${theme.primaryColor};
-  --accent-soft: color-mix(in srgb, ${theme.primaryColor} ${scheme.dark ? '22%' : '10%'}, ${scheme.bg});
-  --bg: ${scheme.bg};
-  --bg-soft: ${scheme.bgSoft};
-  --ink: ${scheme.ink};
-  --ink-soft: ${scheme.inkSoft};
-  --line: ${scheme.line};
-  --font: ${pack.body};
-  --font-heading: ${pack.heading};
-  --heading-weight: ${theme.headingWeight === 'bold' ? 700 : 800};
-  --radius: ${theme.corners === 'sharp' ? '4px' : '14px'};
-  --content-max: ${CONTENT_WIDTH[theme.width]};
-  --font-size: ${FONT_SCALES[theme.fontScale]}px;
-  --space: ${SPACING_SCALES[theme.spacing]};
-}`
+  // Same derivation the editor canvas uses, serialised. Key order is fixed so
+  // the emitted stylesheet stays stable across builds.
+  const vars = courseVars(course)
+  const themeCss = `:root {\n${Object.entries(vars)
+    .map(([k, v]) => `  ${k}: ${v};`)
+    .join('\n')}\n}`
   const bodyClass = [
     `hero-${theme.hero}`,
     theme.nav === 'top' ? 'nav-top' : '',
