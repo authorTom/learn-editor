@@ -1,9 +1,10 @@
 import { useEffect } from 'react'
 import { useStore } from './store'
+import { ConfirmProvider, ToastProvider } from './ui'
 import Dashboard from './components/Dashboard'
 import CourseEditor from './components/CourseEditor'
 
-export default function App() {
+function AppContent() {
   const course = useStore((s) => s.course)
   const loadCourseList = useStore((s) => s.loadCourseList)
   const seedExamples = useStore((s) => s.seedExamples)
@@ -17,4 +18,14 @@ export default function App() {
   }, [loadCourseList, seedExamples])
 
   return course ? <CourseEditor /> : <Dashboard />
+}
+
+export default function App() {
+  return (
+    <ToastProvider>
+      <ConfirmProvider>
+        <AppContent />
+      </ConfirmProvider>
+    </ToastProvider>
+  )
 }

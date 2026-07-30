@@ -1,7 +1,8 @@
-import { useState } from 'react'
-import { X, Package, Globe, FileJson, Download, Loader2 } from 'lucide-react'
+import { useRef, useState } from 'react'
+import { Package, Globe, FileJson, Download, Loader2, Check } from 'lucide-react'
 import type { Course } from '../types'
 import { exportScorm, exportWeb, exportJson } from '../scorm/exporter'
+import { Button, Dialog, useToast } from '../ui'
 
 type Format = 'scorm12' | 'scorm2004' | 'web' | 'json'
 
@@ -35,6 +36,8 @@ const OPTIONS: { v: Format; icon: typeof Package; title: string; desc: string }[
 export default function ExportDialog({ course, onClose }: { course: Course; onClose: () => void }) {
   const [format, setFormat] = useState<Format>('scorm12')
   const [busy, setBusy] = useState(false)
+  const toast = useToast()
+  const refs = useRef<Array<HTMLButtonElement | null>>([])
 
   async function doExport() {
     setBusy(true)
@@ -43,51 +46,78 @@ export default function ExportDialog({ course, onClose }: { course: Course; onCl
       else if (format === 'scorm2004') await exportScorm(course, '2004')
       else if (format === 'web') await exportWeb(course)
       else exportJson(course)
+      toast.success('Package downloaded.')
       onClose()
+    } catch {
+      toast.error('Export failed. If the course has a lot of media, try removing unused files from the media library first.')
     } finally {
       setBusy(false)
     }
   }
 
+  /** Arrow keys move and select, per the APG radiogroup pattern. */
+  function onKeyDown(e: React.KeyboardEvent) {
+    const dir = e.key === 'ArrowDown' || e.key === 'ArrowRight' ? 1 : e.key === 'ArrowUp' || e.key === 'ArrowLeft' ? -1 : 0
+    if (!dir) return
+    e.preventDefault()
+    const i = OPTIONS.findIndex((o) => o.v === format)
+    const next = (i + dir + OPTIONS.length) % OPTIONS.length
+    setFormat(OPTIONS[next].v)
+    refs.current[next]?.focus()
+  }
+
   return (
-    <div className="modal-scrim" onClick={onClose}>
-      <div className="modal" onClick={(e) => e.stopPropagation()}>
-        <div className="modal-head">
-          <h2>Export course</h2>
-          <button className="icon-btn" onClick={onClose}>
-            <X size={17} />
-          </button>
-        </div>
-        <div className="modal-body">
-          {OPTIONS.map((o) => {
-            const Icon = o.icon
-            return (
-              <div
-                key={o.v}
-                className={'export-opt' + (format === o.v ? ' sel' : '')}
-                onClick={() => setFormat(o.v)}
-              >
-                <span className="xo-icon">
-                  <Icon size={17} />
-                </span>
-                <div>
-                  <h4>{o.title}</h4>
-                  <p>{o.desc}</p>
-                </div>
-              </div>
-            )
-          })}
-        </div>
-        <div className="modal-foot">
-          <button className="btn" onClick={onClose}>
+    <Dialog
+      title="Export course"
+      description="Pick a format. The package contains the whole course — no server or account needed."
+      onClose={onClose}
+      footer={
+        <>
+          <Button onClick={onClose} disabled={busy}>
             Cancel
-          </button>
-          <button className="btn primary" disabled={busy} onClick={doExport}>
-            {busy ? <Loader2 size={15} className="spin" /> : <Download size={15} />}
+          </Button>
+          <Button
+            variant="primary"
+            disabled={busy}
+            icon={busy ? <Loader2 size={15} className="ui-spin" /> : <Download size={15} />}
+            onClick={doExport}
+          >
             {busy ? 'Packaging…' : 'Download'}
-          </button>
-        </div>
+          </Button>
+        </>
+      }
+    >
+      {/* Was a list of <div onClick> — invisible to the keyboard and to assistive
+          tech, with no indication the four choices were mutually exclusive. */}
+      <div role="radiogroup" aria-label="Export format" onKeyDown={onKeyDown}>
+        {OPTIONS.map((o, i) => {
+          const Icon = o.icon
+          const selected = format === o.v
+          return (
+            <button
+              key={o.v}
+              ref={(el) => {
+                refs.current[i] = el
+              }}
+              type="button"
+              role="radio"
+              aria-checked={selected}
+              tabIndex={selected ? 0 : -1}
+              className={'export-opt' + (selected ? ' sel' : '')}
+              onClick={() => setFormat(o.v)}
+            >
+              <span className="xo-icon" aria-hidden="true">
+                <Icon size={17} />
+              </span>
+              <span className="xo-text">
+                <h4>{o.title}</h4>
+                <p>{o.desc}</p>
+              </span>
+              {selected && <Check size={16} className="xo-check" aria-hidden="true" />}
+            </button>
+          )
+        })}
       </div>
-    </div>
+    </Dialog>
   )
 }

@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { X, Check, Ban, Wand2, CornerDownRight, AlertTriangle } from 'lucide-react'
 import { useStore } from '../store'
+import { Button, IconButton } from '../ui'
 import { applyBlocker, resolveTarget, suggestionIsInCourse, targetLabel } from '../review/anchor'
 import { reviewsForCourse, useReviews } from '../review/reviewStore'
 import type { ApplyBlocker } from '../review/anchor'
@@ -11,9 +12,13 @@ type Filter = 'open' | 'all' | 'suggestions'
 export default function ReviewPanel({
   onClose,
   onManage,
+  embedded = false,
 }: {
   onClose: () => void
   onManage: () => void
+  /** Inside the dock: drop the panel's own frame and close button, since the
+      dock already supplies both. */
+  embedded?: boolean
 }) {
   const course = useStore((s) => s.course)!
   const selectLesson = useStore((s) => s.selectLesson)
@@ -70,7 +75,7 @@ export default function ReviewPanel({
   }
 
   return (
-    <aside className="review-panel">
+    <aside className={'review-panel' + (embedded ? ' review-panel--embedded' : '')}>
       <div className="rp-head">
         <div>
           <strong>Review feedback</strong>
@@ -79,12 +84,12 @@ export default function ReviewPanel({
           </span>
         </div>
         <span style={{ display: 'flex', gap: 2 }}>
-          <button className="btn sm" onClick={onManage} title="Review rounds, share, import">
+          <Button size="sm" onClick={onManage}>
             Rounds
-          </button>
-          <button className="icon-btn" onClick={onClose}>
-            <X size={16} />
-          </button>
+          </Button>
+          {!embedded && (
+            <IconButton label="Close review panel" icon={<X size={16} />} onClick={onClose} />
+          )}
         </span>
       </div>
 
@@ -286,14 +291,14 @@ function CommentCard({
             <>
               <button
                 className="btn sm"
-                title="Mark as handled"
+                aria-label="Mark as handled" title="Mark as handled"
                 onClick={() => setCommentStatus(review.id, comment.id, 'resolved')}
               >
                 <Check size={13} /> Resolve
               </button>
               <button
                 className="btn sm"
-                title="Won't do"
+                aria-label="Won't do" title="Won't do"
                 onClick={() => setCommentStatus(review.id, comment.id, 'declined')}
               >
                 <Ban size={13} />

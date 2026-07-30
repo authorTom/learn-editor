@@ -26,21 +26,21 @@ export default function Preview({ course, onClose }: { course: Course; onClose: 
           <button
             className={device === 'desktop' ? 'active' : ''}
             onClick={() => setDevice('desktop')}
-            title="Desktop"
+            aria-label="Desktop preview" title="Desktop"
           >
             <Monitor size={14} style={{ verticalAlign: '-2px' }} /> Desktop
           </button>
           <button
             className={device === 'tablet' ? 'active' : ''}
             onClick={() => setDevice('tablet')}
-            title="Tablet"
+            aria-label="Tablet preview" title="Tablet"
           >
             <Tablet size={14} style={{ verticalAlign: '-2px' }} /> Tablet
           </button>
           <button
             className={device === 'phone' ? 'active' : ''}
             onClick={() => setDevice('phone')}
-            title="Phone"
+            aria-label="Phone preview" title="Phone"
           >
             <Smartphone size={14} style={{ verticalAlign: '-2px' }} /> Phone
           </button>

@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
-import { X, Download, Upload, Trash2, MessageSquare, Lock, LockOpen } from 'lucide-react'
+import { Download, Upload, Trash2, MessageSquare, Lock, LockOpen } from 'lucide-react'
+import { Button, Dialog } from '../ui'
 import type { Course } from '../types'
 import { downloadReviewHtml } from '../review/buildReviewHtml'
 import { reviewersOf, reviewsForCourse, useReviews } from '../review/reviewStore'
@@ -78,16 +79,31 @@ export default function ReviewDialog({
   }
 
   return (
-    <div className="modal-scrim" onClick={onClose}>
-      <div className="modal wide" onClick={(e) => e.stopPropagation()}>
-        <div className="modal-head">
-          <h2>Send for review</h2>
-          <button className="icon-btn" onClick={onClose}>
-            <X size={17} />
-          </button>
-        </div>
-
-        <div className="modal-body">
+    <Dialog
+      title="Send for review"
+      size="lg"
+      onClose={onClose}
+      footer={
+        <>
+          <input
+            ref={fileRef}
+            type="file"
+            accept="application/json,.json"
+            multiple
+            style={{ display: 'none' }}
+            onChange={(e) => {
+              onFiles(e.target.files)
+              e.target.value = ''
+            }}
+          />
+          <Button icon={<Upload size={15} />} onClick={() => fileRef.current?.click()}>
+            Import feedback…
+          </Button>
+          <span style={{ flex: 1 }} />
+          <Button onClick={onClose}>Done</Button>
+        </>
+      }
+    >
           <div className="rv-explain">
             <p>
               A review round freezes a <strong>copy</strong> of this course into one
@@ -140,30 +156,7 @@ export default function ReviewDialog({
               />
             ))}
           </div>
-        </div>
-
-        <div className="modal-foot">
-          <input
-            ref={fileRef}
-            type="file"
-            accept="application/json,.json"
-            multiple
-            style={{ display: 'none' }}
-            onChange={(e) => {
-              onFiles(e.target.files)
-              e.target.value = ''
-            }}
-          />
-          <button className="btn" onClick={() => fileRef.current?.click()}>
-            <Upload size={15} /> Import feedback…
-          </button>
-          <span style={{ flex: 1 }} />
-          <button className="btn" onClick={onClose}>
-            Done
-          </button>
-        </div>
-      </div>
-    </div>
+    </Dialog>
   )
 }
 
@@ -203,17 +196,18 @@ function Round({
             <MessageSquare size={14} /> {open} open / {review.comments.length}
           </button>
         )}
-        <button className="btn sm" title="Download the review file again" onClick={onDownload}>
+        <button className="btn sm" aria-label="Download the review file again" title="Download the review file again" onClick={onDownload}>
           <Download size={14} />
         </button>
         <button
           className="btn sm"
+          aria-label={review.status === 'open' ? 'Close this round' : 'Reopen this round'}
           title={review.status === 'open' ? 'Close this round' : 'Reopen'}
           onClick={onToggleClosed}
         >
           {review.status === 'open' ? <LockOpen size={14} /> : <Lock size={14} />}
         </button>
-        <button className="btn sm danger" title="Delete round" onClick={onDelete}>
+        <button className="btn sm danger" aria-label="Delete round" title="Delete round" onClick={onDelete}>
           <Trash2 size={14} />
         </button>
       </div>

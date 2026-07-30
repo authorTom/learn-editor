@@ -6,7 +6,7 @@ export interface BlockDef {
   label: string
   description: string
   category: 'Text' | 'Media' | 'Layout' | 'Interactive' | 'Assessment'
-  icon: string // lucide icon name resolved in InsertMenu
+  icon: string // lucide icon name resolved in BlockPicker
 }
 
 export const blockDefs: BlockDef[] = [

@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { Button, Dialog, Field, Input, Textarea } from '../ui'
 
 /** Names a block or course before it goes into the template library. */
 export default function SaveTemplateDialog({
@@ -26,47 +27,40 @@ export default function SaveTemplateDialog({
   }
 
   return (
-    <div className="modal-scrim" onClick={onClose}>
-      <div className="modal" onClick={(e) => e.stopPropagation()}>
-        <div className="modal-head">
-          <h2>{heading}</h2>
-        </div>
-        <div className="modal-body">
-          <div className="field">
-            <label>Template name</label>
-            <input
-              type="text"
-              autoFocus
-              value={name}
-              placeholder="e.g. Course intro banner"
-              onChange={(e) => setName(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter') save()
-                if (e.key === 'Escape') onClose()
-              }}
-            />
-          </div>
-          {withDescription && (
-            <div className="field">
-              <label>Description (optional)</label>
-              <textarea
-                value={description}
-                placeholder="When should someone reach for this template?"
-                onChange={(e) => setDescription(e.target.value)}
-              />
-            </div>
-          )}
-          <p className="drop-hint">{hint}</p>
-        </div>
-        <div className="modal-foot">
-          <button className="btn" onClick={onClose}>
-            Cancel
-          </button>
-          <button className="btn primary" disabled={!name.trim()} onClick={save}>
+    <Dialog
+      title={heading}
+      description={hint}
+      size="sm"
+      onClose={onClose}
+      footer={
+        <>
+          <Button onClick={onClose}>Cancel</Button>
+          <Button variant="primary" disabled={!name.trim()} onClick={save}>
             Save to library
-          </button>
-        </div>
-      </div>
-    </div>
+          </Button>
+        </>
+      }
+    >
+      <Field label="Template name" required>
+        <Input
+          data-autofocus
+          value={name}
+          placeholder="e.g. Course intro banner"
+          onChange={(e) => setName(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter') save()
+          }}
+        />
+      </Field>
+      {withDescription && (
+        <Field label="Description" hint="Optional — what is this template for?">
+          <Textarea
+            value={description}
+            placeholder="When should someone reach for this template?"
+            onChange={(e) => setDescription(e.target.value)}
+          />
+        </Field>
+      )}
+    </Dialog>
   )
 }
