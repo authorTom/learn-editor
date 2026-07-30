@@ -10,7 +10,9 @@ import { parseVideoUrl } from '../../utils/embed'
 import { uid } from '../../utils/id'
 import MediaLibrary from '../MediaLibrary'
 import RichText from '../RichText'
-import { usePatch, Seg } from './SimpleBlocks'
+import { Button } from '../../ui'
+import { usePatch } from './SimpleBlocks'
+import { Group, NoOptions, NumberRow, SegRow, TextRow } from './inspectorFields'
 
 /** Turn a stored src (an `asset:<id>` ref or a plain URL) into something an
     <img>/<audio> tag can display. */
@@ -130,29 +132,39 @@ export function ImageEditor({ block }: { block: ImageBlock }) {
       ) : (
         <UploadZone onImage={(src) => patch({ src })} />
       )}
-      <div className="blk-options">
-        <input
-          className="mini-input"
-          style={{ flex: 1, minWidth: 140 }}
-          value={block.caption}
-          placeholder="Caption (optional)"
-          onChange={(e) => patch({ caption: e.target.value })}
-        />
-        <input
-          className="mini-input"
-          style={{ flex: 1, minWidth: 140 }}
-          value={block.alt}
-          placeholder="Alt text for accessibility"
-          onChange={(e) => patch({ alt: e.target.value })}
-        />
-        <span className="lbl">Width</span>
-        <Seg
-          value={block.width}
-          options={[{ v: 'normal', label: 'Normal' }, { v: 'wide', label: 'Wide' }, { v: 'full', label: 'Full' }]}
-          onChange={(width) => patch({ width })}
-        />
-      </div>
+      <input
+        className="mini-input blk-caption"
+        aria-label="Caption"
+        value={block.caption}
+        placeholder="Caption (optional)"
+        onChange={(e) => patch({ caption: e.target.value })}
+      />
     </div>
+  )
+}
+
+export function ImageOptions({ block }: { block: ImageBlock }) {
+  const patch = usePatch(block)
+  return (
+    <Group title="Image">
+      <SegRow
+        label="Width"
+        value={block.width}
+        options={[
+          { value: 'normal', label: 'Normal' },
+          { value: 'wide', label: 'Wide' },
+          { value: 'full', label: 'Full' },
+        ]}
+        onChange={(width) => patch({ width })}
+      />
+      <TextRow
+        label="Alt text"
+        value={block.alt}
+        placeholder="Describe the image"
+        onChange={(alt) => patch({ alt })}
+        hint="Read aloud by screen readers. Leave empty only if the image is purely decorative."
+      />
+    </Group>
   )
 }
 
@@ -185,22 +197,30 @@ export function ImageTextEditor({ block }: { block: ImageTextBlock }) {
           />
         </div>
       </div>
-      <div className="blk-options">
-        <span className="lbl">Image side</span>
-        <Seg
-          value={block.imageSide}
-          options={[{ v: 'left', label: 'Left' }, { v: 'right', label: 'Right' }]}
-          onChange={(imageSide) => patch({ imageSide })}
-        />
-        <input
-          className="mini-input"
-          style={{ flex: 1, minWidth: 130 }}
-          value={block.alt}
-          placeholder="Alt text"
-          onChange={(e) => patch({ alt: e.target.value })}
-        />
-      </div>
     </div>
+  )
+}
+
+export function ImageTextOptions({ block }: { block: ImageTextBlock }) {
+  const patch = usePatch(block)
+  return (
+    <Group title="Image & text">
+      <SegRow
+        label="Image side"
+        value={block.imageSide}
+        options={[
+          { value: 'left', label: 'Left' },
+          { value: 'right', label: 'Right' },
+        ]}
+        onChange={(imageSide) => patch({ imageSide })}
+      />
+      <TextRow
+        label="Alt text"
+        value={block.alt}
+        placeholder="Describe the image"
+        onChange={(alt) => patch({ alt })}
+      />
+    </Group>
   )
 }
 
@@ -231,7 +251,7 @@ export function GalleryEditor({ block }: { block: GalleryBlock }) {
             <button
               className="g-del"
               title="Remove"
-              onClick={() => patch({ images: block.images.filter((x) => x.id !== im.id) })}
+              aria-label="Remove" onClick={() => patch({ images: block.images.filter((x) => x.id !== im.id) })}
             >
               <X size={13} />
             </button>
@@ -265,16 +285,10 @@ export function GalleryEditor({ block }: { block: GalleryBlock }) {
           }}
         />
       </div>
-      <div className="blk-options">
-        <span className="lbl">Columns</span>
-        <Seg
-          value={String(block.columns) as '2' | '3' | '4'}
-          options={[{ v: '2', label: '2' }, { v: '3', label: '3' }, { v: '4', label: '4' }]}
-          onChange={(v) => patch({ columns: Number(v) as 2 | 3 | 4 })}
-        />
-        <button className="btn sm" onClick={() => setPicking(true)}>
-          <FolderOpen size={13} /> From library
-        </button>
+      <div className="blk-actions">
+        <Button size="sm" icon={<FolderOpen size={13} />} onClick={() => setPicking(true)}>
+          From library
+        </Button>
       </div>
       {picking && (
         <MediaLibrary
@@ -284,6 +298,25 @@ export function GalleryEditor({ block }: { block: GalleryBlock }) {
         />
       )}
     </div>
+  )
+}
+
+export function GalleryOptions({ block }: { block: GalleryBlock }) {
+  const patch = usePatch(block)
+  return (
+    <Group title="Gallery">
+      <SegRow
+        label="Columns"
+        value={String(block.columns) as '2' | '3' | '4'}
+        options={[
+          { value: '2', label: '2' },
+          { value: '3', label: '3' },
+          { value: '4', label: '4' },
+        ]}
+        onChange={(v) => patch({ columns: Number(v) as 2 | 3 | 4 })}
+        hint="Collapses to a single column on phones."
+      />
+    </Group>
   )
 }
 
@@ -330,19 +363,30 @@ export function VideoEditor({ block }: { block: VideoBlock }) {
               allowFullScreen
             />
           </div>
-          <div className="blk-options" style={{ borderTop: 'none', paddingTop: 6 }}>
-            <input
-              className="mini-input"
-              style={{ flex: 1 }}
-              value={block.caption}
-              placeholder="Caption (optional)"
-              onChange={(e) => patch({ caption: e.target.value })}
-            />
-            <span className="lbl">{block.provider}</span>
-          </div>
+          <input
+            className="mini-input blk-caption"
+            aria-label="Caption"
+            value={block.caption}
+            placeholder="Caption (optional)"
+            onChange={(e) => patch({ caption: e.target.value })}
+          />
         </div>
       )}
     </div>
+  )
+}
+
+export function VideoOptions({ block }: { block: VideoBlock }) {
+  return (
+    <Group title="Video">
+      {block.embedUrl ? (
+        <p className="insp-note">
+          Source: {block.provider}. The player embeds it responsively at 16:9.
+        </p>
+      ) : (
+        <p className="insp-note">Paste a YouTube or Vimeo URL on the canvas to add a video.</p>
+      )}
+    </Group>
   )
 }
 
@@ -372,32 +416,40 @@ export function EmbedEditor({ block }: { block: EmbedBlock }) {
           <div className="embed-frame" style={{ border: '1px solid var(--line)', borderRadius: 10, overflow: 'hidden' }}>
             <iframe src={block.url} title="Embed preview" style={{ width: '100%', height: block.height, border: 0, display: 'block' }} />
           </div>
-          <div className="blk-options" style={{ borderTop: 'none', paddingTop: 6 }}>
-            <span className="lbl">Height</span>
-            <input
-              className="mini-input"
-              type="number"
-              min={120}
-              max={1200}
-              step={20}
-              style={{ width: 90 }}
-              value={block.height}
-              onChange={(e) => patch({ height: Number(e.target.value) || 480 })}
-            />
-            <input
-              className="mini-input"
-              style={{ flex: 1 }}
-              value={block.caption}
-              placeholder="Caption (optional)"
-              onChange={(e) => patch({ caption: e.target.value })}
-            />
-          </div>
+          <input
+            className="mini-input blk-caption"
+            aria-label="Caption"
+            value={block.caption}
+            placeholder="Caption (optional)"
+            onChange={(e) => patch({ caption: e.target.value })}
+          />
         </div>
       )}
       <p className="drop-hint">
         Note: some sites block embedding in iframes. If the preview stays blank, the site doesn’t allow it.
       </p>
     </div>
+  )
+}
+
+export function EmbedOptions({ block }: { block: EmbedBlock }) {
+  const patch = usePatch(block)
+  return (
+    <Group title="Embed">
+      <NumberRow
+        label="Height"
+        min={120}
+        max={1200}
+        step={20}
+        suffix="px"
+        value={block.height}
+        onChange={(height) => patch({ height })}
+      />
+      <p className="insp-note">
+        Some sites refuse to be embedded in an iframe. If the preview stays blank, that site does
+        not allow it.
+      </p>
+    </Group>
   )
 }
 
@@ -417,7 +469,7 @@ export function AudioEditor({ block }: { block: AudioBlock }) {
       {block.src ? (
         <div className="blk-row">
           <audio controls src={audioSrc} style={{ flex: 1 }} />
-          <button className="icon-btn danger" title="Remove audio" onClick={() => patch({ src: '' })}>
+          <button className="icon-btn danger" title="Remove audio" aria-label="Remove audio" onClick={() => patch({ src: '' })}>
             <Trash2 size={15} />
           </button>
         </div>
@@ -430,4 +482,8 @@ export function AudioEditor({ block }: { block: AudioBlock }) {
       )}
     </div>
   )
+}
+
+export function AudioOptions() {
+  return <NoOptions what="An audio clip" />
 }

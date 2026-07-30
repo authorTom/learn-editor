@@ -6,6 +6,7 @@ import type {
 import { uid } from '../../utils/id'
 import RichText from '../RichText'
 import { usePatch } from './SimpleBlocks'
+import { Group, TextRow } from './inspectorFields'
 import { UploadZone, useAssetSrc } from './MediaBlocks'
 
 /* Shared editor for accordion + tabs (title/html item lists). */
@@ -39,17 +40,17 @@ function ItemsEditor({
               placeholder={`${itemNoun} title`}
               onChange={(e) => patchItem(it.id, { title: e.target.value })}
             />
-            <button className="icon-btn" disabled={i === 0} title="Move up" onClick={() => move(i, -1)}>
+            <button className="icon-btn" disabled={i === 0} title="Move up" aria-label="Move up" onClick={() => move(i, -1)}>
               <ArrowUp size={13} />
             </button>
-            <button className="icon-btn" disabled={i === items.length - 1} title="Move down" onClick={() => move(i, 1)}>
+            <button className="icon-btn" disabled={i === items.length - 1} title="Move down" aria-label="Move down" onClick={() => move(i, 1)}>
               <ArrowDown size={13} />
             </button>
             <button
               className="icon-btn danger"
               disabled={items.length <= 1}
               title="Delete"
-              onClick={() => onChange(items.filter((x) => x.id !== it.id))}
+              aria-label="Delete" onClick={() => onChange(items.filter((x) => x.id !== it.id))}
             >
               <X size={13} />
             </button>
@@ -81,9 +82,30 @@ export function AccordionEditor({ block }: { block: AccordionBlock }) {
   return <ItemsEditor items={block.items} itemNoun="Section" onChange={(items) => patch({ items })} />
 }
 
+export function AccordionOptions({ block }: { block: AccordionBlock }) {
+  return (
+    <Group title="Accordion">
+      <p className="insp-note">
+        {block.items.length} section{block.items.length === 1 ? '' : 's'}. Learners expand one at a
+        time; all sections start collapsed.
+      </p>
+    </Group>
+  )
+}
+
 export function TabsEditor({ block }: { block: TabsBlock }) {
   const patch = usePatch(block)
   return <ItemsEditor items={block.items} itemNoun="Tab" onChange={(items) => patch({ items })} />
+}
+
+export function TabsOptions({ block }: { block: TabsBlock }) {
+  return (
+    <Group title="Tabs">
+      <p className="insp-note">
+        {block.items.length} tab{block.items.length === 1 ? '' : 's'}. The first is shown by default.
+      </p>
+    </Group>
+  )
 }
 
 function CardImage({ src }: { src: string }) {
@@ -107,7 +129,7 @@ export function FlashcardsEditor({ block }: { block: FlashcardsBlock }) {
               className="icon-btn danger fc-del"
               disabled={block.cards.length <= 1}
               title="Delete card"
-              onClick={() => patch({ cards: block.cards.filter((x) => x.id !== c.id) })}
+              aria-label="Delete card" onClick={() => patch({ cards: block.cards.filter((x) => x.id !== c.id) })}
             >
               <X size={13} />
             </button>
@@ -140,7 +162,7 @@ export function FlashcardsEditor({ block }: { block: FlashcardsBlock }) {
           </div>
         ))}
       </div>
-      <div className="blk-options">
+      <div className="blk-actions">
         <button
           className="btn sm"
           onClick={() => patch({ cards: [...block.cards, { id: uid(), front: '', back: '' }] })}
@@ -149,6 +171,17 @@ export function FlashcardsEditor({ block }: { block: FlashcardsBlock }) {
         </button>
       </div>
     </div>
+  )
+}
+
+export function FlashcardsOptions({ block }: { block: FlashcardsBlock }) {
+  return (
+    <Group title="Flashcards">
+      <p className="insp-note">
+        {block.cards.length} card{block.cards.length === 1 ? '' : 's'}. Learners click each card to
+        flip it.
+      </p>
+    </Group>
   )
 }
 
@@ -188,14 +221,14 @@ export function SortingEditor({ block }: { block: SortingBlock }) {
                 })
               }
             />
-            <button className="icon-btn" disabled={i === 0} title="Move up" onClick={() => move(i, -1)}>
+            <button className="icon-btn" disabled={i === 0} title="Move up" aria-label="Move up" onClick={() => move(i, -1)}>
               <ArrowUp size={13} />
             </button>
             <button
               className="icon-btn"
               disabled={i === block.items.length - 1}
               title="Move down"
-              onClick={() => move(i, 1)}
+              aria-label="Move down" onClick={() => move(i, 1)}
             >
               <ArrowDown size={13} />
             </button>
@@ -203,28 +236,45 @@ export function SortingEditor({ block }: { block: SortingBlock }) {
               className="icon-btn danger"
               disabled={block.items.length <= 2}
               title="Remove"
-              onClick={() => patch({ items: block.items.filter((x) => x.id !== it.id) })}
+              aria-label="Remove" onClick={() => patch({ items: block.items.filter((x) => x.id !== it.id) })}
             >
               <X size={13} />
             </button>
           </div>
         ))}
       </div>
-      <div className="blk-options">
+      <div className="blk-actions">
         <button
           className="btn sm"
           onClick={() => patch({ items: [...block.items, { id: uid(), text: '' }] })}
         >
           <Plus size={13} /> Add step
         </button>
-        <span className="lbl">Learners see these shuffled and must restore this order.</span>
+        <span className="blk-actions__hint">
+          Learners see these shuffled and must restore this order.
+        </span>
       </div>
-      <FeedbackFields
-        correct={block.feedbackCorrect}
-        incorrect={block.feedbackIncorrect}
-        onChange={(p) => patch(p)}
-      />
     </div>
+  )
+}
+
+export function SortingOptions({ block }: { block: SortingBlock }) {
+  const patch = usePatch(block)
+  return (
+    <Group title="Feedback">
+      <TextRow
+        label="When correct"
+        value={block.feedbackCorrect}
+        placeholder="Well done — that is the right order."
+        onChange={(feedbackCorrect) => patch({ feedbackCorrect })}
+      />
+      <TextRow
+        label="When incorrect"
+        value={block.feedbackIncorrect}
+        placeholder="Not quite — try again."
+        onChange={(feedbackIncorrect) => patch({ feedbackIncorrect })}
+      />
+    </Group>
   )
 }
 
@@ -265,57 +315,45 @@ export function MatchingEditor({ block }: { block: MatchingBlock }) {
               className="icon-btn danger"
               disabled={block.pairs.length <= 2}
               title="Remove pair"
-              onClick={() => patch({ pairs: block.pairs.filter((x) => x.id !== p.id) })}
+              aria-label="Remove pair" onClick={() => patch({ pairs: block.pairs.filter((x) => x.id !== p.id) })}
             >
               <X size={13} />
             </button>
           </div>
         ))}
       </div>
-      <div className="blk-options">
+      <div className="blk-actions">
         <button
           className="btn sm"
           onClick={() => patch({ pairs: [...block.pairs, { id: uid(), left: '', right: '' }] })}
         >
           <Plus size={13} /> Add pair
         </button>
-        <span className="lbl">The right-hand column is shuffled for learners.</span>
+        <span className="blk-actions__hint">
+          The right-hand column is shuffled for learners.
+        </span>
       </div>
-      <FeedbackFields
-        correct={block.feedbackCorrect}
-        incorrect={block.feedbackIncorrect}
-        onChange={(p) => patch(p)}
-      />
     </div>
   )
 }
 
-function FeedbackFields({
-  correct,
-  incorrect,
-  onChange,
-}: {
-  correct: string
-  incorrect: string
-  onChange: (p: { feedbackCorrect?: string; feedbackIncorrect?: string }) => void
-}) {
+export function MatchingOptions({ block }: { block: MatchingBlock }) {
+  const patch = usePatch(block)
   return (
-    <div className="blk-options">
-      <input
-        className="mini-input"
-        style={{ flex: 1, minWidth: 150 }}
-        value={correct}
-        placeholder="Feedback when correct"
-        onChange={(e) => onChange({ feedbackCorrect: e.target.value })}
+    <Group title="Feedback">
+      <TextRow
+        label="When correct"
+        value={block.feedbackCorrect}
+        placeholder="Well matched."
+        onChange={(feedbackCorrect) => patch({ feedbackCorrect })}
       />
-      <input
-        className="mini-input"
-        style={{ flex: 1, minWidth: 150 }}
-        value={incorrect}
-        placeholder="Feedback when incorrect"
-        onChange={(e) => onChange({ feedbackIncorrect: e.target.value })}
+      <TextRow
+        label="When incorrect"
+        value={block.feedbackIncorrect}
+        placeholder="Not quite — try again."
+        onChange={(feedbackIncorrect) => patch({ feedbackIncorrect })}
       />
-    </div>
+    </Group>
   )
 }
 
@@ -373,7 +411,7 @@ export function HotspotEditor({ block }: { block: HotspotBlock }) {
             className={'hs-dot' + (selected === s.id ? ' sel' : '')}
             style={{ left: s.x + '%', top: s.y + '%' }}
             title={s.label}
-            onClick={(e) => {
+            aria-label={s.label} onClick={(e) => {
               e.stopPropagation()
               setSelected(selected === s.id ? null : s.id)
             }}
@@ -397,7 +435,7 @@ export function HotspotEditor({ block }: { block: HotspotBlock }) {
               <button
                 className="icon-btn danger"
                 title="Delete hotspot"
-                onClick={() => {
+                aria-label="Delete hotspot" onClick={() => {
                   patch({ spots: block.spots.filter((x) => x.id !== s.id) })
                   setSelected(null)
                 }}
@@ -417,21 +455,27 @@ export function HotspotEditor({ block }: { block: HotspotBlock }) {
         ) : null
       )}
 
-      <div className="blk-options">
-        <input
-          className="mini-input"
-          style={{ flex: 1, minWidth: 140 }}
-          value={block.alt}
-          placeholder="Alt text for the image"
-          onChange={(e) => patch({ alt: e.target.value })}
-        />
-        <span className="lbl">
-          {block.spots.length} hotspot{block.spots.length === 1 ? '' : 's'}
-        </span>
-        <button className="btn sm" onClick={() => patch({ src: '', spots: [] })}>
-          Replace image
-        </button>
-      </div>
     </div>
+  )
+}
+
+export function HotspotOptions({ block }: { block: HotspotBlock }) {
+  const patch = usePatch(block)
+  return (
+    <Group title="Hotspots">
+      <TextRow
+        label="Alt text"
+        value={block.alt}
+        placeholder="Describe the image"
+        onChange={(alt) => patch({ alt })}
+      />
+      <p className="insp-note">
+        {block.spots.length} marker{block.spots.length === 1 ? '' : 's'}. Positions are stored as
+        percentages, so they hold their place at every screen size.
+      </p>
+      <button className="btn sm" onClick={() => patch({ src: '', spots: [] })}>
+        Replace image
+      </button>
+    </Group>
   )
 }
