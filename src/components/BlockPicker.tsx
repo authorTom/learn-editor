@@ -3,7 +3,7 @@ import {
   Type, Heading1, MessageSquareQuote, Quote, List, Info, Image, LayoutPanelLeft,
   LayoutGrid, Play, Globe, Volume2, Minus, MousePointerClick, Columns2,
   ChevronsUpDown, PanelTop, GalleryHorizontalEnd, CircleCheckBig, Code, Bookmark,
-  ArrowDownUp, Shuffle, MapPin, Trash2,
+  ArrowDownUp, Shuffle, MapPin, Trash2, Rows3, ListOrdered, Link2,
   type LucideIcon,
 } from 'lucide-react'
 import { blockDefs, cloneBlock, createBlock } from '../blockDefaults'
@@ -16,7 +16,7 @@ const ICONS: Record<string, LucideIcon> = {
   Type, Heading1, MessageSquareQuote, Quote, List, Info, Image, LayoutPanelLeft,
   LayoutGrid, Play, Globe, Volume2, Minus, MousePointerClick, Columns2,
   ChevronsUpDown, PanelTop, GalleryHorizontalEnd, CircleCheckBig, Code,
-  ArrowDownUp, Shuffle, MapPin,
+  ArrowDownUp, Shuffle, MapPin, Rows3, ListOrdered,
 }
 
 const CATEGORIES = ['Text', 'Media', 'Layout', 'Interactive', 'Assessment'] as const
@@ -36,6 +36,9 @@ interface Entry {
   group: string
   make: () => { block: Block; assets?: Asset[] }
   onDelete?: () => void
+  /** Saved blocks can be inserted *linked* instead of copied — the copy then
+      tracks the library entry, and updating the entry updates every course. */
+  makeLinked?: () => { block: Block; assets?: Asset[] }
 }
 
 export default function BlockPicker({
@@ -86,6 +89,10 @@ export default function BlockPicker({
         Icon: ICONS[def?.icon ?? ''] ?? Bookmark,
         group: 'Saved blocks',
         make: () => ({ block: cloneBlock(t.block), assets: t.assets }),
+        makeLinked: () => ({
+          block: { ...cloneBlock(t.block), linkedTo: t.id, linkedRev: t.rev ?? 1 },
+          assets: t.assets,
+        }),
         onDelete: async () => {
           const ok = await confirm({
             title: `Remove “${t.name}” from your block library?`,
@@ -141,9 +148,9 @@ export default function BlockPicker({
       ?.scrollIntoView({ block: 'nearest' })
   }, [active])
 
-  function pick(entry: Entry | undefined) {
+  function pick(entry: Entry | undefined, linked = false) {
     if (!entry) return
-    const { block, assets } = entry.make()
+    const { block, assets } = linked && entry.makeLinked ? entry.makeLinked() : entry.make()
     noteBlockUsed(block.type)
     onInsert(block, assets)
     onClose()
@@ -164,7 +171,8 @@ export default function BlockPicker({
       setActive(entries.length - 1)
     } else if (e.key === 'Enter') {
       e.preventDefault()
-      pick(entries[active])
+      // Shift keeps the block tied to the library entry it came from.
+      pick(entries[active], e.shiftKey)
     }
   }
 
@@ -218,6 +226,19 @@ export default function BlockPicker({
                   <span className="picker__label">{entry.label}</span>
                   <span className="picker__desc">{entry.description}</span>
                 </span>
+                {entry.makeLinked && (
+                  <IconButton
+                    label={`Insert ${entry.label} linked to the library`}
+                    shortcut="⇧↵"
+                    size="sm"
+                    className="picker__link"
+                    icon={<Link2 size={13} />}
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      pick(entry, true)
+                    }}
+                  />
+                )}
                 {entry.onDelete && (
                   <IconButton
                     label={`Remove ${entry.label} from library`}

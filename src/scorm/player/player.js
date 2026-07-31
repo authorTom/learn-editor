@@ -9,8 +9,14 @@
   var LESSON_THEMES = window.LESSON_THEMES || {};
   var COMPLETION = COURSE.completion ||
     { allLessons: true, quizPass: false, minScore: 0, minMinutes: 0 };
+  /* Layout settings the player reads at runtime. The exporter has already run
+     these through normalizeTheme, so every field is present and valid — the
+     fallbacks here only cover a hand-assembled COURSE object. */
+  var THEME = COURSE.theme || {};
+  var COVER_ID = '__cover'; // state.cur when the title page is showing
   var startedAt = Date.now();
   var priorMins = 0; // minutes from earlier sessions, restored from suspend data
+  var interactionCount = 0; // next free cmi.interactions index
 
   /* Media lives once in COURSE.assets; blocks point at it with `asset:<id>`. */
   var ASSETS = {};
@@ -34,6 +40,71 @@
     return SCORM_VERSION === '1.2'
       ? pad(h) + ':' + pad(m) + ':' + pad(s)
       : 'PT' + h + 'H' + m + 'M' + s + 'S';
+  }
+
+  /* ================= suspend data ==================
+     SCORM 1.2 guarantees only 4096 characters of cmi.suspend_data, and an LMS
+     that keeps exactly that is conformant. The obvious encoding —
+     {cur, done:{id:true}, quiz:{id:{score,passed}}} — spends ~21 characters per
+     finished lesson and ~42 per quiz on repeating the ids, which puts a long
+     compliance course over the limit. Past it, most LMSs truncate rather than
+     fail, so bookmarking dies silently and nothing in the course can tell.
+
+     v2 drops the ids entirely and positions everything by index into
+     COURSE.lessons and the course's quiz blocks, which is stable for a given
+     package. A 100-lesson course with 40 quizzes fits in a few hundred
+     characters. v1 payloads are still read, so a learner mid-course through an
+     already-published package resumes correctly. */
+
+  function quizIdList() {
+    var ids = [];
+    COURSE.lessons.forEach(function (l) {
+      l.blocks.forEach(function (b) { if (b.type === 'quiz') ids.push(b.id); });
+    });
+    return ids;
+  }
+
+  function packState(state) {
+    var lessons = COURSE.lessons;
+    var quizIds = quizIdList();
+    // done -> a bitmask string of '1'/'0', one character per lesson
+    var done = '';
+    for (var i = 0; i < lessons.length; i++) done += state.done[lessons[i].id] ? '1' : '0';
+    // quiz -> [score, passed] pairs by quiz index; null where unattempted
+    var quiz = quizIds.map(function (id) {
+      var q = state.quiz[id];
+      return q ? [q.score, q.passed ? 1 : 0] : 0;
+    });
+    // trailing unattempted quizzes carry no information
+    while (quiz.length && quiz[quiz.length - 1] === 0) quiz.pop();
+    var curIdx = lessons.findIndex(function (l) { return l.id === state.cur; });
+    return {
+      v: 2,
+      c: state.cur === COVER_ID ? -2 : curIdx,
+      d: done,
+      q: quiz,
+      m: Math.round(state.mins * 100) / 100
+    };
+  }
+
+  function expandState(raw) {
+    if (!raw || typeof raw !== 'object') return null;
+    if (raw.v !== 2) {
+      // v1: ids in full. Read as-is.
+      return { done: raw.done || {}, quiz: raw.quiz || {}, cur: raw.cur || '', mins: raw.mins || 0 };
+    }
+    var lessons = COURSE.lessons;
+    var quizIds = quizIdList();
+    var done = {};
+    var d = raw.d || '';
+    for (var i = 0; i < lessons.length; i++) if (d.charAt(i) === '1') done[lessons[i].id] = true;
+    var quiz = {};
+    (raw.q || []).forEach(function (entry, i) {
+      if (!entry || !quizIds[i]) return;
+      quiz[quizIds[i]] = { score: entry[0], passed: !!entry[1] };
+    });
+    var cur = raw.c === -2 ? COVER_ID : (lessons[raw.c] ? lessons[raw.c].id : '');
+    return { done: done, quiz: quiz, cur: cur, mins: raw.m || 0 };
   }
 
   /* ================= SCORM adapter ================= */
@@ -99,11 +170,11 @@
         catch (e) { raw = ''; }
       }
       if (!raw) return null;
-      try { return JSON.parse(raw); } catch (e) { return null; }
+      try { return expandState(JSON.parse(raw)); } catch (e) { return null; }
     },
 
     save: function (state, progress) {
-      var raw = JSON.stringify(state);
+      var raw = JSON.stringify(packState(state));
       if (this.connected) {
         if (SCORM_VERSION === '1.2') {
           this.api.LMSSetValue('cmi.suspend_data', raw);
@@ -129,9 +200,21 @@
             this.api.SetValue('cmi.score.max', '100');
             this.api.SetValue('cmi.score.raw', String(progress.score));
             this.api.SetValue('cmi.score.scaled', String(progress.score / 100));
-            this.api.SetValue('cmi.success_status', progress.passed ? 'passed' : 'failed');
           }
-          if (progress.finished) this.api.SetValue('cmi.completion_status', 'completed');
+          // success_status stays 'unknown' until the outcome is actually
+          // decided. It used to be written on every save, which meant the LMS
+          // was told the learner had *failed* the moment they opened a course
+          // containing a quiz — `passed` is false until the whole course is
+          // finished. Plenty of LMSs latch the first definite value they see,
+          // or surface it on a dashboard, so a learner three lessons in showed
+          // as a failure. 1.2 never had the bug: lesson_status below is gated
+          // on `finished`, and this now matches it.
+          if (progress.finished) {
+            this.api.SetValue('cmi.completion_status', 'completed');
+            if (progress.scored) {
+              this.api.SetValue('cmi.success_status', progress.passed ? 'passed' : 'failed');
+            }
+          }
           this.api.Commit('');
         }
       } else {
@@ -140,6 +223,43 @@
         try { localStorage.setItem('le-progress-' + COURSE.id, raw); }
         catch (e) { /* storage denied — carry on without resume */ }
       }
+    },
+
+    /**
+     * Report one answered question as a cmi.interactions record.
+     *
+     * Without this the LMS receives a single score per attempt and nothing
+     * else, so "which question does everyone get wrong" is unanswerable in
+     * every LMS report — the data was never sent. Interactions are the standard
+     * place for it and every LMS with reporting reads them.
+     *
+     * `id` is capped and sanitised because SCORM 1.2 allows only 255 characters
+     * of CMIIdentifier and forbids whitespace.
+     */
+    reportInteraction: function (rec) {
+      if (!this.connected) return;
+      var i = interactionCount++;
+      var is12 = SCORM_VERSION === '1.2';
+      var set = is12
+        ? this.api.LMSSetValue.bind(this.api)
+        : this.api.SetValue.bind(this.api);
+      var base = 'cmi.interactions.' + i + '.';
+      var id = String(rec.id).replace(/\s+/g, '-').slice(0, 250);
+      var typeMap12 = { choice: 'choice', multiple: 'choice', truefalse: 'true-false', fillin: 'fill-in' };
+      var typeMap04 = { choice: 'choice', multiple: 'choice', truefalse: 'true-false', fillin: 'fill-in' };
+
+      set(base + 'id', id);
+      set(base + 'type', (is12 ? typeMap12 : typeMap04)[rec.type] || 'other');
+      // 1.2 spells it student_response and has no description element.
+      set(base + (is12 ? 'student_response' : 'learner_response'), String(rec.response).slice(0, 250));
+      set(base + 'result', rec.correct ? 'correct' : 'wrong');
+      if (!is12) {
+        set(base + 'description', String(rec.text || '').slice(0, 250));
+        set(base + 'timestamp', new Date().toISOString());
+      } else {
+        set(base + 'time', new Date().toTimeString().slice(0, 8));
+      }
+      set(base + 'weighting', '1');
     },
 
     finish: function () {
@@ -346,11 +466,21 @@
         break;
       }
       case 'columns':
-        w.className = 'block b-columns';
+        // An uneven split is only meaningful across two columns; three or four
+        // always divide evenly, so the class is simply not emitted there.
+        w.className = 'block b-columns gap-' + (b.gap || 'md') +
+          (b.columns.length === 2 && b.ratio && b.ratio !== 'equal' ? ' ' + b.ratio : '') +
+          (b.valign === 'center' ? ' v-center' : '');
         w.style.setProperty('--cols', b.columns.length);
         w.innerHTML = b.columns.map(function (c) {
           return '<div class="rich">' + c.html + '</div>';
         }).join('');
+        break;
+      case 'cards':
+        if (!renderCards(w, b)) return null;
+        break;
+      case 'steps':
+        if (!renderSteps(w, b)) return null;
         break;
       case 'accordion':
         renderAccordion(w, b);
@@ -392,8 +522,53 @@
       default:
         return null;
     }
+    // Applied after the switch, not inside it: most cases overwrite className
+    // outright, so anything set before them would be thrown away.
+    if (b.width && b.width !== 'normal') w.classList.add('w-' + b.width);
+    if (b.space && b.space !== 'normal') w.classList.add('sp-' + b.space);
     if (b.bg) applyBlockBg(w, b.bg);
     return w;
+  }
+
+  /* A card needs at least one of its four fields to be worth a box. */
+  function renderCards(w, b) {
+    var items = (b.items || []).filter(function (c) {
+      return c.title || c.html || c.icon || src(c.src);
+    });
+    if (!items.length) return false;
+    w.className = 'block b-cards cols-' + b.columns + ' style-' + b.style +
+      (b.align === 'center' ? ' center' : '');
+    w.innerHTML = items.map(function (c) {
+      var img = src(c.src);
+      return '<div class="card">' +
+        (img ? '<img class="card-img" src="' + esc(img) + '" alt="" loading="lazy">' : '') +
+        (c.icon ? '<div class="card-icon">' + esc(c.icon) + '</div>' : '') +
+        (c.title ? '<h3 class="card-title">' + esc(c.title) + '</h3>' : '') +
+        (c.html ? '<div class="card-text rich">' + c.html + '</div>' : '') +
+        '</div>';
+    }).join('');
+    return true;
+  }
+
+  function renderSteps(w, b) {
+    var items = (b.items || []).filter(function (s) { return s.title || s.html; });
+    if (!items.length) return false;
+    var dots = b.marker === 'dot';
+    w.className = 'block b-steps ' + (b.layout === 'horizontal' ? 'horizontal' : 'vertical') +
+      (dots ? ' dots' : '');
+    // An ordered list, so the sequence survives for a screen reader even when
+    // the markers are drawn as bare dots.
+    w.innerHTML = '<ol class="steps-list">' + items.map(function (s, i) {
+      // div rather than span for the body: the rich text inside is <p> markup,
+      // which cannot legally live in a span and would be split out of it.
+      return '<li class="step">' +
+        '<span class="step-marker" aria-hidden="true">' + (dots ? '' : (i + 1)) + '</span>' +
+        '<div class="step-body">' +
+        (s.title ? '<h3 class="step-title">' + esc(s.title) + '</h3>' : '') +
+        (s.html ? '<div class="rich">' + s.html + '</div>' : '') +
+        '</div></li>';
+    }).join('') + '</ol>';
+    return true;
   }
 
   function renderAccordion(w, b) {
@@ -665,6 +840,20 @@
         actions.appendChild(submitBtn);
         qEl.appendChild(actions);
 
+        /* What the learner actually chose, as text an LMS report can show.
+           Choice ids mean nothing outside this package, so they are resolved to
+           the answer text before being sent. */
+        function describeAnswer(q, given) {
+          if (q.type === 'fillin') return String(given || '');
+          if (q.type === 'multiple') {
+            var sel = given || {};
+            return q.choices.filter(function (c) { return sel[c.id]; })
+              .map(function (c) { return c.text; }).join(', ');
+          }
+          var chosen = q.choices.filter(function (c) { return c.id === given; })[0];
+          return chosen ? chosen.text : '';
+        }
+
         function grade() {
           var correct = false;
           if (q.type === 'fillin') {
@@ -687,6 +876,13 @@
           submittedCount++;
           var ok = grade();
           if (ok) correctCount++;
+          scorm.reportInteraction({
+            id: b.id + '-' + q.id,
+            type: q.type,
+            text: q.text,
+            response: describeAnswer(q, answers[q.id]),
+            correct: ok
+          });
           // mark choices
           zone.querySelectorAll('.q-choice').forEach(function (cEl) {
             var cid = cEl.getAttribute('data-cid');
@@ -786,7 +982,7 @@
   /* ================= layout & navigation ================= */
 
   var root = document.getElementById('app');
-  var sidebarNav, progressFill, progressPct, footerNextBtn, gateMsg;
+  var sidebarNav, progressFill, progressPct, progressSteps, footerNextBtn, gateMsg;
 
   function isLastLesson(idx) {
     return idx === COURSE.lessons.length - 1;
@@ -813,18 +1009,33 @@
     var prog = computeProgress();
     if (progressFill) progressFill.style.width = prog.pct + '%';
     if (progressPct) progressPct.textContent = prog.pct + '%';
+    if (progressSteps) {
+      progressSteps.querySelectorAll('.pstep').forEach(function (dot) {
+        var id = dot.getAttribute('data-id');
+        dot.classList.toggle('done', !!state.done[id]);
+        dot.classList.toggle('at', id === state.cur);
+      });
+    }
     if (sidebarNav) {
       sidebarNav.querySelectorAll('button').forEach(function (btn) {
         var id = btn.getAttribute('data-id');
         btn.classList.toggle('active', id === state.cur);
         btn.classList.toggle('done', !!state.done[id]);
-        btn.querySelector('.check').textContent = state.done[id] ? '✓' : '';
+        var check = btn.querySelector('.check');
+        if (check) check.textContent = state.done[id] ? '✓' : '';
       });
     }
   }
 
-  /** Per-lesson style overrides: CSS custom properties precomputed at export
-      time, applied to the player root while that lesson is open. */
+  /**
+   * Per-lesson style overrides: CSS custom properties precomputed at export
+   * time, applied to the player root while that lesson is open.
+   *
+   * Returns the header treatment in force, which openLesson needs to build the
+   * right markup — a `split` header is a different shape, not just different
+   * paint, and an `image` header degrades to `gradient` when the course has no
+   * picture to put behind it.
+   */
   function applyLessonTheme(id) {
     var t = LESSON_THEMES[id];
     var base = LESSON_THEMES.__base || {};
@@ -834,13 +1045,40 @@
     // Set these on <html>, not on #app: `body { color: var(--ink) }` resolves
     // against :root, so overriding lower down would leave body text stale.
     Object.keys(vars).forEach(function (k) {
-      if (k === 'dark' || k === 'hero') return;
+      if (k === 'dark' || k === 'hero' || k === 'heroImage') return;
       document.documentElement.style.setProperty(k, vars[k]);
     });
     document.body.classList.toggle('theme-dark', !!vars.dark);
-    ['gradient', 'solid', 'minimal'].forEach(function (h) {
-      document.body.classList.toggle('hero-' + h, vars.hero === h);
+
+    var image = src(vars.heroImage || '') || COURSE.coverImage || '';
+    var hero = vars.hero || 'gradient';
+    if (hero === 'image' && !image) hero = 'gradient';
+    ['gradient', 'solid', 'minimal', 'image', 'split'].forEach(function (h) {
+      document.body.classList.toggle('hero-' + h, hero === h);
     });
+    return { hero: hero, image: image };
+  }
+
+  /* Narrow-screen bar. With `nav: none` there is no menu to open, so it carries
+     the course title alone rather than a button that reveals nothing. */
+  function buildTopbar() {
+    var topbar = el('div', 'topbar');
+    if (THEME.nav !== 'none') {
+      var menuBtn = el('button', 'menu-btn', '☰');
+      menuBtn.setAttribute('aria-label', 'Open course menu');
+      menuBtn.addEventListener('click', function () { root.classList.add('nav-open'); });
+      topbar.appendChild(menuBtn);
+    }
+    topbar.appendChild(el('div', 't-title', esc(COURSE.title)));
+    return topbar;
+  }
+
+  /* The line above a lesson title: its position in the course, its module name,
+     or — when the author has turned numbering off and set no sections — nothing
+     at all, rather than an empty band of uppercase letter-spacing. */
+  function heroKicker(lesson, idx) {
+    if (THEME.lessonNumbers) return 'Lesson ' + (idx + 1) + ' of ' + COURSE.lessons.length;
+    return (lesson.section || '').trim();
   }
 
   function openLesson(id) {
@@ -849,20 +1087,20 @@
     var lesson = COURSE.lessons[idx];
     var content = root.querySelector('.content');
     content.innerHTML = '';
-    applyLessonTheme(id);
+    var look = applyLessonTheme(id);
 
-    // mobile topbar
-    var topbar = el('div', 'topbar');
-    var menuBtn = el('button', 'menu-btn', '☰');
-    menuBtn.setAttribute('aria-label', 'Open course menu');
-    menuBtn.addEventListener('click', function () { root.classList.add('nav-open'); });
-    topbar.appendChild(menuBtn);
-    topbar.appendChild(el('div', 't-title', esc(COURSE.title)));
-    content.appendChild(topbar);
+    content.appendChild(buildTopbar());
 
     var hero = el('div', 'lesson-hero');
-    hero.innerHTML = '<div class="kicker">Lesson ' + (idx + 1) + ' of ' + COURSE.lessons.length + '</div>' +
-      '<h2>' + esc(lesson.title) + '</h2>';
+    var kicker = heroKicker(lesson, idx);
+    // `split` puts the title and the kicker in separate panels, so it needs a
+    // wrapper the other treatments do not.
+    hero.innerHTML = '<div class="hero-inner">' +
+      (kicker ? '<div class="kicker">' + esc(kicker) + '</div>' : '') +
+      '<h2>' + esc(lesson.title) + '</h2></div>';
+    if (look.hero === 'image') {
+      hero.style.backgroundImage = 'url("' + look.image.replace(/"/g, '%22') + '")';
+    }
     content.appendChild(hero);
 
     var blocksWrap = el('div', 'blocks');
@@ -883,10 +1121,14 @@
 
     // footer nav
     var footer = el('div', 'lesson-footer');
-    var prevBtn = el('button', 'nav-btn prev', '← Previous');
-    prevBtn.disabled = idx === 0;
+    // From lesson 1, Previous goes back to the title page when there is one,
+    // rather than being a dead control.
+    var toCover = idx === 0 && THEME.titlePage;
+    var prevBtn = el('button', 'nav-btn prev', toCover ? '← Course home' : '← Previous');
+    prevBtn.disabled = idx === 0 && !toCover;
     prevBtn.addEventListener('click', function () {
-      openLesson(COURSE.lessons[idx - 1].id);
+      if (toCover) openCover();
+      else openLesson(COURSE.lessons[idx - 1].id);
     });
     var right = el('div');
     right.style.cssText = 'display:flex;flex-direction:column;gap:8px;align-items:flex-end;';
@@ -917,42 +1159,142 @@
     window.scrollTo({ top: 0 });
   }
 
+  /**
+   * The course title page.
+   *
+   * Optional, and off by default — dropping the learner straight into lesson 1
+   * is still the right shape for a five-minute refresher. For anything longer,
+   * an opening page is where the description, the author and the contents can
+   * finally be seen; before this they existed in the course data but the
+   * learner never saw any of them.
+   */
+  function openCover() {
+    state.cur = COVER_ID;
+    var content = root.querySelector('.content');
+    content.innerHTML = '';
+    applyLessonTheme(null);
+    // No lesson is open, so there is no footer to gate.
+    footerNextBtn = null;
+    gateMsg = null;
+
+    content.appendChild(buildTopbar());
+
+    var image = COURSE.coverImage || '';
+    var logo = src((COURSE.theme && COURSE.theme.logo) || '');
+    var cover = el('div', 'cover' + (image ? ' has-image' : ''));
+    if (image) cover.style.backgroundImage = 'url("' + image.replace(/"/g, '%22') + '")';
+    cover.innerHTML = '<div class="cover-inner">' +
+      (logo ? '<img class="course-logo" src="' + esc(logo) + '" alt="">' : '') +
+      '<h1>' + esc(COURSE.title) + '</h1>' +
+      (COURSE.author ? '<div class="cover-by">' + esc(COURSE.author) + '</div>' : '') +
+      (COURSE.description ? '<p class="cover-desc">' + esc(COURSE.description) + '</p>' : '') +
+      '</div>';
+    content.appendChild(cover);
+
+    var body = el('div', 'blocks cover-body');
+    var contents = el('div', 'cover-contents');
+    contents.innerHTML = '<h2>What this course covers</h2>';
+    var list = el('ol', 'cover-list');
+    var lastSection = null;
+    COURSE.lessons.forEach(function (l, i) {
+      var sec = (l.section || '').trim();
+      if (sec && sec !== lastSection) list.appendChild(el('li', 'cover-section', esc(sec)));
+      lastSection = sec;
+      var li = el('li', 'cover-item' + (state.done[l.id] ? ' done' : ''));
+      li.innerHTML = '<span class="ci-mark">' + (state.done[l.id] ? '✓' : esc(l.icon || '')) + '</span>' +
+        '<span class="ci-title">' + (THEME.lessonNumbers ? (i + 1) + '. ' : '') + esc(l.title) + '</span>';
+      list.appendChild(li);
+    });
+    contents.appendChild(list);
+    body.appendChild(contents);
+
+    var startIdx = 0;
+    for (var i = 0; i < COURSE.lessons.length; i++) {
+      if (!state.done[COURSE.lessons[i].id]) { startIdx = i; break; }
+    }
+    var resuming = startIdx > 0;
+    var start = el('button', 'nav-btn cover-start', resuming ? 'Resume course →' : 'Start course →');
+    start.addEventListener('click', function () { openLesson(COURSE.lessons[startIdx].id); });
+    var actions = el('div', 'cover-actions');
+    actions.appendChild(start);
+    body.appendChild(actions);
+    content.appendChild(body);
+
+    renderSidebarState();
+    persist();
+    root.classList.remove('nav-open');
+    window.scrollTo({ top: 0 });
+  }
+
+  function buildSidebar() {
+    var sidebar = el('aside', 'sidebar');
+    var head = el('div', 'sidebar-head');
+    var logo = src((COURSE.theme && COURSE.theme.logo) || '');
+    var progressHtml = '';
+    if (THEME.progress === 'bar') {
+      progressHtml = '<div class="progress-wrap"><div class="progress-label">' +
+        '<span>Progress</span><span class="ppct">0%</span></div>' +
+        '<div class="progress-bar"><div class="progress-fill"></div></div></div>';
+    } else if (THEME.progress === 'steps') {
+      progressHtml = '<div class="progress-wrap"><div class="progress-steps">' +
+        COURSE.lessons.map(function (l) {
+          return '<span class="pstep" data-id="' + esc(l.id) + '"></span>';
+        }).join('') + '</div></div>';
+    }
+    head.innerHTML = (logo ? '<img class="course-logo" src="' + esc(logo) + '" alt="">' : '') +
+      '<h1>' + esc(COURSE.title) + '</h1>' +
+      (COURSE.author ? '<div class="byline">by ' + esc(COURSE.author) + '</div>' : '') +
+      progressHtml;
+    sidebar.appendChild(head);
+
+    sidebarNav = el('nav', 'lesson-nav');
+    if (THEME.titlePage) {
+      var home = el('button', 'nav-home');
+      home.setAttribute('data-id', COVER_ID);
+      home.innerHTML = '<span class="lesson-icon">⌂</span><span class="nav-label">Course home</span>';
+      home.addEventListener('click', openCover);
+      sidebarNav.appendChild(home);
+    }
+    // Consecutive lessons sharing a section name sit under one heading. A blank
+    // section resets the run, so an author can group only part of a course.
+    var lastSection = null;
+    COURSE.lessons.forEach(function (l, i) {
+      var sec = (l.section || '').trim();
+      if (sec && sec !== lastSection) sidebarNav.appendChild(el('div', 'nav-section', esc(sec)));
+      lastSection = sec;
+      var btn = el('button');
+      btn.setAttribute('data-id', l.id);
+      btn.innerHTML = '<span class="check"></span><span class="lesson-icon">' + esc(l.icon || '') +
+        '</span><span class="nav-label">' +
+        (THEME.lessonNumbers ? (i + 1) + '. ' : '') + esc(l.title) + '</span>';
+      btn.addEventListener('click', function () { openLesson(l.id); });
+      sidebarNav.appendChild(btn);
+    });
+    sidebar.appendChild(sidebarNav);
+
+    progressFill = head.querySelector('.progress-fill');
+    progressPct = head.querySelector('.ppct');
+    progressSteps = head.querySelector('.progress-steps');
+    return sidebar;
+  }
+
   function build() {
     // Theme (colors, fonts, layout classes) is baked into the page at export time.
     document.title = COURSE.title;
 
     root.className = 'player';
 
-    var sidebar = el('aside', 'sidebar');
-    var head = el('div', 'sidebar-head');
-    var logo = src((COURSE.theme && COURSE.theme.logo) || '');
-    head.innerHTML = (logo ? '<img class="course-logo" src="' + esc(logo) + '" alt="">' : '') +
-      '<h1>' + esc(COURSE.title) + '</h1>' +
-      (COURSE.author ? '<div class="byline">by ' + esc(COURSE.author) + '</div>' : '') +
-      '<div class="progress-wrap"><div class="progress-label"><span>Progress</span><span class="ppct">0%</span></div>' +
-      '<div class="progress-bar"><div class="progress-fill"></div></div></div>';
-    sidebar.appendChild(head);
-
-    sidebarNav = el('nav', 'lesson-nav');
-    COURSE.lessons.forEach(function (l) {
-      var btn = el('button');
-      btn.setAttribute('data-id', l.id);
-      btn.innerHTML = '<span class="check"></span><span class="lesson-icon">' + esc(l.icon || '') +
-        '</span><span>' + esc(l.title) + '</span>';
-      btn.addEventListener('click', function () { openLesson(l.id); });
-      sidebarNav.appendChild(btn);
-    });
-    sidebar.appendChild(sidebarNav);
-    root.appendChild(sidebar);
-
-    var scrim = el('div', 'scrim');
-    scrim.addEventListener('click', function () { root.classList.remove('nav-open'); });
-    root.appendChild(scrim);
+    // With `nav: none` the menu is not built at all rather than hidden with
+    // CSS: a drawer that is only reachable by tabbing into it is worse than no
+    // drawer, and the learner is meant to move with Previous / Continue.
+    if (THEME.nav !== 'none') {
+      root.appendChild(buildSidebar());
+      var scrim = el('div', 'scrim');
+      scrim.addEventListener('click', function () { root.classList.remove('nav-open'); });
+      root.appendChild(scrim);
+    }
 
     root.appendChild(el('main', 'content'));
-
-    progressFill = head.querySelector('.progress-fill');
-    progressPct = head.querySelector('.ppct');
 
     scorm.init();
     saved = scorm.getSuspendData();
@@ -963,7 +1305,9 @@
       priorMins = saved.mins || 0;
     }
     var startLesson = COURSE.lessons.filter(function (l) { return l.id === state.cur; })[0];
-    openLesson(startLesson ? startLesson.id : COURSE.lessons[0].id);
+    if (startLesson) openLesson(startLesson.id);
+    else if (THEME.titlePage) openCover();
+    else openLesson(COURSE.lessons[0].id);
 
     // A time-based rule can come good while the learner is simply reading.
     if (COMPLETION.minMinutes > 0) {

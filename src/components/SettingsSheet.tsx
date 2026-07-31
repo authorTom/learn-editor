@@ -1,9 +1,10 @@
 import { useState } from 'react'
-import { BookOpen, LayoutTemplate, Palette, Ruler, Repeat, CheckCircle2 } from 'lucide-react'
+import { BookOpen, LayoutTemplate, Palette, Ruler, Repeat, CheckCircle2, Sparkles } from 'lucide-react'
 import { useStore } from '../store'
-import { courseVars } from '../theme'
+import { contrastRatio, courseVars, schemeOf } from '../theme'
+import { THEME_PRESETS, matchingPreset } from '../themePresets'
 import type { CompletionRules, CourseTheme } from '../types'
-import { FONT_PACKS, SCHEMES, resolveAssetSrc } from '../types'
+import { FONT_PACKS, SCHEMES, normalizeTheme, resolveAssetSrc } from '../types'
 import { Button, Checkbox, Field, Input, Segmented, Sheet, Textarea } from '../ui'
 import SaveTemplateDialog from './SaveTemplateDialog'
 import { UploadZone } from './blocks/MediaBlocks'
@@ -13,10 +14,40 @@ const THEME_COLORS = [
   '#ca8a04', '#ea580c', '#dc2626', '#db2777', '#9333ea', '#334155',
 ]
 
-type SectionId = 'details' | 'theme' | 'layout' | 'completion' | 'reuse'
+/**
+ * Live WCAG readout for the accent against the course's page colour.
+ *
+ * The accent is not only decoration — it sets link colour, quiz numbering and
+ * nav highlights — so a pale accent on a pale scheme produces text nobody can
+ * read. The player now derives a darkened `--accent-ink` for exactly those
+ * uses, which means the course stays legible either way; this tells the author
+ * when that derivation is doing heavy lifting, so they can pick a stronger
+ * brand colour if they would rather see their own.
+ */
+function ContrastNote({ theme }: { theme: CourseTheme }) {
+  const scheme = schemeOf(theme.scheme)
+  const ratio = contrastRatio(theme.primaryColor, scheme.bg)
+  const ok = ratio >= 4.5
+  return (
+    <p className={ok ? 'set-note' : 'set-warn'} role={ok ? undefined : 'status'}>
+      {ok ? (
+        <>Accent contrast {ratio.toFixed(1)}:1 against the page — clears WCAG AA for text.</>
+      ) : (
+        <>
+          Accent contrast is {ratio.toFixed(1)}:1 against the page, below the 4.5:1 AA minimum.
+          Links and small accent text will be darkened automatically so they stay readable; fills
+          and rules keep your exact colour.
+        </>
+      )}
+    </p>
+  )
+}
+
+type SectionId = 'details' | 'presets' | 'theme' | 'layout' | 'completion' | 'reuse'
 
 const SECTIONS: { id: SectionId; label: string; Icon: typeof BookOpen }[] = [
   { id: 'details', label: 'Details', Icon: BookOpen },
+  { id: 'presets', label: 'Presets', Icon: Sparkles },
   { id: 'theme', label: 'Theme', Icon: Palette },
   { id: 'layout', label: 'Layout', Icon: Ruler },
   { id: 'completion', label: 'Completion', Icon: CheckCircle2 },
@@ -86,6 +117,7 @@ export default function SettingsSheet({ onClose }: { onClose: () => void }) {
   )
 
   const setTheme = (patch: Partial<CourseTheme>) => updateCourse({ theme: { ...theme, ...patch } })
+  const activePreset = matchingPreset(normalizeTheme(theme))
   const setCompletion = (patch: Partial<CompletionRules>) =>
     updateCourse({ completion: { ...completion, ...patch } })
 
@@ -162,6 +194,62 @@ export default function SettingsSheet({ onClose }: { onClose: () => void }) {
             </>
           )}
 
+          {section === 'presets' && (
+            <>
+              <p className="set-note" style={{ marginTop: 0 }}>
+                A starting point for the whole look — palette, type, headers, corners and spacing
+                in one move. Everything stays editable afterwards in <strong>Theme</strong> and{' '}
+                <strong>Layout</strong>, and your navigation, progress and title-page choices are
+                left alone.
+              </p>
+              <div className="preset-grid" role="radiogroup" aria-label="Design presets">
+                {THEME_PRESETS.map((p) => {
+                  const s = SCHEMES.find((x) => x.id === p.theme.scheme) ?? SCHEMES[0]
+                  const pack = FONT_PACKS.find((f) => f.id === p.theme.fontPack) ?? FONT_PACKS[0]
+                  return (
+                    <button
+                      key={p.id}
+                      type="button"
+                      role="radio"
+                      aria-checked={activePreset === p.id}
+                      className={'preset-card' + (activePreset === p.id ? ' sel' : '')}
+                      onClick={() => setTheme(p.theme)}
+                    >
+                      <span
+                        className="preset-swatch"
+                        style={{
+                          background: s.bgSoft,
+                          borderColor: s.line,
+                          borderRadius: p.theme.corners === 'sharp' ? 2 : 10,
+                        }}
+                        aria-hidden="true"
+                      >
+                        <span
+                          className="preset-swatch__bar"
+                          style={{ background: p.theme.primaryColor }}
+                        />
+                        <span
+                          className="preset-swatch__type"
+                          style={{
+                            fontFamily: pack.heading,
+                            color: s.ink,
+                            fontWeight: p.theme.headingWeight === 'bold' ? 700 : 800,
+                          }}
+                        >
+                          Ag
+                        </span>
+                        <span className="preset-swatch__line" style={{ background: s.line }} />
+                        <span className="preset-swatch__line short" style={{ background: s.line }} />
+                      </span>
+                      <span className="tc-name">{p.name}</span>
+                      <span className="tc-desc">{p.description}</span>
+                    </button>
+                  )
+                })}
+              </div>
+            </>
+          )}
+
           {section === 'theme' && (
             <>
               <ThemePreview />
@@ -220,6 +308,7 @@ export default function SettingsSheet({ onClose }: { onClose: () => void }) {
                   onChange={(e) => setTheme({ primaryColor: e.target.value })}
                 />
               </div>
+              <ContrastNote theme={normalizeTheme(theme)} />
 
               <h3 className="set-h">Font pack</h3>
               <div className="theme-grid" role="radiogroup" aria-label="Font pack">
@@ -244,20 +333,65 @@ export default function SettingsSheet({ onClose }: { onClose: () => void }) {
           {section === 'layout' && (
             <>
               <ThemePreview />
+              <h3 className="set-h">Structure</h3>
               <ThemeSeg
                 label="Navigation"
                 themeKey="nav"
-                options={[{ value: 'side', label: 'Sidebar' }, { value: 'top', label: 'Top bar' }]}
+                options={[
+                  { value: 'side', label: 'Sidebar' },
+                  { value: 'top', label: 'Top bar' },
+                  { value: 'none', label: 'Linear' },
+                ]}
+              />
+              {theme.nav === 'none' && (
+                <p className="set-note">
+                  Linear removes the lesson menu entirely — learners move only with Previous and
+                  Continue. The usual choice for compliance training that must be taken in order.
+                </p>
+              )}
+              <Checkbox
+                label="Open on a title page"
+                hint="A cover screen with the course title, author, description and contents, ahead of lesson 1."
+                checked={theme.titlePage}
+                onChange={(e) => setTheme({ titlePage: e.target.checked })}
+              />
+              <Checkbox
+                label="Number the lessons"
+                hint="Shows “1.”, “2.” … in the navigation and “Lesson 3 of 8” above each lesson title."
+                checked={theme.lessonNumbers}
+                onChange={(e) => setTheme({ lessonNumbers: e.target.checked })}
               />
               <ThemeSeg
-                label="Lesson header"
+                label="Progress"
+                themeKey="progress"
+                options={[
+                  { value: 'bar', label: 'Bar' },
+                  { value: 'steps', label: 'Steps' },
+                  { value: 'none', label: 'Hidden' },
+                ]}
+              />
+
+              <h3 className="set-h">Lesson header</h3>
+              <ThemeSeg
+                label="Style"
                 themeKey="hero"
                 options={[
                   { value: 'gradient', label: 'Gradient' },
                   { value: 'solid', label: 'Solid' },
+                  { value: 'split', label: 'Split' },
+                  { value: 'image', label: 'Image' },
                   { value: 'minimal', label: 'Minimal' },
                 ]}
               />
+              {theme.hero === 'image' && (
+                <p className={course.coverImage ? 'set-note' : 'set-warn'}>
+                  {course.coverImage
+                    ? 'Lessons use the course cover image by default. Give a lesson its own picture from Lesson style on the canvas.'
+                    : 'No cover image set, so lessons fall back to the gradient header. Add one under Details, or give each lesson its own picture from Lesson style.'}
+                </p>
+              )}
+
+              <h3 className="set-h">Type and space</h3>
               <ThemeSeg
                 label="Content width"
                 themeKey="width"
@@ -268,9 +402,27 @@ export default function SettingsSheet({ onClose }: { onClose: () => void }) {
                 ]}
               />
               <ThemeSeg
+                label="Heading scale"
+                themeKey="typeScale"
+                options={[
+                  { value: 'compact', label: 'Compact' },
+                  { value: 'balanced', label: 'Balanced' },
+                  { value: 'dramatic', label: 'Dramatic' },
+                ]}
+              />
+              <ThemeSeg
                 label="Corners"
                 themeKey="corners"
                 options={[{ value: 'soft', label: 'Rounded' }, { value: 'sharp', label: 'Square' }]}
+              />
+              <ThemeSeg
+                label="Depth"
+                themeKey="elevation"
+                options={[
+                  { value: 'flat', label: 'Flat' },
+                  { value: 'soft', label: 'Soft' },
+                  { value: 'raised', label: 'Raised' },
+                ]}
               />
               <ThemeSeg
                 label="Heading weight"
@@ -295,6 +447,8 @@ export default function SettingsSheet({ onClose }: { onClose: () => void }) {
                   { value: 'airy', label: 'Airy' },
                 ]}
               />
+
+              <h3 className="set-h">Branding</h3>
               <div className="set-row">
                 <span className="set-row__label">Logo</span>
                 {theme.logo ? (
@@ -311,8 +465,9 @@ export default function SettingsSheet({ onClose }: { onClose: () => void }) {
                 )}
               </div>
               <p className="set-note">
-                Individual lessons can override the accent, scheme and header from{' '}
-                <strong>Lesson style</strong> on the canvas.
+                Individual lessons can override the accent, scheme, header and header image from{' '}
+                <strong>Lesson style</strong> on the canvas. Individual blocks can override their
+                width and spacing from the inspector.
               </p>
             </>
           )}

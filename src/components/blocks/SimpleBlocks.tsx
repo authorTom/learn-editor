@@ -455,8 +455,45 @@ export function ColumnsEditor({ block }: { block: ColumnsBlock }) {
 }
 
 export function ColumnsOptions({ block }: { block: ColumnsBlock }) {
+  const patch = usePatch(block)
+  const two = block.columns.length === 2
   return (
     <Group title="Columns">
+      {/* Uneven splits only make sense across two columns; three or four always
+          divide evenly, so the control is hidden rather than shown doing
+          nothing. */}
+      {two && (
+        <SegRow
+          label="Split"
+          value={block.ratio ?? 'equal'}
+          options={[
+            { value: 'equal', label: 'Even' },
+            { value: 'wide-left', label: '2 : 1' },
+            { value: 'wide-right', label: '1 : 2' },
+          ]}
+          onChange={(ratio) => patch({ ratio })}
+        />
+      )}
+      <SegRow
+        label="Align"
+        value={block.valign ?? 'top'}
+        options={[
+          { value: 'top', label: 'Top' },
+          { value: 'center', label: 'Middle' },
+        ]}
+        onChange={(valign) => patch({ valign })}
+        hint="How columns of different lengths line up against one another."
+      />
+      <SegRow
+        label="Gap"
+        value={block.gap ?? 'md'}
+        options={[
+          { value: 'sm', label: 'Tight' },
+          { value: 'md', label: 'Normal' },
+          { value: 'lg', label: 'Wide' },
+        ]}
+        onChange={(gap) => patch({ gap })}
+      />
       <p className="insp-note">
         {block.columns.length} columns. They stack vertically on phones.
       </p>

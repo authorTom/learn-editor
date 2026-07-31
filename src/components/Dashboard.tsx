@@ -7,7 +7,6 @@ import { useStore } from '../store'
 import { Button, Dialog, Field, IconButton, Input, Popover, Segmented, useConfirm, useToast } from '../ui'
 import SaveTemplateDialog from './SaveTemplateDialog'
 import TemplateLibrary from './TemplateLibrary'
-import AppearanceMenu from './AppearanceMenu'
 import { EXAMPLE_COURSE, fetchExampleCourse } from '../exampleCourse'
 import type { Course } from '../types'
 
@@ -148,7 +147,6 @@ export default function Dashboard() {
           </div>
         </div>
         <div className="dash-actions">
-          <AppearanceMenu />
           <Button icon={<Sparkles size={15} />} disabled={loadingExample} onClick={loadExample}>
             {loadingExample ? 'Loading…' : 'Example'}
           </Button>

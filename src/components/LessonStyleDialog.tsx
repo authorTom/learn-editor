@@ -1,6 +1,7 @@
 import { useStore } from '../store'
-import { SCHEMES } from '../types'
-import { Button, Dialog } from '../ui'
+import { SCHEMES, normalizeTheme, resolveAssetSrc } from '../types'
+import { Button, Dialog, Field, Input } from '../ui'
+import { UploadZone } from './blocks/MediaBlocks'
 import type { Lesson, LessonTheme, SchemeId } from '../types'
 
 const ACCENTS = [
@@ -31,6 +32,8 @@ export default function LessonStyleDialog({
   }
 
   const overrides = Object.keys(t).length
+  const effectiveHero = t.hero ?? normalizeTheme(course.theme).hero
+  const heroSrc = resolveAssetSrc(t.heroImage ?? '', course.assets) || course.coverImage
 
   return (
     <Dialog
@@ -116,6 +119,8 @@ export default function LessonStyleDialog({
                 { v: undefined, label: 'Course default' },
                 { v: 'gradient' as const, label: 'Gradient' },
                 { v: 'solid' as const, label: 'Solid' },
+                { v: 'split' as const, label: 'Split' },
+                { v: 'image' as const, label: 'Image' },
                 { v: 'minimal' as const, label: 'Minimal' },
               ].map((o) => (
                 <button
@@ -128,6 +133,59 @@ export default function LessonStyleDialog({
               ))}
             </span>
           </div>
+
+          {/* Shown whenever an image header is in force here — whether this
+              lesson chose it or inherited it — because that is exactly when the
+              picture matters. */}
+          {effectiveHero === 'image' && (
+            <Field
+              label="Header image"
+              hint={
+                heroSrc
+                  ? 'Sits behind the lesson title, under a scrim that keeps the title readable.'
+                  : 'Without a picture here or a course cover image, this lesson falls back to the gradient header.'
+              }
+            >
+              {t.heroImage ? (
+                <div className="img-preview">
+                  <img
+                    src={heroSrc}
+                    alt=""
+                    style={{ maxHeight: 120, objectFit: 'cover', width: '100%', borderRadius: 8 }}
+                  />
+                  <div className="img-replace">
+                    <Button size="sm" onClick={() => set({ heroImage: undefined })}>
+                      Use course cover
+                    </Button>
+                  </div>
+                </div>
+              ) : (
+                <UploadZone
+                  compact
+                  label={
+                    course.coverImage
+                      ? 'Replace the course cover for this lesson'
+                      : 'Add a header image for this lesson'
+                  }
+                  onImage={(heroImage) => set({ heroImage })}
+                />
+              )}
+            </Field>
+          )}
+
+          <div className="settings-section-title">Module</div>
+          <Field
+            label="Section name"
+            hint="Lessons next to each other that share a name are grouped under it in the course outline and the learner's menu. Leave blank for no grouping."
+          >
+            <Input
+              value={lesson.section ?? ''}
+              placeholder="e.g. Getting started"
+              onChange={(e) =>
+                updateLesson(lesson.id, { section: e.target.value.trim() ? e.target.value : undefined })
+              }
+            />
+          </Field>
     </Dialog>
   )
 }

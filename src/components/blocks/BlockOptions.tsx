@@ -9,6 +9,7 @@ import {
 import {
   AccordionOptions, TabsOptions, FlashcardsOptions, SortingOptions, MatchingOptions, HotspotOptions,
 } from './InteractiveBlocks'
+import { CardsOptions, StepsOptions } from './LayoutBlocks'
 import { QuizOptions } from './QuizEditor'
 
 /**
@@ -27,6 +28,8 @@ export default function BlockOptions({ block }: { block: Block }) {
     case 'divider': return <DividerOptions block={block} />
     case 'button': return <ButtonOptions block={block} />
     case 'columns': return <ColumnsOptions block={block} />
+    case 'cards': return <CardsOptions block={block} />
+    case 'steps': return <StepsOptions block={block} />
     case 'image': return <ImageOptions block={block} />
     case 'imageText': return <ImageTextOptions block={block} />
     case 'gallery': return <GalleryOptions block={block} />

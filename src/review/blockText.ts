@@ -51,6 +51,9 @@ export function mapBlockText(block: Block, fn: TextVisitor): Block {
       return { ...b, columns: b.columns.map((c) => ({ ...c, html: h(c.html) })) }
     case 'accordion':
     case 'tabs':
+    case 'steps':
+      return { ...b, items: b.items.map((it) => ({ ...it, title: t(it.title), html: h(it.html) })) }
+    case 'cards':
       return { ...b, items: b.items.map((it) => ({ ...it, title: t(it.title), html: h(it.html) })) }
     case 'flashcards':
       return { ...b, cards: b.cards.map((c) => ({ ...c, front: h(c.front), back: h(c.back) })) }

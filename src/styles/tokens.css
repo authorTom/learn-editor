@@ -6,9 +6,11 @@
 
    Every colour pair a user reads or aims at has been checked against WCAG 2.2:
    text ≥ 4.5:1 on the surfaces it appears on, control boundaries and focus
-   rings ≥ 3:1. Dark mode flips --accent-contrast to near-black rather than
-   darkening the accent, which is what keeps the accent bright enough to clear
-   3:1 against a dark surface while its label still clears 4.5:1.
+   rings ≥ 3:1.
+
+   The editor chrome is light, and only light. Courses still carry their own
+   light *and* dark colour schemes — but those are a property of the course,
+   chosen in Settings, and they live in player.css and on the canvas, not here.
 
    These are the *chrome* tokens. The lesson canvas additionally carries the
    course's own theme tokens (--ink/--bg/--line, mirroring player.css) and
@@ -37,16 +39,11 @@
   --a-fill: #5654d8;
   --a-fill-hover: #4b49c4;
   --a-text: #4b49c4;
-  --a-bright: #8b88f0;
-  --a-bright-hover: #9d9af4;
 
   /* ---------- primitives: status ---------- */
   --s-danger: #c62f26;
-  --s-danger-bright: #f07a72;
   --s-success: #0a7040;
-  --s-success-bright: #5fc98f;
   --s-warning: #9a5b06;
-  --s-warning-bright: #e0a355;
 
   /* ---------- type scale ---------- */
   --text-2xs: 11px;
@@ -98,9 +95,8 @@
   --accent-gradient: linear-gradient(135deg, var(--a-fill), #7c3aed);
 }
 
-/* ---------- semantic: light ---------- */
-:root,
-:root[data-appearance='light'] {
+/* ---------- semantic ---------- */
+:root {
   color-scheme: light;
 
   --surface: var(--n-0);
@@ -155,111 +151,10 @@
   --chrome-border: var(--n-4);
 }
 
-/* ---------- semantic: dark ---------- */
-@media (prefers-color-scheme: dark) {
-  :root:not([data-appearance='light']) {
-    color-scheme: dark;
-
-    --surface: #17191f;
-    --surface-raised: #1e2128;
-    --surface-sunken: #0f1114;
-    --surface-hover: #262a32;
-    --surface-active: #2f343d;
-
-    --text: #e9ebef;
-    --text-muted: #a4abb8;
-    --text-subtle: #8b93a1;
-
-    --border: #2a2e37;
-    --border-strong: #696b74;
-
-    --accent: var(--a-bright);
-    --accent-hover: var(--a-bright-hover);
-    --accent-text: var(--a-bright);
-    --accent-contrast: #14151a;
-    --accent-subtle: color-mix(in srgb, var(--a-bright) 14%, #17191f);
-    --accent-subtle-hover: color-mix(in srgb, var(--a-bright) 22%, #17191f);
-    --accent-border: color-mix(in srgb, var(--a-bright) 40%, #17191f);
-
-    --danger: var(--s-danger-bright);
-    --danger-contrast: #14151a;
-    --danger-subtle: color-mix(in srgb, var(--s-danger-bright) 14%, #17191f);
-    --success: var(--s-success-bright);
-    --success-subtle: color-mix(in srgb, var(--s-success-bright) 14%, #17191f);
-    --warning: var(--s-warning-bright);
-    --warning-subtle: color-mix(in srgb, var(--s-warning-bright) 14%, #17191f);
-
-    --focus: var(--a-bright);
-
-    --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.4);
-    --shadow-md: 0 4px 16px -2px rgba(0, 0, 0, 0.5), 0 2px 6px -2px rgba(0, 0, 0, 0.4);
-    --shadow-lg: 0 16px 48px -8px rgba(0, 0, 0, 0.66), 0 4px 12px -4px rgba(0, 0, 0, 0.5);
-    --scrim: rgba(4, 5, 8, 0.62);
-
-  --chrome-surface: #1e2128;
-  --chrome-surface-hover: #262a32;
-  --chrome-text: #e9ebef;
-  --chrome-text-muted: #a4abb8;
-  --chrome-text-subtle: #8b93a1;
-  --chrome-border: #2a2e37;
-  }
-}
-
-/* Explicit dark: identical to the media-query block, but wins over a system
-   preference of light. Kept as a separate rule rather than a shared selector
-   list so the toggle beats the media query in both directions. */
-:root[data-appearance='dark'] {
-  color-scheme: dark;
-
-  --surface: #17191f;
-  --surface-raised: #1e2128;
-  --surface-sunken: #0f1114;
-  --surface-hover: #262a32;
-  --surface-active: #2f343d;
-
-  --text: #e9ebef;
-  --text-muted: #a4abb8;
-  --text-subtle: #8b93a1;
-
-  --border: #2a2e37;
-  --border-strong: #696b74;
-
-  --accent: var(--a-bright);
-  --accent-hover: var(--a-bright-hover);
-  --accent-text: var(--a-bright);
-  --accent-contrast: #14151a;
-  --accent-subtle: color-mix(in srgb, var(--a-bright) 14%, #17191f);
-  --accent-subtle-hover: color-mix(in srgb, var(--a-bright) 22%, #17191f);
-  --accent-border: color-mix(in srgb, var(--a-bright) 40%, #17191f);
-
-  --danger: var(--s-danger-bright);
-  --danger-contrast: #14151a;
-  --danger-subtle: color-mix(in srgb, var(--s-danger-bright) 14%, #17191f);
-  --success: var(--s-success-bright);
-  --success-subtle: color-mix(in srgb, var(--s-success-bright) 14%, #17191f);
-  --warning: var(--s-warning-bright);
-  --warning-subtle: color-mix(in srgb, var(--s-warning-bright) 14%, #17191f);
-
-  --focus: var(--a-bright);
-
-  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.4);
-  --shadow-md: 0 4px 16px -2px rgba(0, 0, 0, 0.5), 0 2px 6px -2px rgba(0, 0, 0, 0.4);
-  --shadow-lg: 0 16px 48px -8px rgba(0, 0, 0, 0.66), 0 4px 12px -4px rgba(0, 0, 0, 0.5);
-  --scrim: rgba(4, 5, 8, 0.62);
-
-  --chrome-surface: #1e2128;
-  --chrome-surface-hover: #262a32;
-  --chrome-text: #e9ebef;
-  --chrome-text-muted: #a4abb8;
-  --chrome-text-subtle: #8b93a1;
-  --chrome-border: #2a2e37;
-}
-
 /* ---------- legacy aliases ----------
    styles.css still speaks the old names. Aliasing rather than find-replacing
-   in one go means the existing sheet inherits the retuned ramp and dark mode
-   immediately, and each surface can migrate to semantic names as its phase
-   lands. Delete this block once styles.css is fully migrated. */
+   in one go means the existing sheet inherits the retuned ramp immediately,
+   and each surface can migrate to semantic names as its phase lands. Delete this block once styles.css is fully migrated. */
 :root {
   --brand: var(--accent);
   --brand-soft: var(--accent-subtle);

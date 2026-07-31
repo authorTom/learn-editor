@@ -1,4 +1,4 @@
-import type { Asset, Block } from '../types'
+import type { Asset, Block, Lesson } from '../types'
 import { ASSET_REF } from '../types'
 
 /** Visit every media `src` on a block, replacing each with `fn`'s return value.
@@ -14,6 +14,8 @@ export function mapBlockSrc(block: Block, fn: (src: string) => string): Block {
       return { ...b, src: fn(b.src) }
     case 'gallery':
       return { ...b, images: b.images.map((im) => ({ ...im, src: fn(im.src) })) }
+    case 'cards':
+      return { ...b, items: b.items.map((it) => ({ ...it, src: fn(it.src) })) }
     case 'flashcards':
       return {
         ...b,
@@ -42,9 +44,23 @@ export function assetsForBlock(block: Block, assets: Asset[]): Asset[] {
   return assets.filter((a) => ids.has(a.id))
 }
 
-/** Assets referenced anywhere in a set of blocks. */
-export function assetsForBlocks(blocks: Block[], assets: Asset[]): Asset[] {
-  const ids = new Set(blocks.flatMap(blockAssetIds))
+/**
+ * Everything a set of lessons needs: block media, plus the images a course
+ * references as chrome rather than as content — per-lesson hero pictures and
+ * the course logo.
+ *
+ * Walking blocks alone is not enough for a course template. That is what this
+ * replaced, and it meant saving a course as a template already dropped its
+ * logo; hero images would have gone the same way — the new course rebuilds with
+ * the references still in its theme and nothing in its library to resolve them.
+ */
+export function assetsForLessons(lessons: Lesson[], assets: Asset[], logo = ''): Asset[] {
+  const ids = new Set(lessons.flatMap((l) => l.blocks.flatMap(blockAssetIds)))
+  const add = (ref: string | undefined) => {
+    if (ref && ref.startsWith(ASSET_REF)) ids.add(ref.slice(ASSET_REF.length))
+  }
+  lessons.forEach((l) => add(l.theme?.heroImage))
+  add(logo)
   return assets.filter((a) => ids.has(a.id))
 }
 

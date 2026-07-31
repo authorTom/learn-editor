@@ -131,6 +131,24 @@
   z-index: 5;
 }
 
+/* Block width and rhythm, echoed from the player. The canvas is narrower than
+   a real viewport, so `full` bleeds to the canvas edge rather than to 100vw —
+   the proportions differ but the intent reads, which is what the author needs
+   while writing. */
+.block.w-wide > .block__body {
+  margin-inline: calc(-1 * var(--space-5));
+}
+.block.w-full > .block__body {
+  margin-inline: calc(-1 * var(--space-6));
+  border-radius: 0;
+}
+.block.sp-tight {
+  margin-bottom: calc(-1 * var(--space-2));
+}
+.block.sp-loose {
+  margin-bottom: var(--space-6);
+}
+
 /* Toolbar floats above the content rather than sitting in it, so it uses the
    never-remapped --chrome-* copies: it should read as editor furniture, not as
    part of the course. Its own tokens are re-pointed locally so the IconButtons

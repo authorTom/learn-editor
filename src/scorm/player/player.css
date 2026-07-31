@@ -4,6 +4,11 @@
 :root {
   --accent: #4f46e5;
   --accent-soft: color-mix(in srgb, var(--accent) 10%, white);
+  /* Readable text *on* an accent fill, and the accent used *as* text. Both are
+     computed per course in src/theme.ts; these are only the fallbacks for a
+     page assembled without it. */
+  --on-accent: #ffffff;
+  --accent-ink: var(--accent);
   --ink: #1f2437;
   --ink-soft: #5b6178;
   --line: #e6e8f0;
@@ -14,6 +19,15 @@
   --font-heading: var(--font);
   --heading-weight: 800;
   --content-max: 760px;
+  --h1: 34px;
+  --h2: 27px;
+  --h3: 21px;
+  --lead: 21px;
+  --hero-size: clamp(28px, 5vw, 42px);
+  --hero-shade: #0f172a;
+  --radius-pill: 999px;
+  --shadow-sm: none;
+  --shadow-md: none;
 }
 
 html { scroll-behavior: smooth; }
@@ -26,7 +40,10 @@ body {
   font-size: var(--font-size, 17px);
   -webkit-font-smoothing: antialiased;
 }
-.player { display: flex; min-height: 100vh; }
+/* `clip`, not `hidden`: it contains the vertical scrollbar's worth of overflow
+   that 100vw-based full-bleed blocks produce, without turning .player into a
+   scroll container — which would break the sticky topbar. */
+.player { display: flex; min-height: 100vh; overflow-x: clip; }
 
 /* ---- Sidebar ---- */
 .sidebar {
@@ -49,6 +66,16 @@ body {
 .progress-bar { height: 6px; background: var(--line); border-radius: 3px; overflow: hidden; }
 .progress-fill { height: 100%; background: var(--accent); border-radius: 3px; transition: width 0.4s ease; width: 0; }
 
+/* progress: steps — one marker per lesson instead of a percentage */
+.progress-steps { display: flex; flex-wrap: wrap; gap: 6px; }
+.pstep {
+  width: 100%; max-width: 26px; height: 5px; flex: 1 1 12px;
+  border-radius: 3px; background: var(--line);
+  transition: background 0.3s ease;
+}
+.pstep.done { background: var(--accent); }
+.pstep.at { background: var(--accent); box-shadow: 0 0 0 2px var(--accent-soft); }
+
 .lesson-nav { flex: 1; overflow-y: auto; padding: 12px; }
 .lesson-nav button {
   display: flex; align-items: center; gap: 10px;
@@ -61,15 +88,27 @@ body {
   cursor: pointer;
 }
 .lesson-nav button:hover { background: var(--bg-soft); }
-.lesson-nav button.active { background: var(--accent-soft); color: var(--accent); font-weight: 600; }
+.lesson-nav button.active { background: var(--accent-soft); color: var(--accent-ink); font-weight: 600; }
+.lesson-nav .nav-label { min-width: 0; }
 .lesson-nav .check {
   width: 20px; height: 20px; flex-shrink: 0;
   border: 2px solid var(--line); border-radius: 50%;
   display: inline-flex; align-items: center; justify-content: center;
-  font-size: 11px; color: #fff;
+  font-size: 11px; color: var(--on-accent);
 }
 .lesson-nav .done .check { background: var(--accent); border-color: var(--accent); }
 .lesson-icon { flex-shrink: 0; }
+
+/* module heading above a run of lessons that share a section name */
+.nav-section {
+  padding: 18px 12px 6px;
+  font-size: 11.5px; font-weight: 700;
+  letter-spacing: 0.09em; text-transform: uppercase;
+  color: var(--ink-soft);
+}
+.nav-section:first-child { padding-top: 6px; }
+.lesson-nav .nav-home { font-weight: 600; }
+.lesson-nav .nav-home + .nav-section { padding-top: 14px; }
 
 /* ---- Topbar (mobile) ---- */
 .topbar {
@@ -88,17 +127,20 @@ body {
 .scrim { display: none; position: fixed; inset: 0; background: rgba(15,18,35,0.45); z-index: 35; }
 
 /* ---- Content ---- */
-.content { flex: 1; margin-left: 300px; min-width: 0; }
+/* --nav-w is the sidebar's footprint, read back by full-bleed blocks. */
+.content { flex: 1; --nav-w: 300px; margin-left: var(--nav-w); min-width: 0; }
 .lesson-hero {
-  background: linear-gradient(135deg, var(--accent), color-mix(in srgb, var(--accent) 70%, #1e1b4b));
-  color: #fff;
+  /* Both stops shade toward --hero-shade, which the exporter picks so the
+     whole band stays on one side of the contrast line — see theme.ts. */
+  background: linear-gradient(135deg, var(--accent), color-mix(in srgb, var(--accent) 70%, var(--hero-shade)));
+  color: var(--on-accent);
   padding: 72px 24px 64px;
   text-align: center;
 }
 .lesson-hero .kicker { font-size: 13px; letter-spacing: 0.12em; text-transform: uppercase; opacity: 0.85; font-weight: 600; }
-.lesson-hero h2 { font-size: clamp(28px, 4.5vw, 42px); font-weight: var(--heading-weight); margin-top: 10px; line-height: 1.2; font-family: var(--font-heading); }
+.lesson-hero h2 { font-size: var(--hero-size); font-weight: var(--heading-weight); margin-top: 10px; line-height: 1.15; font-family: var(--font-heading); }
 
-/* hero variants (class set on <body> by the exporter) */
+/* hero variants (class set on <body> by the exporter, and re-set per lesson) */
 body.hero-solid .lesson-hero { background: var(--accent); }
 body.hero-minimal .lesson-hero {
   background: transparent; color: var(--ink);
@@ -106,27 +148,144 @@ body.hero-minimal .lesson-hero {
   max-width: var(--content-max); margin: 0 auto;
   padding: 56px 24px 0;
 }
-body.hero-minimal .lesson-hero .kicker { color: var(--accent); opacity: 1; }
+body.hero-minimal .lesson-hero .kicker { color: var(--accent-ink); opacity: 1; }
 body.hero-minimal .lesson-hero + .blocks { padding-top: 28px; }
 
+/* image: the picture carries the band, with a scrim heavy enough that white
+   type clears 4.5:1 over any photograph the author happens to upload. */
+body.hero-image .lesson-hero {
+  position: relative;
+  background-size: cover;
+  background-position: center;
+  color: #fff;
+  padding: 104px 24px 88px;
+}
+body.hero-image .lesson-hero::before {
+  content: '';
+  position: absolute; inset: 0;
+  background: linear-gradient(180deg, rgba(8, 10, 20, 0.35), rgba(8, 10, 20, 0.72));
+}
+body.hero-image .lesson-hero .hero-inner { position: relative; }
+body.hero-image .lesson-hero .kicker { opacity: 0.95; }
+
+/* split: an accent slab beside the title rather than behind it, so the type
+   sits on the page's own background and never has to fight the brand colour. */
+body.hero-split .lesson-hero {
+  display: grid;
+  grid-template-columns: clamp(72px, 16%, 240px) 1fr;
+  background: var(--bg);
+  color: var(--ink);
+  padding: 0;
+  text-align: left;
+  border-bottom: 1px solid var(--line);
+}
+body.hero-split .lesson-hero::before { content: ''; background: var(--accent); }
+body.hero-split .lesson-hero .hero-inner {
+  align-self: center;
+  max-width: var(--content-max);
+  padding: 60px 32px;
+}
+body.hero-split .lesson-hero .kicker { color: var(--accent-ink); opacity: 1; }
+
+/* ---- course title page ---- */
+.cover {
+  background: linear-gradient(135deg, var(--accent), color-mix(in srgb, var(--accent) 70%, var(--hero-shade)));
+  color: var(--on-accent);
+  padding: 96px 24px 84px;
+  text-align: center;
+}
+.cover.has-image {
+  position: relative;
+  background-size: cover;
+  background-position: center;
+  color: #fff;
+}
+.cover.has-image::before {
+  content: '';
+  position: absolute; inset: 0;
+  background: linear-gradient(180deg, rgba(8, 10, 20, 0.42), rgba(8, 10, 20, 0.75));
+}
+.cover-inner { position: relative; max-width: var(--content-max); margin: 0 auto; }
+.cover h1 {
+  font-size: calc(var(--hero-size) * 1.1);
+  font-weight: var(--heading-weight);
+  font-family: var(--font-heading);
+  line-height: 1.1;
+}
+.cover .course-logo { margin: 0 auto 18px; }
+.cover-by { margin-top: 14px; font-size: 15px; font-weight: 600; opacity: 0.9; }
+.cover-desc { margin-top: 18px; font-size: var(--lead); line-height: 1.55; opacity: 0.92; }
+.cover-body { padding-top: 44px; }
+.cover-contents h2 {
+  font-size: var(--h3); font-weight: var(--heading-weight);
+  font-family: var(--font-heading); margin-bottom: 16px;
+}
+.cover-list { list-style: none; padding: 0; }
+.cover-section {
+  margin: 22px 0 8px;
+  font-size: 11.5px; font-weight: 700;
+  letter-spacing: 0.09em; text-transform: uppercase;
+  color: var(--ink-soft);
+}
+.cover-section:first-child { margin-top: 0; }
+.cover-item {
+  display: flex; align-items: center; gap: 14px;
+  padding: 14px 18px;
+  background: var(--bg);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-sm);
+}
+.cover-item + .cover-item { margin-top: 8px; }
+.ci-mark {
+  width: 26px; height: 26px; flex-shrink: 0;
+  display: inline-flex; align-items: center; justify-content: center;
+  border-radius: 50%; font-size: 13px;
+  border: 1px solid var(--line);
+}
+.cover-item.done .ci-mark { background: var(--accent); border-color: var(--accent); color: var(--on-accent); }
+.ci-title { font-weight: 500; }
+.cover-actions { margin-top: 36px; display: flex; justify-content: center; }
+.cover-start { width: auto; }
+
 .blocks { max-width: var(--content-max); margin: 0 auto; padding: 48px 24px 80px; }
+/* Per-block rhythm multiplies the course spacing rather than replacing it, so
+   "loose" still reads as loose in a compact course. */
 .block { margin: 0 0 calc(36px * var(--space, 1)); }
+.block.sp-tight { margin-bottom: calc(14px * var(--space, 1)); }
+.block.sp-loose { margin-bottom: calc(64px * var(--space, 1)); }
+
+/* Per-block width. The measure is a max-width on .blocks, so breaking out of it
+   means negative margins rather than a wider parent — which keeps every other
+   block on the same optical centre line.
+
+   `--bleed` is the distance from the edge of the reading column out to the edge
+   of the content area: half the leftover width, plus the .blocks padding. It
+   reads --nav-w rather than assuming 300px, so a full-bleed block lands
+   correctly under the sidebar, top-nav and no-nav layouts alike. */
+.block.w-wide { margin-left: -80px; margin-right: -80px; }
+.block.w-full {
+  --avail: calc(100vw - var(--nav-w, 0px));
+  --bleed: calc((var(--avail) - min(var(--content-max), var(--avail))) / 2 + 24px);
+  margin-left: calc(-1 * var(--bleed));
+  margin-right: calc(-1 * var(--bleed));
+}
 
 /* block typography */
 .block h1, .block h2, .block h3 { font-weight: var(--heading-weight); line-height: 1.25; font-family: var(--font-heading); }
-.block h1 { font-size: 34px; }
-.block h2 { font-size: 27px; }
-.block h3 { font-size: 21px; }
+.block h1 { font-size: var(--h1); }
+.block h2 { font-size: var(--h2); }
+.block h3 { font-size: var(--h3); }
 .b-heading.center { text-align: center; }
 .rich p { margin: 0 0 1em; }
 .rich p:last-child { margin-bottom: 0; }
-.rich a { color: var(--accent); }
+.rich a { color: var(--accent-ink); }
 .rich ul, .rich ol { padding-left: 1.4em; margin: 0 0 1em; }
 .rich blockquote { border-left: 3px solid var(--accent); padding-left: 16px; color: var(--ink-soft); margin: 0 0 1em; }
 .rich code { background: var(--bg-soft); border: 1px solid var(--line); border-radius: 4px; padding: 1px 5px; font-size: 0.9em; }
 
 /* text layouts */
-.b-text.layout-lead .rich { font-size: 21px; line-height: 1.6; font-weight: 450; }
+.b-text.layout-lead .rich { font-size: var(--lead); line-height: 1.6; font-weight: 450; }
 .b-text.layout-columns .rich { column-count: 2; column-gap: 40px; }
 .b-text.layout-boxed {
   background: var(--bg); border: 1px solid var(--line);
@@ -136,29 +295,33 @@ body.hero-minimal .lesson-hero + .blocks { padding-top: 28px; }
 
 /* per-block backgrounds */
 .block.has-bg { padding: 24px 26px; border-radius: var(--radius); }
-.block.bg-panel { background: var(--bg); border: 1px solid var(--line); }
+.block.bg-panel { background: var(--bg); border: 1px solid var(--line); box-shadow: var(--shadow-sm); }
 .block.bg-tint { background: var(--accent-soft); }
 .b-statement.has-bg, .b-text.layout-boxed.has-bg { padding: 36px 26px; }
+/* A full-bleed block with a fill needs the reading column back inside it, or
+   its text would run the whole width of the screen. */
+.block.w-full.has-bg { border-radius: 0; padding-left: 24px; padding-right: 24px; }
+.block.w-full.has-bg > * { max-width: var(--content-max); margin-left: auto; margin-right: auto; }
 
 /* custom HTML */
 .b-html iframe { max-width: 100%; }
 .b-html img { max-width: 100%; height: auto; }
 
 .b-statement { text-align: center; padding: 36px 20px; }
-.b-statement .inner { font-size: 24px; font-weight: 700; line-height: 1.4; max-width: 620px; margin: 0 auto; }
+.b-statement .inner { font-size: calc(var(--lead) + 3px); font-weight: 700; line-height: 1.4; max-width: 620px; margin: 0 auto; }
 .b-statement.style-a { border-top: 3px solid var(--accent); border-bottom: 3px solid var(--accent); }
 .b-statement.style-b { background: var(--accent-soft); border-radius: var(--radius); }
-.b-statement.style-c .inner { color: var(--accent); font-size: 28px; }
+.b-statement.style-c .inner { color: var(--accent-ink); font-size: calc(var(--lead) + 7px); }
 
 .b-quote { padding: 8px 0 8px 24px; border-left: 4px solid var(--accent); }
-.b-quote .q-text { font-size: 21px; font-style: italic; line-height: 1.5; }
+.b-quote .q-text { font-size: var(--lead); font-style: italic; line-height: 1.5; }
 .b-quote .q-attr { margin-top: 12px; font-size: 14px; font-weight: 600; color: var(--ink-soft); }
 
 .b-list ul, .b-list ol { padding-left: 1.5em; }
 .b-list li { margin-bottom: 0.5em; }
 .b-list.checks ul { list-style: none; padding-left: 0; }
 .b-list.checks li { display: flex; gap: 10px; align-items: baseline; }
-.b-list.checks li::before { content: '✓'; color: var(--accent); font-weight: 800; }
+.b-list.checks li::before { content: '✓'; color: var(--accent-ink); font-weight: 800; }
 
 .b-image { text-align: center; }
 .b-image img { max-width: 100%; border-radius: var(--radius); display: block; margin: 0 auto; }
@@ -192,7 +355,7 @@ body.hero-minimal .lesson-hero + .blocks { padding-top: 28px; }
 .b-divider.numbered { display: flex; justify-content: center; }
 .b-divider .num {
   width: 52px; height: 52px; border-radius: 50%;
-  background: var(--accent); color: #fff;
+  background: var(--accent); color: var(--on-accent);
   display: flex; align-items: center; justify-content: center;
   font-size: 20px; font-weight: 800;
 }
@@ -201,11 +364,11 @@ body.hero-minimal .lesson-hero + .blocks { padding-top: 28px; }
 .b-button.center { justify-content: center; }
 .b-button a {
   display: inline-block; padding: 13px 30px;
-  border-radius: 999px; font-weight: 600; font-size: 15.5px;
+  border-radius: var(--radius-pill); font-weight: 600; font-size: 15.5px;
   text-decoration: none;
-  background: var(--accent); color: #fff; border: 2px solid var(--accent);
+  background: var(--accent); color: var(--on-accent); border: 2px solid var(--accent);
 }
-.b-button a.outline { background: transparent; color: var(--accent); }
+.b-button a.outline { background: transparent; color: var(--accent-ink); }
 .b-button a:hover { filter: brightness(1.08); }
 
 .b-note { border-radius: var(--radius); padding: 20px 22px; border: 1px solid; }
@@ -220,29 +383,118 @@ body.hero-minimal .lesson-hero + .blocks { padding-top: 28px; }
 .b-note.danger .n-title { color: #b42318; }
 
 .b-columns { display: grid; gap: 28px; grid-template-columns: repeat(var(--cols, 2), 1fr); }
+.b-columns.gap-sm { gap: 14px; }
+.b-columns.gap-lg { gap: 48px; }
+.b-columns.v-center { align-items: center; }
+/* Uneven splits are emitted for two columns only — see renderBlock. */
+.b-columns.wide-left { grid-template-columns: 2fr 1fr; }
+.b-columns.wide-right { grid-template-columns: 1fr 2fr; }
+
+/* ---- cards ---- */
+.b-cards { display: grid; gap: 18px; }
+.b-cards.cols-2 { grid-template-columns: repeat(2, 1fr); }
+.b-cards.cols-3 { grid-template-columns: repeat(3, 1fr); }
+.b-cards.cols-4 { grid-template-columns: repeat(4, 1fr); }
+.b-cards.center { text-align: center; }
+.b-cards .card {
+  display: flex; flex-direction: column;
+  padding: 22px;
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+.b-cards.center .card { align-items: center; }
+.b-cards.style-bordered .card { border: 1px solid var(--line); background: var(--bg); box-shadow: var(--shadow-sm); }
+.b-cards.style-filled .card { background: var(--accent-soft); }
+/* A fixed lift, not var(--shadow-md): the whole point of picking "elevated" on
+   one block is to raise it above the course's own elevation setting, and on a
+   flat course --shadow-md is `none`. */
+.b-cards.style-elevated .card {
+  background: var(--bg);
+  border: 1px solid var(--line);
+  box-shadow: 0 10px 26px rgba(16, 20, 40, 0.10);
+}
+/* Card images sit flush with the card edge rather than inside its padding. */
+.b-cards .card-img {
+  width: calc(100% + 44px); margin: -22px -22px 16px;
+  aspect-ratio: 16 / 10; object-fit: cover; display: block;
+}
+.b-cards .card-icon { font-size: 26px; line-height: 1; margin-bottom: 10px; }
+.b-cards .card-title {
+  font-size: var(--h3); font-family: var(--font-heading);
+  font-weight: var(--heading-weight); line-height: 1.25; margin-bottom: 8px;
+}
+.b-cards .card-text { font-size: 15.5px; color: var(--ink-soft); }
+.b-cards .card-text p:last-child { margin-bottom: 0; }
+
+/* ---- steps ---- */
+.b-steps .steps-list { list-style: none; padding: 0; margin: 0; }
+.b-steps .step { position: relative; display: flex; gap: 18px; }
+.b-steps .step-marker {
+  flex-shrink: 0;
+  width: 40px; height: 40px; border-radius: 50%;
+  display: inline-flex; align-items: center; justify-content: center;
+  background: var(--accent); color: var(--on-accent);
+  font-size: 16px; font-weight: 800; font-family: var(--font-heading);
+  z-index: 1;
+}
+.b-steps.dots .step-marker { width: 16px; height: 16px; margin-top: 12px; }
+.b-steps .step-title {
+  font-size: var(--h3); font-family: var(--font-heading);
+  font-weight: var(--heading-weight); line-height: 1.3;
+}
+.b-steps .step-body { padding-bottom: 28px; min-width: 0; }
+.b-steps .step:last-child .step-body { padding-bottom: 0; }
+
+/* vertical: a rule joins the markers into a timeline */
+.b-steps.vertical .step::before {
+  content: '';
+  position: absolute;
+  left: 19px; top: 40px; bottom: 0;
+  width: 2px; background: var(--line);
+}
+.b-steps.vertical.dots .step::before { left: 7px; top: 28px; }
+.b-steps.vertical .step:last-child::before { display: none; }
+
+/* horizontal: an even track, with the rule running between markers */
+.b-steps.horizontal .steps-list {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: 1fr;
+  gap: 20px;
+}
+.b-steps.horizontal .step { flex-direction: column; gap: 12px; }
+.b-steps.horizontal .step-body { padding-bottom: 0; }
+.b-steps.horizontal .step::before {
+  content: '';
+  position: absolute;
+  left: 48px; right: -20px; top: 19px;
+  height: 2px; background: var(--line);
+}
+.b-steps.horizontal.dots .step::before { left: 24px; top: 7px; }
+.b-steps.horizontal .step:last-child::before { display: none; }
 
 /* accordion */
-.b-accordion { border: 1px solid var(--line); border-radius: var(--radius); overflow: hidden; background: var(--bg); }
+.b-accordion { border: 1px solid var(--line); border-radius: var(--radius); overflow: hidden; background: var(--bg); box-shadow: var(--shadow-sm); }
 .acc-item + .acc-item { border-top: 1px solid var(--line); }
 .acc-head {
   width: 100%; display: flex; justify-content: space-between; align-items: center; gap: 12px;
   padding: 18px 22px; border: 0; background: transparent;
   font: inherit; font-size: 16px; font-weight: 600; text-align: left; cursor: pointer; color: var(--ink);
 }
-.acc-head .chev { transition: transform 0.2s; color: var(--accent); flex-shrink: 0; }
+.acc-head .chev { transition: transform 0.2s; color: var(--accent-ink); flex-shrink: 0; }
 .acc-item.open .acc-head .chev { transform: rotate(180deg); }
 .acc-body { display: none; padding: 0 22px 20px; }
 .acc-item.open .acc-body { display: block; }
 
 /* tabs */
-.b-tabs { background: var(--bg); border: 1px solid var(--line); border-radius: var(--radius); overflow: hidden; }
+.b-tabs { background: var(--bg); border: 1px solid var(--line); border-radius: var(--radius); overflow: hidden; box-shadow: var(--shadow-sm); }
 .tab-list { display: flex; border-bottom: 1px solid var(--line); overflow-x: auto; }
 .tab-list button {
   padding: 15px 22px; border: 0; background: transparent;
   font: inherit; font-size: 15px; font-weight: 600; color: var(--ink-soft);
   cursor: pointer; border-bottom: 3px solid transparent; margin-bottom: -1px; white-space: nowrap;
 }
-.tab-list button.active { color: var(--accent); border-bottom-color: var(--accent); }
+.tab-list button.active { color: var(--accent-ink); border-bottom-color: var(--accent); }
 .tab-panel { display: none; padding: 24px; }
 .tab-panel.active { display: block; }
 
@@ -257,20 +509,20 @@ body.hero-minimal .lesson-hero + .blocks { padding-top: 28px; }
   padding: 18px; text-align: center; font-weight: 600; font-size: 16px;
   overflow: hidden;
 }
-.fcard-front { background: var(--bg); border: 1px solid var(--line); box-shadow: 0 2px 10px rgba(20,24,50,0.06); }
+.fcard-front { background: var(--bg); border: 1px solid var(--line); box-shadow: var(--shadow-md, 0 2px 10px rgba(20,24,50,0.06)); }
 .fcard-front img { max-width: 100%; max-height: 110px; border-radius: 8px; margin-bottom: 10px; object-fit: cover; }
-.fcard-back { background: var(--accent); color: #fff; transform: rotateY(180deg); font-weight: 500; font-size: 15px; }
+.fcard-back { background: var(--accent); color: var(--on-accent); transform: rotateY(180deg); font-weight: 500; font-size: 15px; }
 .fcard-hint { position: absolute; bottom: 10px; font-size: 11px; color: var(--ink-soft); font-weight: 500; letter-spacing: 0.04em; text-transform: uppercase; }
 .fcard-back .fcard-hint { color: rgba(255,255,255,0.75); }
 
 /* ---- quiz ---- */
-.b-quiz { background: var(--bg); border: 1px solid var(--line); border-radius: var(--radius); overflow: hidden; }
-.quiz-head { background: var(--accent); color: #fff; padding: 22px 26px; }
+.b-quiz { background: var(--bg); border: 1px solid var(--line); border-radius: var(--radius); overflow: hidden; box-shadow: var(--shadow-sm); }
+.quiz-head { background: var(--accent); color: var(--on-accent); padding: 22px 26px; }
 .quiz-head h3 { font-size: 20px; font-weight: 700; font-family: var(--font-heading); }
 .quiz-head .quiz-meta { font-size: 13px; opacity: 0.9; margin-top: 3px; }
 .q-item { padding: 24px 26px; border-bottom: 1px solid var(--line); }
 .q-item:last-of-type { border-bottom: 0; }
-.q-num { font-size: 12px; font-weight: 700; color: var(--accent); text-transform: uppercase; letter-spacing: 0.08em; }
+.q-num { font-size: 12px; font-weight: 700; color: var(--accent-ink); text-transform: uppercase; letter-spacing: 0.08em; }
 .q-text { font-size: 17px; font-weight: 600; margin: 6px 0 16px; }
 .q-choices { display: flex; flex-direction: column; gap: 10px; }
 .q-choice {
@@ -294,12 +546,12 @@ body.hero-minimal .lesson-hero + .blocks { padding-top: 28px; }
 .q-feedback.bad { background: #fef3f2; color: #b42318; }
 .q-actions { padding: 16px 26px; }
 .quiz-btn {
-  padding: 11px 26px; border-radius: 999px; border: 0;
-  background: var(--accent); color: #fff;
+  padding: 11px 26px; border-radius: var(--radius-pill); border: 0;
+  background: var(--accent); color: var(--on-accent);
   font: inherit; font-size: 15px; font-weight: 600; cursor: pointer;
 }
 .quiz-btn:disabled { opacity: 0.45; cursor: not-allowed; }
-.quiz-btn.ghost { background: transparent; color: var(--accent); border: 2px solid var(--accent); }
+.quiz-btn.ghost { background: transparent; color: var(--accent-ink); border: 2px solid var(--accent); }
 .quiz-result { padding: 26px; text-align: center; border-top: 1px solid var(--line); }
 .quiz-score { font-size: 40px; font-weight: 800; }
 .quiz-score.pass { color: #16a34a; }
@@ -309,11 +561,11 @@ body.hero-minimal .lesson-hero + .blocks { padding-top: 28px; }
 /* ---- lesson footer nav ---- */
 .lesson-footer { margin-top: 56px; display: flex; justify-content: space-between; align-items: center; gap: 14px; }
 .nav-btn {
-  padding: 14px 30px; border-radius: 999px;
+  padding: 14px 30px; border-radius: var(--radius-pill);
   font: inherit; font-size: 15.5px; font-weight: 600; cursor: pointer;
-  background: var(--accent); color: #fff; border: 2px solid var(--accent);
+  background: var(--accent); color: var(--on-accent); border: 2px solid var(--accent);
 }
-.nav-btn.prev { background: transparent; color: var(--accent); }
+.nav-btn.prev { background: transparent; color: var(--accent-ink); }
 .nav-btn:disabled { opacity: 0.4; cursor: not-allowed; }
 .quiz-gate-msg { font-size: 13.5px; color: var(--ink-soft); text-align: right; }
 
@@ -344,7 +596,7 @@ body.hero-minimal .lesson-hero + .blocks { padding-top: 28px; }
 .sort-row.incorrect { border-color: #ef4444; background: #fef3f2; }
 .sort-num {
   width: 26px; height: 26px; flex-shrink: 0; border-radius: 50%;
-  background: var(--accent); color: #fff; font-size: 13px; font-weight: 700;
+  background: var(--accent); color: var(--on-accent); font-size: 13px; font-weight: 700;
   display: flex; align-items: center; justify-content: center;
 }
 .sort-text { flex: 1; }
@@ -353,7 +605,7 @@ body.hero-minimal .lesson-hero + .blocks { padding-top: 28px; }
   border-radius: 8px; width: 30px; height: 30px; cursor: pointer;
   font-size: 15px; line-height: 1;
 }
-.sort-move:hover:not(:disabled) { border-color: var(--accent); color: var(--accent); }
+.sort-move:hover:not(:disabled) { border-color: var(--accent); color: var(--accent-ink); }
 .sort-move:disabled { opacity: 0.35; cursor: not-allowed; }
 
 .match-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
@@ -371,7 +623,7 @@ body.hero-minimal .lesson-hero + .blocks { padding-top: 28px; }
 .match-item.incorrect { border-color: #ef4444; background: #fef3f2; }
 .match-badge {
   width: 24px; height: 24px; flex-shrink: 0; border-radius: 6px;
-  background: var(--accent-soft); color: var(--accent);
+  background: var(--accent-soft); color: var(--accent-ink);
   font-size: 12px; font-weight: 700;
   display: flex; align-items: center; justify-content: center;
 }
@@ -381,7 +633,7 @@ body.hero-minimal .lesson-hero + .blocks { padding-top: 28px; }
 .hs-dot {
   position: absolute; transform: translate(-50%, -50%);
   width: 32px; height: 32px; border-radius: 50%; cursor: pointer;
-  background: var(--accent); color: #fff; border: 3px solid #fff;
+  background: var(--accent); color: var(--on-accent); border: 3px solid #fff;
   font-size: 13px; font-weight: 700;
   box-shadow: 0 2px 10px rgba(0,0,0,0.3);
   transition: transform 0.12s;
@@ -400,8 +652,13 @@ body.hero-minimal .lesson-hero + .blocks { padding-top: 28px; }
 body.nav-top .sidebar { transform: translateX(-100%); box-shadow: 0 0 40px rgba(15, 18, 35, 0.2); }
 body.nav-top .player.nav-open .sidebar { transform: translateX(0); }
 body.nav-top .player.nav-open .scrim { display: block; }
-body.nav-top .content { margin-left: 0; }
+body.nav-top .content { --nav-w: 0px; margin-left: 0; }
 body.nav-top .topbar { display: flex; }
+
+/* ---- linear layout: no menu at all, only Previous / Continue ----
+   The sidebar is never built in this mode, so these only reclaim its space. */
+body.nav-none .content { --nav-w: 0px; margin-left: 0; }
+body.nav-none .topbar { display: flex; }
 
 /* ---- dark scheme harmonisation (class set on <body> by the exporter) ----
    Callouts, quiz states and banners use translucent tints instead of the
@@ -427,27 +684,49 @@ body.theme-dark .complete-banner.pending { background: rgba(251,191,36,0.10); bo
 body.theme-dark .sort-row.correct, body.theme-dark .match-item.correct { background: rgba(74,222,128,0.12); border-color: #22c55e; }
 body.theme-dark .sort-row.incorrect, body.theme-dark .match-item.incorrect { background: rgba(248,113,113,0.12); border-color: #ef4444; }
 body.theme-dark .topbar .menu-btn { color: var(--ink); }
+body.theme-dark .b-cards.style-elevated .card { box-shadow: 0 10px 26px rgba(0, 0, 0, 0.4); }
 
 /* ---- responsive ---- */
+@media (max-width: 1200px) {
+  /* The reading column is still centred here, so there is no room left to bleed
+     into — a wide block would overlap its neighbours' text. */
+  .block.w-wide { margin-left: -32px; margin-right: -32px; }
+}
 @media (max-width: 980px) {
   .sidebar { transform: translateX(-100%); box-shadow: 0 0 40px rgba(15,18,35,0.2); }
   .player.nav-open .sidebar { transform: translateX(0); }
   .player.nav-open .scrim { display: block; }
-  .content { margin-left: 0; }
+  .content { --nav-w: 0px; margin-left: 0; }
   .topbar { display: flex; }
   .b-image.wide { margin-left: 0; margin-right: 0; }
+  .block.w-wide { margin-left: 0; margin-right: 0; }
+  .b-cards.cols-4 { grid-template-columns: repeat(2, 1fr); }
+  /* A horizontal track runs out of width long before the page does. */
+  .b-steps.horizontal .steps-list { grid-auto-flow: row; gap: 0; }
+  .b-steps.horizontal .step { flex-direction: row; gap: 18px; }
+  .b-steps.horizontal .step-body { padding-bottom: 28px; }
+  .b-steps.horizontal .step:last-child .step-body { padding-bottom: 0; }
+  .b-steps.horizontal .step::before { left: 19px; right: auto; top: 40px; bottom: 0; width: 2px; height: auto; }
+  .b-steps.horizontal.dots .step::before { left: 7px; top: 28px; }
 }
 @media (max-width: 640px) {
   body { font-size: 16px; }
   .blocks { padding: 32px 18px 64px; }
   .lesson-hero { padding: 48px 18px 40px; }
+  body.hero-image .lesson-hero { padding: 64px 18px 56px; }
+  body.hero-split .lesson-hero { grid-template-columns: 1fr; }
+  body.hero-split .lesson-hero::before { height: 8px; }
+  body.hero-split .lesson-hero .hero-inner { padding: 36px 18px; }
+  .cover { padding: 64px 18px 52px; }
   .b-text.layout-columns .rich { column-count: 1; }
   .b-imagetext { flex-direction: column !important; }
   .b-imagetext img { width: 100%; }
   .b-columns { grid-template-columns: 1fr !important; }
+  .b-cards { grid-template-columns: 1fr !important; }
   .b-gallery.cols-3, .b-gallery.cols-4 { grid-template-columns: repeat(2, 1fr); }
   .lesson-footer { flex-direction: column-reverse; align-items: stretch; }
   .nav-btn { width: 100%; }
+  .cover-start { width: 100%; }
   .quiz-gate-msg { text-align: center; }
   .match-grid { grid-template-columns: 1fr; }
 }

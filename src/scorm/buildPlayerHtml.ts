@@ -19,7 +19,7 @@ function lessonThemes(course: Course) {
   const theme = normalizeTheme(course.theme)
   const baseScheme = schemeOf(theme.scheme)
   const map: Record<string, unknown> = {
-    __base: { ...themeVars(baseScheme, theme.primaryColor), hero: theme.hero },
+    __base: { ...themeVars(baseScheme, theme.primaryColor), hero: theme.hero, heroImage: '' },
   }
   course.lessons.forEach((l: Lesson) => {
     const t = l.theme
@@ -29,6 +29,9 @@ function lessonThemes(course: Course) {
     map[l.id] = {
       ...themeVars(scheme, t.primaryColor ?? theme.primaryColor),
       hero: t.hero ?? theme.hero,
+      // Left as an `asset:` reference: the player resolves it against the
+      // assets it already carries, so the bytes are not duplicated here.
+      heroImage: t.heroImage ?? '',
     }
   })
   return map
@@ -38,10 +41,13 @@ function lessonThemes(course: Course) {
 export function buildPlayerHtml(course: Course, version: ScormVersion): string {
   // </script> inside the JSON payload would terminate the script tag early
   const esc = (o: unknown) => JSON.stringify(o).replace(/<\//g, '<\\/')
-  const courseJson = esc(course)
+  const theme = normalizeTheme(course.theme)
+  // The player reads layout settings — nav, titlePage, progress, lessonNumbers
+  // — straight off COURSE.theme at runtime, so it is the normalised theme that
+  // ships, not whatever partial object an older save happens to hold.
+  const courseJson = esc({ ...course, theme })
   const lessonThemesJson = esc(lessonThemes(course))
 
-  const theme = normalizeTheme(course.theme)
   const pack = FONT_PACKS.find((p) => p.id === theme.fontPack) ?? FONT_PACKS[0]
   const scheme = SCHEMES.find((s) => s.id === theme.scheme) ?? SCHEMES[0]
   const fontsLink = pack.google
@@ -58,8 +64,9 @@ export function buildPlayerHtml(course: Course, version: ScormVersion): string {
   const bodyClass = [
     `hero-${theme.hero}`,
     theme.nav === 'top' ? 'nav-top' : '',
+    theme.nav === 'none' ? 'nav-none' : '',
     scheme.dark ? 'theme-dark' : '',
-  ].join(' ').trim()
+  ].filter(Boolean).join(' ')
 
   return `<!doctype html>
 <html lang="en">
