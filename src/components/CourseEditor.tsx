@@ -1,9 +1,9 @@
 import { useEffect, useMemo, useState } from 'react'
 import {
-  ArrowLeft, Eye, Settings, Share, PanelLeft, Undo2, Redo2, Search, Keyboard,
+  ArrowLeft, Eye, Settings, Share, PanelLeft, Undo2, Redo2, Search, Keyboard, Radar,
 } from 'lucide-react'
 import { useStore } from '../store'
-import { useUi, applyAppearance } from '../uiStore'
+import { useUi } from '../uiStore'
 import { openCommentCount, useReviews } from '../review/reviewStore'
 import { Button, IconButton } from '../ui'
 import OutlineSidebar from './OutlineSidebar'
@@ -16,11 +16,13 @@ import TemplateLibrary from './TemplateLibrary'
 import ReviewDialog from './ReviewDialog'
 import ReviewPanel from './ReviewPanel'
 import Dock, { DockToggle } from './Dock'
-import AppearanceMenu from './AppearanceMenu'
 import Inspector from './Inspector'
 import LessonStyleDialog from './LessonStyleDialog'
 import CommandPalette from './CommandPalette'
 import ShortcutSheet from './ShortcutSheet'
+import FlightRecorder from './FlightRecorder'
+import AccessibilityPanel, { useA11yErrorCount } from './AccessibilityPanel'
+import VersionPanel from './VersionPanel'
 import { formatKeys, useHotkeys, type Command } from '../hotkeys'
 
 export default function CourseEditor() {
@@ -39,8 +41,6 @@ export default function CourseEditor() {
   const dockOpen = useUi((s) => s.dockOpen)
   const openDock = useUi((s) => s.openDock)
   const closeDock = useUi((s) => s.closeDock)
-  const appearance = useUi((s) => s.appearance)
-  const setAppearance = useUi((s) => s.setAppearance)
 
   const [showPreview, setShowPreview] = useState(false)
   const [showExport, setShowExport] = useState(false)
@@ -49,6 +49,7 @@ export default function CourseEditor() {
   const [showLessonStyle, setShowLessonStyle] = useState(false)
   const [showPalette, setShowPalette] = useState(false)
   const [showShortcuts, setShowShortcuts] = useState(false)
+  const [showRecorder, setShowRecorder] = useState(false)
 
   const selectedBlockId = useUi((s) => s.selectedBlockId)
   const addLesson = useStore((s) => s.addLesson)
@@ -59,12 +60,11 @@ export default function CourseEditor() {
   const reviewsLoaded = useReviews((s) => s.loaded)
   const loadReviews = useReviews((s) => s.loadReviews)
   const openComments = openCommentCount(reviews, course.id)
+  const a11yErrors = useA11yErrorCount()
 
   useEffect(() => {
     if (!reviewsLoaded) loadReviews()
   }, [reviewsLoaded, loadReviews])
-
-  useEffect(() => applyAppearance(appearance), [appearance])
 
   // Selecting a block reveals its options. Only auto-opens onto the inspector —
   // if you are deliberately sitting in Media or Review, selecting a block must
@@ -85,6 +85,8 @@ export default function CourseEditor() {
         run: () => setShowPreview(true) },
       { id: 'export', label: 'Export course', group: 'Course', keys: 'mod+e',
         run: () => setShowExport(true) },
+      { id: 'flight', label: 'Test in a simulated LMS', group: 'Course', keys: 'mod+shift+t',
+        run: () => setShowRecorder(true) },
       { id: 'settings', label: 'Course settings', group: 'Course',
         run: () => setShowSettings(true) },
       { id: 'review', label: 'Send for review', group: 'Course',
@@ -104,12 +106,12 @@ export default function CourseEditor() {
       { id: 'dock-media', label: 'Show media library', group: 'View', run: () => openDock('media') },
       { id: 'dock-templates', label: 'Show templates', group: 'View', run: () => openDock('templates') },
       { id: 'dock-review', label: 'Show review feedback', group: 'View', run: () => openDock('review') },
-      { id: 'appearance', label: 'Toggle light / dark editor', group: 'View',
-        run: () => setAppearance(appearance === 'dark' ? 'light' : 'dark') },
+      { id: 'dock-a11y', label: 'Show accessibility check', group: 'View', run: () => openDock('a11y') },
+      { id: 'dock-versions', label: 'Show version history', group: 'View', run: () => openDock('versions') },
     ],
     [
       canUndo, canRedo, undo, redo, closeCourse, addLesson, toggleOutline, dockOpen,
-      openDock, closeDock, appearance, setAppearance,
+      openDock, closeDock,
     ]
   )
 
@@ -202,9 +204,11 @@ export default function CourseEditor() {
             icon={<Settings size={17} />}
             onClick={() => setShowSettings(true)}
           />
-          <AppearanceMenu />
           <DockToggle />
           <span className="topbar__divider" aria-hidden="true" />
+          <Button icon={<Radar size={15} />} onClick={() => setShowRecorder(true)}>
+            Test
+          </Button>
           <Button icon={<Eye size={15} />} onClick={() => setShowPreview(true)}>
             Preview
           </Button>
@@ -227,6 +231,7 @@ export default function CourseEditor() {
         <LessonEditor />
         <Dock
           openComments={openComments}
+          a11yErrors={a11yErrors}
           panels={{
             inspector: <Inspector onOpenLessonStyle={() => setShowLessonStyle(true)} />,
             media: <MediaLibrary as="panel" onClose={closeDock} />,
@@ -240,11 +245,14 @@ export default function CourseEditor() {
                 onManage={() => setShowReviewSetup(true)}
               />
             ),
+            a11y: <AccessibilityPanel />,
+            versions: <VersionPanel />,
           }}
         />
       </div>
 
       {showPreview && <Preview course={course} onClose={() => setShowPreview(false)} />}
+      {showRecorder && <FlightRecorder course={course} onClose={() => setShowRecorder(false)} />}
       {showExport && <ExportDialog course={course} onClose={() => setShowExport(false)} />}
       {showSettings && <SettingsSheet onClose={() => setShowSettings(false)} />}
       {showReviewSetup && (

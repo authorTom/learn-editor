@@ -26,6 +26,8 @@ export const blockDefs: BlockDef[] = [
   { type: 'divider', label: 'Divider', description: 'Line, spacer or number', category: 'Layout', icon: 'Minus' },
   { type: 'button', label: 'Button', description: 'Link styled as a button', category: 'Layout', icon: 'MousePointerClick' },
   { type: 'columns', label: 'Columns', description: 'Side-by-side text columns', category: 'Layout', icon: 'Columns2' },
+  { type: 'cards', label: 'Cards', description: 'Grid of titled cards', category: 'Layout', icon: 'Rows3' },
+  { type: 'steps', label: 'Steps', description: 'Numbered process or timeline', category: 'Layout', icon: 'ListOrdered' },
   { type: 'accordion', label: 'Accordion', description: 'Expandable sections', category: 'Interactive', icon: 'ChevronsUpDown' },
   { type: 'tabs', label: 'Tabs', description: 'Tabbed panels', category: 'Interactive', icon: 'PanelTop' },
   { type: 'flashcards', label: 'Flashcards', description: 'Flip cards to reveal answers', category: 'Interactive', icon: 'GalleryHorizontalEnd' },
@@ -76,6 +78,12 @@ export function cloneBlock(block: Block): Block {
       break
     case 'accordion':
     case 'tabs':
+    case 'steps':
+      b.items = b.items.map((i) => ({ ...i, id: uid() }))
+      break
+    // Separate from the three above only because a card carries `src`/`icon`
+    // too, so the element types are not assignable to one another.
+    case 'cards':
       b.items = b.items.map((i) => ({ ...i, id: uid() }))
       break
     case 'flashcards':
@@ -142,6 +150,34 @@ export function createBlock(type: BlockType): Block {
           { id: uid(), html: '' },
           { id: uid(), html: '' },
         ],
+        ratio: 'equal',
+        valign: 'top',
+        gap: 'md',
+      }
+    case 'cards':
+      return {
+        id,
+        type,
+        items: [
+          { id: uid(), src: '', icon: '', title: '', html: '' },
+          { id: uid(), src: '', icon: '', title: '', html: '' },
+          { id: uid(), src: '', icon: '', title: '', html: '' },
+        ],
+        columns: 3,
+        style: 'bordered',
+        align: 'left',
+      }
+    case 'steps':
+      return {
+        id,
+        type,
+        items: [
+          { id: uid(), title: '', html: '' },
+          { id: uid(), title: '', html: '' },
+          { id: uid(), title: '', html: '' },
+        ],
+        layout: 'vertical',
+        marker: 'number',
       }
     case 'accordion':
       return {

@@ -183,6 +183,36 @@
   color: var(--ink-soft);
 }
 
+/* ---------- cards + steps ----------
+   Both edit as a stack of item editors rather than as their finished grid: at
+   canvas width a three-up card grid leaves each card too narrow to write in. */
+.card-img-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  margin-top: var(--space-3);
+}
+.card-thumb {
+  width: 96px;
+  height: 60px;
+  object-fit: cover;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--line);
+}
+.step-num {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  flex-shrink: 0;
+  border-radius: var(--radius-full);
+  background: var(--accent);
+  color: var(--on-accent, #fff);
+  font-size: var(--text-2xs);
+  font-weight: var(--weight-bold);
+}
+
 /* Divider has no content, so the canvas shows what it will render as. */
 .divider-preview {
   display: flex;

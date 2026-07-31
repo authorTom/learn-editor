@@ -79,7 +79,16 @@ function BlockShell({
       ref={setNodeRef}
       id={'blk-' + block.id}
       style={{ transform: CSS.Transform.toString(transform), transition }}
-      className={'block' + (selected ? ' is-selected' : '') + (isDragging ? ' is-dragging' : '')}
+      // Width and space are echoed on the canvas, not just applied in the
+      // player: choosing "full" and seeing nothing move until you open Preview
+      // is how you end up with a lesson full of settings you never verified.
+      className={
+        'block' +
+        (block.width && block.width !== 'normal' ? ' w-' + block.width : '') +
+        (block.space && block.space !== 'normal' ? ' sp-' + block.space : '') +
+        (selected ? ' is-selected' : '') +
+        (isDragging ? ' is-dragging' : '')
+      }
       // A group, not a button: the block contains its own controls and text
       // fields, so it must not swallow their semantics.
       role="group"

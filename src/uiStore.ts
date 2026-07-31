@@ -2,12 +2,9 @@ import { create } from 'zustand'
 
 /** Panels that share the single right-hand dock. Only one is ever visible, so
     the inspector and the review inbox can't fight over the same column. */
-export type DockTab = 'inspector' | 'media' | 'templates' | 'review'
-
-export type Appearance = 'light' | 'dark' | 'system'
+export type DockTab = 'inspector' | 'media' | 'templates' | 'review' | 'a11y' | 'versions'
 
 interface UiState {
-  appearance: Appearance
   /** Left outline column. On narrow viewports this drives an overlay drawer. */
   outlineOpen: boolean
   dockOpen: boolean
@@ -33,7 +30,6 @@ interface UiState {
   openSlashPicker: (blockId: string) => void
   closeSlashPicker: () => void
 
-  setAppearance: (a: Appearance) => void
   toggleOutline: () => void
   setOutlineOpen: (v: boolean) => void
   closeDock: () => void
@@ -45,7 +41,6 @@ interface UiState {
 const KEY = 'learn-editor:ui'
 
 interface Persisted {
-  appearance: Appearance
   outlineOpen: boolean
   dockOpen: boolean
   dockTab: DockTab
@@ -77,12 +72,11 @@ const saved = readPrefs()
 
 export const useUi = create<UiState>((set, get) => {
   function persist() {
-    const { appearance, outlineOpen, dockOpen, dockTab, recentBlockTypes } = get()
-    writePrefs({ appearance, outlineOpen, dockOpen, dockTab, recentBlockTypes })
+    const { outlineOpen, dockOpen, dockTab, recentBlockTypes } = get()
+    writePrefs({ outlineOpen, dockOpen, dockTab, recentBlockTypes })
   }
 
   return {
-    appearance: saved.appearance ?? 'system',
     outlineOpen: saved.outlineOpen ?? true,
     dockOpen: saved.dockOpen ?? false,
     dockTab: saved.dockTab ?? 'inspector',
@@ -102,10 +96,6 @@ export const useUi = create<UiState>((set, get) => {
       persist()
     },
 
-    setAppearance: (appearance) => {
-      set({ appearance })
-      persist()
-    },
     toggleOutline: () => {
       set((s) => ({ outlineOpen: !s.outlineOpen }))
       persist()
@@ -128,11 +118,3 @@ export const useUi = create<UiState>((set, get) => {
     },
   }
 })
-
-/** Reflect the appearance preference onto <html> for tokens.css to read.
-    'system' removes the attribute so the prefers-color-scheme media query wins. */
-export function applyAppearance(appearance: Appearance) {
-  const root = document.documentElement
-  if (appearance === 'system') root.removeAttribute('data-appearance')
-  else root.setAttribute('data-appearance', appearance)
-}

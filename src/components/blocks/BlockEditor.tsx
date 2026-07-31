@@ -9,6 +9,7 @@ import {
 import {
   AccordionEditor, TabsEditor, FlashcardsEditor, SortingEditor, MatchingEditor, HotspotEditor,
 } from './InteractiveBlocks'
+import { CardsEditor, StepsEditor } from './LayoutBlocks'
 import QuizEditor from './QuizEditor'
 
 export default function BlockEditor({ block }: { block: Block }) {
@@ -22,6 +23,8 @@ export default function BlockEditor({ block }: { block: Block }) {
     case 'divider': return <DividerEditor block={block} />
     case 'button': return <ButtonEditor block={block} />
     case 'columns': return <ColumnsEditor block={block} />
+    case 'cards': return <CardsEditor block={block} />
+    case 'steps': return <StepsEditor block={block} />
     case 'image': return <ImageEditor block={block} />
     case 'imageText': return <ImageTextEditor block={block} />
     case 'gallery': return <GalleryEditor block={block} />

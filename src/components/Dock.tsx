@@ -1,5 +1,8 @@
 import { useEffect, useRef, type ReactNode } from 'react'
-import { Images, LayoutTemplate, MessageSquare, PanelRight, SlidersHorizontal, X } from 'lucide-react'
+import {
+  Accessibility, History, Images, LayoutTemplate, MessageSquare, PanelRight,
+  SlidersHorizontal, X,
+} from 'lucide-react'
 import { IconButton, Tooltip } from '../ui'
 import { useUi, type DockTab } from '../uiStore'
 
@@ -24,9 +27,11 @@ interface TabDef {
  */
 export default function Dock({
   openComments,
+  a11yErrors,
   panels,
 }: {
   openComments: number
+  a11yErrors: number
   panels: Record<DockTab, ReactNode>
 }) {
   const dockOpen = useUi((s) => s.dockOpen)
@@ -40,6 +45,8 @@ export default function Dock({
     { id: 'media', label: 'Media', Icon: Images },
     { id: 'templates', label: 'Templates', Icon: LayoutTemplate },
     { id: 'review', label: 'Review', Icon: MessageSquare, badge: openComments || undefined },
+    { id: 'a11y', label: 'Accessibility', Icon: Accessibility, badge: a11yErrors || undefined },
+    { id: 'versions', label: 'Versions', Icon: History },
   ]
 
   // Keep the active tab reachable if the dock is reopened on a tab that no

@@ -13,6 +13,8 @@ import './styles/picker.css'
 import './styles/settings.css'
 import './styles/dashboard.css'
 import './styles/palette.css'
+import './styles/flight.css'
+import './styles/tools.css'
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>

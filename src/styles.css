@@ -121,6 +121,16 @@ input, textarea, select { font-family: inherit; color: inherit; }
   display: flex; justify-content: space-between; align-items: center;
 }
 .outline-list { flex: 1; overflow-y: auto; padding: 4px 10px 10px; }
+/* Module heading above a run of lessons sharing a section name. */
+.outline-section {
+  padding: var(--space-4) var(--space-2) var(--space-1);
+  font-size: var(--text-2xs);
+  font-weight: var(--weight-bold);
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: var(--text-subtle);
+}
+.outline-list > div:first-child .outline-section { padding-top: var(--space-1); }
 .outline-item {
   display: flex; align-items: center; gap: 8px;
   padding: 9px 10px; border-radius: 9px;
@@ -411,6 +421,30 @@ input, textarea, select { font-family: inherit; color: inherit; }
 }
 .scheme-strip span { width: 16px; height: 16px; border-radius: 50%; }
 .font-sample { font-size: 24px; font-weight: 800; line-height: 1.1; }
+
+/* ---- design presets ----
+   Wider cells than .theme-grid, because each card previews a whole look —
+   palette, heading face, weight and corner radius — rather than one setting. */
+.preset-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(176px, 1fr)); gap: 12px; }
+.preset-card {
+  display: flex; flex-direction: column; align-items: stretch; gap: 3px;
+  border: 1.5px solid var(--line); border-radius: 12px;
+  background: var(--panel); padding: 12px; text-align: left;
+  transition: border-color 0.12s, background 0.12s;
+}
+.preset-card:hover { border-color: var(--brand); }
+.preset-card.sel { border-color: var(--brand); background: var(--brand-soft); }
+.preset-card .tc-name { font-size: 13.5px; font-weight: 700; margin-top: 8px; }
+.preset-card .tc-desc { font-size: 11.5px; color: var(--text-muted); line-height: 1.35; }
+.preset-swatch {
+  position: relative; display: block;
+  padding: 14px 12px 12px;
+  border: 1px solid; overflow: hidden;
+}
+.preset-swatch__bar { position: absolute; inset: 0 0 auto; height: 6px; }
+.preset-swatch__type { display: block; font-size: 24px; line-height: 1.05; }
+.preset-swatch__line { display: block; height: 4px; border-radius: 2px; margin-top: 7px; }
+.preset-swatch__line.short { width: 60%; }
 
 .layout-field { display: flex; align-items: center; gap: 14px; margin-bottom: 12px; flex-wrap: wrap; }
 .layout-field .lo-label { font-size: 13px; font-weight: 600; color: var(--ink-2); min-width: 118px; }

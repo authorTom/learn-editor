@@ -1,8 +1,8 @@
-import { Copy, Palette, Trash2 } from 'lucide-react'
+import { Copy, Link2, Palette, RefreshCw, Trash2, Unlink, Upload } from 'lucide-react'
 import { useStore } from '../store'
 import { useUi } from '../uiStore'
 import { blockDefs } from '../blockDefaults'
-import { Button, IconButton } from '../ui'
+import { Button, IconButton, useConfirm, useToast } from '../ui'
 import BlockOptions from './blocks/BlockOptions'
 import { Group, SegRow } from './blocks/inspectorFields'
 import type { Block } from '../types'
@@ -15,6 +15,128 @@ const BG_PRESETS = [
 const BG_SWATCHES = [
   '#fef9c3', '#ffedd5', '#fee2e2', '#fce7f3', '#ede9fe', '#dbeafe', '#dcfce7', '#f1f5f9',
 ]
+
+/**
+ * Library link controls, shown only on a block inserted as *linked*.
+ *
+ * The library used to be copy-only, which meant the same data-protection
+ * boilerplate lived independently in forty courses and a policy change was
+ * forty manual edits nobody could verify. A linked block keeps a pointer to its
+ * library entry and the revision it last matched, so it can say — without
+ * scanning anything — that it is behind.
+ */
+function LinkGroup({ block }: { block: Block }) {
+  const templates = useStore((s) => s.blockTemplates)
+  const publish = useStore((s) => s.publishBlockTemplate)
+  const sync = useStore((s) => s.syncLinkedBlock)
+  const unlink = useStore((s) => s.unlinkBlock)
+  const confirm = useConfirm()
+  const toast = useToast()
+
+  if (!block.linkedTo) return null
+  const tpl = templates.find((t) => t.id === block.linkedTo)
+
+  if (!tpl) {
+    return (
+      <Group title="Library link">
+        <p className="insp-note">
+          This block was linked to a library entry that has since been deleted. It keeps its
+          content and behaves as a normal block.
+        </p>
+        <Button size="sm" block icon={<Unlink size={14} />} onClick={() => unlink(block.id)}>
+          Clear the broken link
+        </Button>
+      </Group>
+    )
+  }
+
+  const rev = tpl.rev ?? 1
+  const stale = (block.linkedRev ?? 0) !== rev
+
+  return (
+    <Group title="Library link">
+      <p className={stale ? 'insp-warn' : 'insp-note'}>
+        {stale ? (
+          <>
+            <strong>“{tpl.name}” has been updated</strong> in your library since this copy was
+            inserted. Updating replaces this block's content with the library version.
+          </>
+        ) : (
+          <>
+            Linked to <strong>“{tpl.name}”</strong> and up to date. Edits you make here stay local
+            until you publish them back.
+          </>
+        )}
+      </p>
+      {stale && (
+        <Button size="sm" block variant="primary" icon={<RefreshCw size={14} />} onClick={() => sync(block.id)}>
+          Update from library
+        </Button>
+      )}
+      <Button
+        size="sm"
+        block
+        icon={<Upload size={14} />}
+        onClick={async () => {
+          const ok = await confirm({
+            title: `Publish to “${tpl.name}”?`,
+            message:
+              'This block becomes the library version. Every other linked copy — in this course ' +
+              'and any other — will be told an update is available. Copies inserted unlinked are ' +
+              'not affected.',
+            confirmLabel: 'Publish',
+          })
+          if (ok) {
+            await publish(tpl.id, block)
+            toast.success(`“${tpl.name}” updated to revision ${rev + 1}.`)
+          }
+        }}
+      >
+        Publish this version to the library
+      </Button>
+      <Button size="sm" block icon={<Unlink size={14} />} onClick={() => unlink(block.id)}>
+        Unlink
+      </Button>
+    </Group>
+  )
+}
+
+/**
+ * Width and vertical rhythm, available on every block type.
+ *
+ * Both were previously fixed: content ran at the course measure and blocks were
+ * evenly spaced, so a full-bleed statement or a tight heading-then-paragraph
+ * pair could not be built at all. Because they live on `BlockBase`, one group
+ * here covers all twenty-five block types.
+ */
+function LayoutGroup({ block }: { block: Block }) {
+  const updateBlock = useStore((s) => s.updateBlock)
+  return (
+    <Group title="Layout">
+      <SegRow
+        label="Width"
+        value={block.width ?? 'normal'}
+        options={[
+          { value: 'normal', label: 'Column' },
+          { value: 'wide', label: 'Wide' },
+          { value: 'full', label: 'Full' },
+        ]}
+        onChange={(width) => updateBlock(block.id, { width })}
+        hint="Wide breaks out of the reading column; full runs edge to edge."
+      />
+      <SegRow
+        label="Space after"
+        value={block.space ?? 'normal'}
+        options={[
+          { value: 'tight', label: 'Tight' },
+          { value: 'normal', label: 'Normal' },
+          { value: 'loose', label: 'Loose' },
+        ]}
+        onChange={(space) => updateBlock(block.id, { space })}
+      />
+    </Group>
+  )
+}
 
 function BackgroundGroup({ block }: { block: Block }) {
   const updateBlock = useStore((s) => s.updateBlock)
@@ -102,7 +224,14 @@ export default function Inspector({ onOpenLessonStyle }: { onOpenLessonStyle: ()
     <div className="insp">
       <header className="insp-head">
         <div className="insp-head__text">
-          <span className="insp-head__type">{def?.label ?? block.type}</span>
+          <span className="insp-head__type">
+            {def?.label ?? block.type}
+            {block.linkedTo && (
+              <span className="insp-linked" title="Linked to a library block">
+                <Link2 size={11} aria-hidden="true" /> Linked
+              </span>
+            )}
+          </span>
           {def?.description && <span className="insp-head__desc">{def.description}</span>}
         </div>
         <IconButton
@@ -125,6 +254,8 @@ export default function Inspector({ onOpenLessonStyle }: { onOpenLessonStyle: ()
       </header>
 
       <BlockOptions block={block} />
+      <LinkGroup block={block} />
+      <LayoutGroup block={block} />
       <BackgroundGroup block={block} />
     </div>
   )

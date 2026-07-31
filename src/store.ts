@@ -4,7 +4,7 @@ import type { Asset, Block, BlockTemplate, Course, CourseMeta, CourseTemplate, L
 import { defaultCompletion, defaultTheme, normalizeCompletion, normalizeTheme } from './types'
 import { cloneBlock } from './blockDefaults'
 import { fetchExampleCourse, fetchSeedTemplates } from './exampleCourse'
-import { assetsForBlock, assetsForBlocks, mergeAssets } from './utils/assets'
+import { assetsForBlock, assetsForLessons, mergeAssets } from './utils/assets'
 import { readFileAsDataURL, readImageFile } from './utils/file'
 import { uid } from './utils/id'
 
@@ -84,6 +84,15 @@ interface EditorState {
   importCourse: (data: Course) => Promise<Course>
 
   saveBlockTemplate: (name: string, block: Block) => Promise<void>
+  /** Push a block's current content back to the library entry it came from,
+      bumping the revision so every other copy learns it is out of date. */
+  publishBlockTemplate: (templateId: string, block: Block) => Promise<void>
+  /** Pull the library's current content into one linked block. */
+  syncLinkedBlock: (blockId: string) => void
+  /** Pull it into every out-of-date linked block in the open course. */
+  syncAllLinked: () => number
+  /** Detach a block from its library entry, keeping the content. */
+  unlinkBlock: (blockId: string) => void
   deleteBlockTemplate: (id: string) => Promise<void>
   saveCourseTemplate: (name: string, description: string, source: Course) => Promise<void>
   saveCourseTemplateById: (name: string, description: string, courseId: string) => Promise<void>
@@ -358,6 +367,8 @@ export const useStore = create<EditorState>((set, get) => {
       await idbDel(COURSE_PREFIX + id)
       const { purgeCourseReviews } = await import('./review/storage')
       await purgeCourseReviews(id)
+      const { purgeCourseVersions } = await import('./versions/storage')
+      await purgeCourseVersions(id)
       const { useReviews } = await import('./review/reviewStore')
       useReviews.getState().forgetCourse(id)
       set((s) => ({ courses: s.courses.filter((m) => m.id !== id) }))
@@ -392,10 +403,68 @@ export const useStore = create<EditorState>((set, get) => {
         blockType: block.type,
         block: cloneBlock(block),
         assets: c ? assetsForBlock(block, c.assets) : [],
+        rev: 1,
         createdAt: Date.now(),
       }
       await idbSet(BLOCK_TPL_PREFIX + t.id, t)
       set((s) => ({ blockTemplates: [t, ...s.blockTemplates] }))
+    },
+
+    publishBlockTemplate: async (templateId, block) => {
+      const existing = get().blockTemplates.find((t) => t.id === templateId)
+      if (!existing) return
+      const c = get().course
+      const next: BlockTemplate = {
+        ...existing,
+        block: cloneBlock(block),
+        assets: c ? assetsForBlock(block, c.assets) : existing.assets,
+        rev: (existing.rev ?? 1) + 1,
+      }
+      await idbSet(BLOCK_TPL_PREFIX + next.id, next)
+      set((s) => ({ blockTemplates: s.blockTemplates.map((t) => (t.id === next.id ? next : t)) }))
+      // The block that was just published is by definition current again.
+      get().updateBlock(block.id, { linkedRev: next.rev })
+    },
+
+    syncLinkedBlock: (blockId) => {
+      const s = get()
+      const lesson = s.course?.lessons.find((l) => l.blocks.some((b) => b.id === blockId))
+      const block = lesson?.blocks.find((b) => b.id === blockId)
+      if (!block?.linkedTo) return
+      const tpl = s.blockTemplates.find((t) => t.id === block.linkedTo)
+      if (!tpl) return
+      // Keep this block's own id and link, take everything else from the
+      // library — including per-block width, spacing and background, which are
+      // part of what was saved.
+      const fresh = cloneBlock(tpl.block)
+      s.updateBlock(blockId, {
+        ...fresh,
+        id: blockId,
+        linkedTo: tpl.id,
+        linkedRev: tpl.rev ?? 1,
+      } as Partial<Block>)
+      if (tpl.assets.length && s.course) {
+        s.updateCourse({ assets: mergeAssets(s.course.assets, tpl.assets) })
+      }
+    },
+
+    syncAllLinked: () => {
+      const s = get()
+      const course = s.course
+      if (!course) return 0
+      const stale = course.lessons.flatMap((l) =>
+        l.blocks.filter((b) => {
+          if (!b.linkedTo) return false
+          const tpl = s.blockTemplates.find((t) => t.id === b.linkedTo)
+          return !!tpl && (tpl.rev ?? 1) !== (b.linkedRev ?? 0)
+        })
+      )
+      stale.forEach((b) => get().syncLinkedBlock(b.id))
+      return stale.length
+    },
+
+    unlinkBlock: (blockId) => {
+      get().updateBlock(blockId, { linkedTo: undefined, linkedRev: undefined } as Partial<Block>)
     },
 
     deleteBlockTemplate: async (id) => {
@@ -412,7 +481,7 @@ export const useStore = create<EditorState>((set, get) => {
         coverImage: source.coverImage,
         theme: { ...source.theme },
         lessons,
-        assets: assetsForBlocks(lessons.flatMap((l) => l.blocks), source.assets ?? []),
+        assets: assetsForLessons(lessons, source.assets ?? [], source.theme?.logo),
         completion: normalizeCompletion(source.completion),
         createdAt: Date.now(),
       }

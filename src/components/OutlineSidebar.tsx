@@ -177,9 +177,24 @@ export default function OutlineSidebar() {
             items={course.lessons.map((l) => l.id)}
             strategy={verticalListSortingStrategy}
           >
-            {course.lessons.map((l, i) => (
-              <OutlineItem key={l.id} lesson={l} index={i} />
-            ))}
+            {/* A section heading is drawn when a lesson starts a new run of a
+                shared name — the same rule the player's menu uses, so the
+                outline and the learner's contents agree. Headings sit inside
+                the SortableContext but are not sortable items, so dragging is
+                unaffected: a lesson dropped into another run simply inherits
+                nothing, and the author renames its section. */}
+            {course.lessons.map((l, i) => {
+              const section = (l.section ?? '').trim()
+              const prev = (course.lessons[i - 1]?.section ?? '').trim()
+              return (
+                <div key={l.id}>
+                  {section && section !== prev && (
+                    <div className="outline-section">{section}</div>
+                  )}
+                  <OutlineItem lesson={l} index={i} />
+                </div>
+              )
+            })}
           </SortableContext>
         </DndContext>
       </div>
