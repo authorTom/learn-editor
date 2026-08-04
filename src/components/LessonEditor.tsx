@@ -72,6 +72,7 @@ function BlockShell({
   index,
   count,
   selected,
+  isNew,
   onSelect,
   onSlashInsert,
 }: {
@@ -79,6 +80,7 @@ function BlockShell({
   index: number
   count: number
   selected: boolean
+  isNew: boolean
   onSelect: () => void
   onSlashInsert: (block: Block, at: number, assets?: Asset[]) => void
 }) {
@@ -108,6 +110,7 @@ function BlockShell({
         (block.width && block.width !== 'normal' ? ' w-' + block.width : '') +
         (block.space && block.space !== 'normal' ? ' sp-' + block.space : '') +
         (selected ? ' is-selected' : '') +
+        (isNew ? ' is-new' : '') +
         (isDragging ? ' is-dragging' : '')
       }
       // A group, not a button: the block contains its own controls and text
@@ -323,6 +326,7 @@ export default function LessonEditor() {
   const selectedId = useUi((s) => s.selectedBlockId)
   const selectBlock = useUi((s) => s.selectBlock)
   const themePreview = useUi((s) => s.themePreview)
+  const [justInserted, setJustInserted] = useState<string | null>(null)
 
   const [showImport, setShowImport] = useState(false)
   const [showStyle, setShowStyle] = useState(false)
@@ -415,6 +419,12 @@ export default function LessonEditor() {
   function handleInsert(block: Block, at: number, assets?: Asset[]) {
     addBlock(block, at, assets)
     selectBlock(block.id)
+    // Flagged for one beat so the new block is seen arriving. Cleared on a
+    // timer rather than on animation end, because the class must not survive
+    // into a later re-render, reorder or undo — the animation should mark the
+    // act of inserting, not the block.
+    setJustInserted(block.id)
+    window.setTimeout(() => setJustInserted((id) => (id === block.id ? null : id)), 400)
   }
 
   const styled = !!lesson.theme && Object.keys(lesson.theme).length > 0
@@ -436,7 +446,7 @@ export default function LessonEditor() {
       style={lessonVars(previewed, lesson) as React.CSSProperties}
       data-dark={lessonIsDark(previewed, lesson) || undefined}
     >
-      <div className="canvas-inner">
+      <div className="canvas-inner" key={lesson.id}>
         <div className="lesson-head">
           <input
             className="lesson-title"
@@ -486,6 +496,7 @@ export default function LessonEditor() {
                   index={i}
                   count={blocks.length}
                   selected={selectedId === b.id}
+                  isNew={justInserted === b.id}
                   onSelect={() => selectBlock(b.id)}
                   onSlashInsert={handleInsert}
                 />
