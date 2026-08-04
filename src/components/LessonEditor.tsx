@@ -29,6 +29,7 @@ import SaveTemplateDialog from './SaveTemplateDialog'
 import ImportContentDialog from './ImportContentDialog'
 import LessonStyleDialog from './LessonStyleDialog'
 import BlockEditor from './blocks/BlockEditor'
+import { SpaceHandle, WidthHandles } from './BlockHandles'
 import { blockDefs } from '../blockDefaults'
 import { dragInstructions, makeAnnouncements } from '../dndA11y'
 
@@ -47,6 +48,25 @@ function blockBg(bg: string | undefined): string | undefined {
   return bg
 }
 
+/** The backgrounds worth reaching for without opening the inspector: the two
+    theme-relative fills, plus the pastels. Deliberately the same values the
+    inspector offers, so the two controls can never disagree — the inspector
+    additionally does custom colour, which needs a picker and a contrast
+    readout and so stays there. */
+const BG_QUICK: { v: string; label: string }[] = [
+  { v: '', label: 'No background' },
+  { v: 'panel', label: 'Panel' },
+  { v: 'tint', label: 'Accent tint' },
+  { v: '#fef9c3', label: 'Yellow' },
+  { v: '#ffedd5', label: 'Orange' },
+  { v: '#fee2e2', label: 'Red' },
+  { v: '#fce7f3', label: 'Pink' },
+  { v: '#ede9fe', label: 'Violet' },
+  { v: '#dbeafe', label: 'Blue' },
+  { v: '#dcfce7', label: 'Green' },
+  { v: '#f1f5f9', label: 'Slate' },
+]
+
 function BlockShell({
   block,
   index,
@@ -64,6 +84,7 @@ function BlockShell({
 }) {
   const deleteBlock = useStore((s) => s.deleteBlock)
   const moveBlock = useStore((s) => s.moveBlock)
+  const updateBlock = useStore((s) => s.updateBlock)
   const saveBlockTemplate = useStore((s) => s.saveBlockTemplate)
   const openDock = useUi((s) => s.openDock)
   const slashFor = useUi((s) => s.slashPickerFor)
@@ -111,6 +132,48 @@ function BlockShell({
           <GripVertical size={14} aria-hidden="true" />
         </button>
         <span className="block__type">{label}</span>
+        {/* Background is one tap from the block itself, not just four sections
+            down the inspector — it is the setting authors reach for most and
+            the one whose result is instantly obvious, so it earns its place. */}
+        <Popover
+          side="bottom"
+          align="center"
+          label="Block background"
+          noAutoFocus
+          trigger={
+            <IconButton
+              label="Block background"
+              size="sm"
+              icon={
+                <span
+                  className="blk-bg-dot"
+                  style={{ background: blockBg(block.bg) ?? 'transparent' }}
+                  aria-hidden="true"
+                />
+              }
+            />
+          }
+        >
+          <div className="blk-bg-menu">
+            {BG_QUICK.map((o) => (
+              <button
+                key={o.v}
+                type="button"
+                className={'blk-bg-opt' + ((block.bg ?? '') === o.v ? ' sel' : '')}
+                aria-label={o.label}
+                aria-pressed={(block.bg ?? '') === o.v}
+                title={o.label}
+                onClick={() => updateBlock(block.id, { bg: o.v })}
+              >
+                <span
+                  className="blk-bg-dot"
+                  style={{ background: blockBg(o.v) ?? 'transparent' }}
+                  aria-hidden="true"
+                />
+              </button>
+            ))}
+          </div>
+        </Popover>
         <span className="block__tools-spacer" />
         <IconButton
           label="Move up"
@@ -155,7 +218,13 @@ function BlockShell({
 
       <div className="block__body" style={{ background: blockBg(block.bg) }}>
         <BlockEditor block={block} />
+        {selected && (
+          <WidthHandles width={block.width} onChange={(width) => updateBlock(block.id, { width })} />
+        )}
       </div>
+      {selected && (
+        <SpaceHandle space={block.space} onChange={(space) => updateBlock(block.id, { space })} />
+      )}
 
       {/* Slash-command picker, anchored under the block that triggered it. */}
       {slashFor === block.id && (
@@ -253,6 +322,7 @@ export default function LessonEditor() {
 
   const selectedId = useUi((s) => s.selectedBlockId)
   const selectBlock = useUi((s) => s.selectBlock)
+  const themePreview = useUi((s) => s.themePreview)
 
   const [showImport, setShowImport] = useState(false)
   const [showStyle, setShowStyle] = useState(false)
@@ -349,6 +419,12 @@ export default function LessonEditor() {
 
   const styled = !!lesson.theme && Object.keys(lesson.theme).length > 0
 
+  // A preset being tried on in the theme browser. Applied here rather than
+  // written to the course, so browsing costs nothing and reverts cleanly.
+  const previewed = themePreview
+    ? { ...course, theme: { ...course.theme, ...themePreview } }
+    : course
+
   return (
     <main
       className="canvas"
@@ -357,8 +433,8 @@ export default function LessonEditor() {
       onClick={() => selectBlock(null)}
       // The course's own theme, from the same derivation the exported player
       // uses. `data-dark` lets editor affordances flip without reading colours.
-      style={lessonVars(course, lesson) as React.CSSProperties}
-      data-dark={lessonIsDark(course, lesson) || undefined}
+      style={lessonVars(previewed, lesson) as React.CSSProperties}
+      data-dark={lessonIsDark(previewed, lesson) || undefined}
     >
       <div className="canvas-inner">
         <div className="lesson-head">

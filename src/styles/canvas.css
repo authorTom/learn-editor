@@ -326,3 +326,110 @@
     right: var(--space-2);
   }
 }
+
+/* ---------- direct manipulation handles ----------
+
+   Width and spacing can be dragged on the block itself, which is where the
+   result of the change actually appears. Both remain in the inspector: this is
+   the fast path, not the only path, and a named radio group is still what makes
+   the setting discoverable and precise. Handles show only on the selected
+   block, so the resting canvas is unchanged. */
+.blk-handle {
+  position: absolute;
+  z-index: 6;
+  border-radius: var(--radius-full);
+  background: var(--focus);
+  opacity: 0;
+  transition: opacity var(--dur-fast) var(--ease), transform var(--dur-fast) var(--ease);
+  touch-action: none;
+}
+.block.is-selected .blk-handle { opacity: 0.34; }
+.blk-handle:hover,
+.blk-handle:focus-visible,
+.blk-handle.is-dragging { opacity: 1; }
+.blk-handle:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 3px;
+}
+
+/* Edge grips: pull outward to break out of the reading column. */
+.blk-handle--w {
+  top: 50%;
+  width: 5px;
+  height: 44px;
+  margin-top: -22px;
+  cursor: ew-resize;
+}
+.blk-handle--left { left: -3px; }
+.blk-handle--right { right: -3px; }
+.blk-handle--w:hover,
+.blk-handle--w.is-dragging { transform: scaleX(1.6); }
+
+/* The bar in the gap below the block, pulled down to open the gap up. */
+.blk-handle--space {
+  left: 50%;
+  bottom: -7px;
+  width: 46px;
+  height: 5px;
+  margin-left: -23px;
+  cursor: ns-resize;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.blk-handle--space:hover,
+.blk-handle--space.is-dragging { transform: scaleY(1.6); }
+
+/* While dragging, name the stop being snapped to — the values are discrete and
+   the geometry alone doesn't say which one you landed on. */
+.blk-readout {
+  position: absolute;
+  top: 14px;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 3px 8px;
+  border-radius: var(--radius-sm);
+  background: var(--chrome-text);
+  color: var(--chrome-surface);
+  font-size: var(--text-2xs);
+  font-weight: var(--weight-semibold);
+  white-space: nowrap;
+  pointer-events: none;
+}
+.blk-readout--w {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  margin-top: -11px;
+  z-index: 7;
+}
+
+/* Background swatch on the block toolbar. */
+.blk-bg-dot {
+  width: 13px; height: 13px;
+  border-radius: var(--radius-full);
+  border: 1px solid var(--chrome-border);
+  display: block;
+  /* A transparent dot has to read as "none" rather than as "white". */
+  background-image: linear-gradient(45deg, transparent 45%, var(--chrome-border) 45% 55%, transparent 55%);
+}
+.blk-bg-menu {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 3px;
+  padding: 5px;
+}
+.blk-bg-opt {
+  width: 26px; height: 26px;
+  display: inline-flex; align-items: center; justify-content: center;
+  border: 1px solid transparent; border-radius: var(--radius-sm);
+  background: transparent; cursor: pointer;
+}
+.blk-bg-opt:hover { background: var(--chrome-surface-hover); }
+.blk-bg-opt.sel { border-color: var(--focus); background: var(--accent-subtle); }
+
+@media (prefers-reduced-motion: reduce) {
+  .blk-handle { transition: none; }
+  .blk-handle--w:hover, .blk-handle--w.is-dragging,
+  .blk-handle--space:hover, .blk-handle--space.is-dragging { transform: none; }
+}

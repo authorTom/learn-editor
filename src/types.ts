@@ -543,6 +543,10 @@ export interface CourseMeta {
   description: string
   coverImage: string
   lessonCount: number
+  /** Counted when the course is written, so the dashboard can describe a course
+      without loading it. Absent on records written before this existed. */
+  blockCount?: number
+  quizCount?: number
   updatedAt: number
 }
 

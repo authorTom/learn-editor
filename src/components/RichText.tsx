@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { useEditor, EditorContent, type Editor } from '@tiptap/react'
+import { useEditor, EditorContent, BubbleMenu, type Editor } from '@tiptap/react'
 import StarterKit from '@tiptap/starter-kit'
 import Link from '@tiptap/extension-link'
 import Underline from '@tiptap/extension-underline'
@@ -7,7 +7,7 @@ import TextAlign from '@tiptap/extension-text-align'
 import Placeholder from '@tiptap/extension-placeholder'
 import {
   Bold, Italic, Underline as UnderlineIcon, Strikethrough, Code,
-  List, ListOrdered, Quote, Link as LinkIcon, Undo, Redo,
+  List, ListOrdered, Quote, Link as LinkIcon,
   AlignLeft, AlignCenter, AlignRight, Heading2, Heading3,
 } from 'lucide-react'
 import { Button, Dialog, Field, Input } from '../ui'
@@ -110,7 +110,22 @@ export default function RichText({ value, onChange, placeholder, compact, onSlas
 
   return (
     <div className="rt-wrap">
-      <div className="rt-toolbar" role="toolbar" aria-label="Text formatting">
+      {/* Formatting follows the selection instead of standing permanently above
+          every block. A lesson used to show one toolbar per rich-text field —
+          a dozen of them stacked down a page — which is precisely the "column
+          of forms" the canvas is meant not to be. The bar now appears over the
+          text being formatted, which is also where the eye already is.
+
+          Keyboard users never see it and do not need to: every command here has
+          a shortcut, and the ones that don't (align, quote) are reachable from
+          the block inspector. `shouldShow` keeps it away from empty selections
+          and from the link dialog. */}
+      <BubbleMenu
+        editor={editor}
+        tippyOptions={{ duration: 120, maxWidth: 'none' }}
+        shouldShow={({ editor, from, to }) => !linkOpen && from !== to && !editor.isActive('link')}
+      >
+      <div className="rt-toolbar rt-toolbar--bubble" role="toolbar" aria-label="Text formatting">
         <ToolBtn editor={editor} label="Bold (⌘B)" active={editor.isActive('bold')} action={() => editor.chain().toggleBold().run()}><Bold size={14} /></ToolBtn>
         <ToolBtn editor={editor} label="Italic (⌘I)" active={editor.isActive('italic')} action={() => editor.chain().toggleItalic().run()}><Italic size={14} /></ToolBtn>
         <ToolBtn editor={editor} label="Underline (⌘U)" active={editor.isActive('underline')} action={() => editor.chain().toggleUnderline().run()}><UnderlineIcon size={14} /></ToolBtn>
@@ -137,12 +152,10 @@ export default function RichText({ value, onChange, placeholder, compact, onSlas
             <ToolBtn editor={editor} label="Align left" active={editor.isActive({ textAlign: 'left' })} action={() => editor.chain().setTextAlign('left').run()}><AlignLeft size={14} /></ToolBtn>
             <ToolBtn editor={editor} label="Align centre" active={editor.isActive({ textAlign: 'center' })} action={() => editor.chain().setTextAlign('center').run()}><AlignCenter size={14} /></ToolBtn>
             <ToolBtn editor={editor} label="Align right" active={editor.isActive({ textAlign: 'right' })} action={() => editor.chain().setTextAlign('right').run()}><AlignRight size={14} /></ToolBtn>
-            <span className="rt-sep" />
-            <ToolBtn editor={editor} label="Undo" action={() => editor.chain().undo().run()}><Undo size={14} /></ToolBtn>
-            <ToolBtn editor={editor} label="Redo" action={() => editor.chain().redo().run()}><Redo size={14} /></ToolBtn>
           </>
         )}
       </div>
+      </BubbleMenu>
       <div className="rt-editor">
         <EditorContent editor={editor} />
       </div>

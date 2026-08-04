@@ -250,3 +250,82 @@
     width: 100%;
   }
 }
+
+/* ---------- studio home ----------
+
+   The dashboard was a grid of cards and a lot of empty page. These additions
+   answer the questions an author actually arrives with: what was I doing, what
+   is waiting for me, and how much room is left. */
+
+.dash-storage {
+  display: inline-flex; align-items: center; gap: 4px;
+  margin-left: var(--space-3);
+  padding-left: var(--space-3);
+  border-left: 1px solid var(--chrome-border);
+  color: var(--chrome-text-subtle);
+}
+
+/* Resume card: the one thing most visits are for. */
+.dash-resume {
+  display: flex; align-items: stretch; gap: 0;
+  width: 100%; margin-bottom: var(--space-5); padding: 0;
+  text-align: left; cursor: pointer;
+  background: var(--chrome-surface);
+  border: 1px solid var(--chrome-border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  transition: border-color var(--dur-fast) var(--ease), box-shadow var(--dur-fast) var(--ease);
+}
+.dash-resume:hover {
+  border-color: var(--focus);
+  box-shadow: 0 8px 24px rgba(16, 20, 40, 0.10);
+}
+.dash-resume:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+.dash-resume__cover {
+  flex: 0 0 140px;
+  background-size: cover; background-position: center;
+}
+.dash-resume__body {
+  flex: 1; display: flex; flex-direction: column; justify-content: center; gap: 3px;
+  padding: var(--space-4) var(--space-5);
+  min-width: 0;
+}
+.dash-resume__kicker {
+  font-size: var(--text-2xs); font-weight: var(--weight-bold);
+  letter-spacing: 0.07em; text-transform: uppercase;
+  color: var(--accent-text);
+}
+.dash-resume__title {
+  font-size: var(--text-lg); font-weight: var(--weight-bold);
+  color: var(--chrome-text); line-height: 1.2;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.dash-resume__meta { font-size: var(--text-sm); color: var(--chrome-text-muted); }
+.dash-resume__go {
+  flex: 0 0 auto; display: flex; align-items: center;
+  padding-right: var(--space-5);
+  color: var(--chrome-text-subtle);
+}
+.dash-resume:hover .dash-resume__go { color: var(--accent-text); }
+
+/* Per-card signals. */
+.course-card__tags {
+  display: flex; flex-wrap: wrap; gap: 5px;
+  margin-top: var(--space-2);
+}
+.dash-tag {
+  display: inline-flex; align-items: center; gap: 3px;
+  padding: 2px 7px;
+  border-radius: var(--radius-full);
+  background: var(--chrome-surface-hover);
+  color: var(--chrome-text-muted);
+  font-size: var(--text-2xs); font-weight: var(--weight-medium);
+}
+.dash-tag--review { background: var(--accent-subtle); color: var(--accent-text); }
+
+@media (max-width: 640px) {
+  .dash-resume__cover { flex-basis: 84px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .dash-resume { transition: none; }
+}

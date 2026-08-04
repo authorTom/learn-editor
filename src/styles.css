@@ -224,6 +224,17 @@ input, textarea, select { font-family: inherit; color: inherit; }
   position: sticky; top: 8px; z-index: 15;
   width: fit-content;
 }
+/* The selection bubble. It floats over the content rather than sitting in the
+   flow, so it reads as chrome and takes the *chrome* tokens — the canvas remaps
+   --panel/--ink onto the course's own palette, and a floating bar tinted by a
+   Midnight or Sand course would look like part of the content it covers. */
+.rt-toolbar--bubble {
+  position: static; margin-bottom: 0; flex-wrap: nowrap;
+  background: var(--chrome-surface, #fff);
+  border-color: var(--chrome-border, #e5e7eb);
+  box-shadow: 0 8px 24px rgba(16, 20, 40, 0.16), 0 2px 6px rgba(16, 20, 40, 0.08);
+  border-radius: var(--radius-md, 10px);
+}
 .rt-toolbar .rt-btn {
   width: 29px; height: 29px;
   display: inline-flex; align-items: center; justify-content: center;
@@ -232,6 +243,9 @@ input, textarea, select { font-family: inherit; color: inherit; }
 .rt-toolbar .rt-btn:hover { background: var(--bg); color: var(--ink); }
 .rt-toolbar .rt-btn.on { background: var(--accent-subtle); color: var(--accent-text); }
 .rt-toolbar .rt-sep { width: 1px; height: 18px; background: var(--line); margin: 0 4px; }
+.rt-toolbar--bubble .rt-btn { color: var(--chrome-text-muted, #6b7280); }
+.rt-toolbar--bubble .rt-btn:hover { background: var(--chrome-surface-hover, #f3f4f6); color: var(--chrome-text, #16181d); }
+.rt-toolbar--bubble .rt-sep { background: var(--chrome-border, #e5e7eb); }
 
 .rt-editor .tiptap {
   outline: none;

@@ -1,14 +1,16 @@
-import { useMemo, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import {
   BookOpen, Plus, Upload, Copy, Trash2, GraduationCap, LayoutTemplate, FilePlus2,
   Check, Sparkles, Search, MoreHorizontal, LayoutGrid, Rows3,
+  ArrowRight, MessageSquare, HelpCircle, Database,
 } from 'lucide-react'
 import { useStore } from '../store'
+import { openCommentCount, useReviews } from '../review/reviewStore'
 import { Button, Dialog, Field, IconButton, Input, Popover, Segmented, useConfirm, useToast } from '../ui'
 import SaveTemplateDialog from './SaveTemplateDialog'
 import TemplateLibrary from './TemplateLibrary'
 import { EXAMPLE_COURSE, fetchExampleCourse } from '../exampleCourse'
-import type { Course } from '../types'
+import type { Course, CourseMeta } from '../types'
 
 type Sort = 'recent' | 'title' | 'lessons'
 type View = 'grid' | 'list'
@@ -31,6 +33,37 @@ function coverFor(id: string): string {
   return `linear-gradient(135deg, hsl(${hue} 62% 52%), hsl(${(hue + 38) % 360} 58% 42%))`
 }
 
+/** Bytes the origin is using, when the browser will say. Worth surfacing on a
+    tool whose whole premise is that the work lives in this browser: an author
+    with 40 image-heavy courses is the one person who needs to know there is a
+    ceiling, and they currently find out by losing something. */
+function useStorageEstimate() {
+  const [used, setUsed] = useState<{ usage: number; quota: number } | null>(null)
+  useEffect(() => {
+    if (!navigator.storage?.estimate) return
+    let live = true
+    navigator.storage.estimate().then((e) => {
+      if (live && e.usage != null && e.quota) setUsed({ usage: e.usage, quota: e.quota })
+    })
+    return () => { live = false }
+  }, [])
+  return used
+}
+
+/** A course in one phrase. Falls back to lessons alone for records written
+    before block counts were carried on the meta. */
+function describe(c: CourseMeta): string {
+  const parts = [`${c.lessonCount} lesson${c.lessonCount === 1 ? '' : 's'}`]
+  if (c.blockCount) parts.push(`${c.blockCount} blocks`)
+  return parts.join(' · ')
+}
+
+function formatBytes(n: number): string {
+  if (n < 1024 * 1024) return `${Math.round(n / 1024)} KB`
+  if (n < 1024 * 1024 * 1024) return `${(n / 1024 / 1024).toFixed(1)} MB`
+  return `${(n / 1024 / 1024 / 1024).toFixed(2)} GB`
+}
+
 export default function Dashboard() {
   const {
     courses,
@@ -48,6 +81,16 @@ export default function Dashboard() {
   const toast = useToast()
   const [showNew, setShowNew] = useState(false)
   const [showLibrary, setShowLibrary] = useState(false)
+  const storage = useStorageEstimate()
+  // Sorting is user-controlled, so the resume card takes the newest by date
+  // rather than whatever happens to be first in the current view.
+  const mostRecent = useMemo(
+    () => [...courses].sort((a, b) => b.updatedAt - a.updatedAt)[0],
+    [courses]
+  )
+  const reviews = useReviews((r) => r.reviews)
+  const loadReviews = useReviews((r) => r.loadReviews)
+  useEffect(() => { void loadReviews() }, [loadReviews])
   const [templateId, setTemplateId] = useState<string | null>(null) // null = blank course
   const [title, setTitle] = useState('')
   const [savingTplFor, setSavingTplFor] = useState<string | null>(null)
@@ -143,7 +186,15 @@ export default function Dashboard() {
           </div>
           <div>
             <h1>Learn Editor</h1>
-            <p className="dash-brand__sub">Author responsive SCORM e-learning courses</p>
+            <p className="dash-brand__sub">
+              Author responsive SCORM e-learning courses
+              {storage && (
+                <span className="dash-storage" title="Everything is stored in this browser">
+                  <Database size={11} aria-hidden="true" />
+                  {formatBytes(storage.usage)} used in this browser
+                </span>
+              )}
+            </p>
           </div>
         </div>
         <div className="dash-actions">
@@ -229,6 +280,30 @@ export default function Dashboard() {
             </div>
           )}
 
+          {mostRecent && !query && (
+            <button className="dash-resume" onClick={() => openCourse(mostRecent.id)}>
+              <span
+                className="dash-resume__cover"
+                style={
+                  mostRecent.coverImage
+                    ? { backgroundImage: `url(${mostRecent.coverImage})` }
+                    : { backgroundImage: coverFor(mostRecent.id) }
+                }
+                aria-hidden="true"
+              />
+              <span className="dash-resume__body">
+                <span className="dash-resume__kicker">Pick up where you left off</span>
+                <span className="dash-resume__title">{mostRecent.title || 'Untitled course'}</span>
+                <span className="dash-resume__meta">
+                  {describe(mostRecent)} · edited {timeAgo(mostRecent.updatedAt)}
+                </span>
+              </span>
+              <span className="dash-resume__go" aria-hidden="true">
+                <ArrowRight size={18} />
+              </span>
+            </button>
+          )}
+
           {visible.length === 0 ? (
             <p className="dash-none">No courses match “{query}”.</p>
           ) : (
@@ -259,7 +334,21 @@ export default function Dashboard() {
                         </span>
                         <span className="course-card__meta">
                           <BookOpen size={12} aria-hidden="true" />
-                          {c.lessonCount} lesson{c.lessonCount === 1 ? '' : 's'} · {timeAgo(c.updatedAt)}
+                          {describe(c)} · {timeAgo(c.updatedAt)}
+                        </span>
+                        <span className="course-card__tags">
+                          {!!c.quizCount && (
+                            <span className="dash-tag">
+                              <HelpCircle size={11} aria-hidden="true" />
+                              {c.quizCount} quiz{c.quizCount === 1 ? '' : 'zes'}
+                            </span>
+                          )}
+                          {openCommentCount(reviews, c.id) > 0 && (
+                            <span className="dash-tag dash-tag--review">
+                              <MessageSquare size={11} aria-hidden="true" />
+                              {openCommentCount(reviews, c.id)} open
+                            </span>
+                          )}
                         </span>
                       </span>
                     </button>
