@@ -395,3 +395,76 @@
 @media (max-width: 1000px) {
   .diff-stage { grid-template-columns: 1fr; grid-template-rows: 1fr 1fr; }
 }
+
+/* ---------- theme browser ----------
+
+   The preset strip, docked along the bottom with the lesson live above it.
+   Not a dialog over the canvas: the whole point is deciding while looking at
+   the thing being decided about, so it takes a band of the screen and leaves
+   the rest alone. */
+.tb {
+  position: fixed;
+  left: 0; right: 0; bottom: 0;
+  z-index: 60;
+  display: flex;
+  align-items: center;
+  gap: var(--space-5);
+  padding: var(--space-3) var(--space-5);
+  background: var(--chrome-surface);
+  border-top: 1px solid var(--chrome-border);
+  box-shadow: 0 -10px 30px rgba(16, 20, 40, 0.10);
+  animation: tb-rise var(--dur-base) var(--ease);
+}
+@keyframes tb-rise { from { transform: translateY(100%); } }
+
+.tb__lead { min-width: 190px; max-width: 190px; }
+.tb__title { display: block; font-size: var(--text-base); color: var(--chrome-text); }
+.tb__desc {
+  display: block; margin-top: 2px;
+  font-size: var(--text-xs); color: var(--chrome-text-muted); line-height: 1.35;
+}
+
+.tb__strip {
+  flex: 1;
+  display: flex;
+  gap: var(--space-2);
+  overflow-x: auto;
+  padding: var(--space-1);
+}
+.tb__actions { display: flex; gap: var(--space-2); }
+
+.tb-card {
+  flex: 0 0 auto;
+  width: 86px;
+  display: flex; flex-direction: column; align-items: stretch; gap: 5px;
+  padding: 5px;
+  border: 1px solid transparent; border-radius: var(--radius-md);
+  background: transparent; cursor: pointer;
+  transition: border-color var(--dur-fast) var(--ease), background var(--dur-fast) var(--ease);
+}
+.tb-card:hover { background: var(--chrome-surface-hover); }
+.tb-card.sel { border-color: var(--focus); background: var(--accent-subtle); }
+.tb-card:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+
+.tb-card__swatch {
+  position: relative; display: block; height: 46px;
+  border: 1px solid; overflow: hidden;
+}
+.tb-card__bar { position: absolute; inset: 0 0 auto 0; height: 11px; }
+.tb-card__type {
+  position: absolute; left: 6px; top: 15px;
+  font-size: 15px; line-height: 1;
+}
+.tb-card__line {
+  position: absolute; left: 6px; right: 6px; bottom: 8px; height: 3px; border-radius: 2px;
+}
+.tb-card__name {
+  font-size: var(--text-2xs); font-weight: var(--weight-semibold);
+  color: var(--chrome-text); text-align: center;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tb { animation: none; }
+  .tb-card { transition: none; }
+}

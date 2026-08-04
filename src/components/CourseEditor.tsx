@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import {
-  ArrowLeft, Eye, Settings, Share, PanelLeft, Undo2, Redo2, Search, Keyboard, Radar,
+  ArrowLeft, Eye, Settings, Share, PanelLeft, Undo2, Redo2, Search, Keyboard, Radar, Palette,
 } from 'lucide-react'
 import { useStore } from '../store'
 import { useUi } from '../uiStore'
@@ -19,6 +19,7 @@ import Dock, { DockToggle } from './Dock'
 import Inspector from './Inspector'
 import LessonStyleDialog from './LessonStyleDialog'
 import CommandPalette from './CommandPalette'
+import ThemeBrowser from './ThemeBrowser'
 import ShortcutSheet from './ShortcutSheet'
 import FlightRecorder from './FlightRecorder'
 import AccessibilityPanel, { useA11yErrorCount } from './AccessibilityPanel'
@@ -48,6 +49,7 @@ export default function CourseEditor() {
   const [showReviewSetup, setShowReviewSetup] = useState(false)
   const [showLessonStyle, setShowLessonStyle] = useState(false)
   const [showPalette, setShowPalette] = useState(false)
+  const [showThemes, setShowThemes] = useState(false)
   const [showShortcuts, setShowShortcuts] = useState(false)
   const [showRecorder, setShowRecorder] = useState(false)
 
@@ -85,6 +87,8 @@ export default function CourseEditor() {
         run: () => setShowPreview(true) },
       { id: 'export', label: 'Export course', group: 'Course', keys: 'mod+e',
         run: () => setShowExport(true) },
+      { id: 'themes', label: 'Try a design preset', group: 'Course',
+        run: () => setShowThemes(true) },
       { id: 'flight', label: 'Test in a simulated LMS', group: 'Course', keys: 'mod+shift+t',
         run: () => setShowRecorder(true) },
       { id: 'settings', label: 'Course settings', group: 'Course',
@@ -206,6 +210,9 @@ export default function CourseEditor() {
           />
           <DockToggle />
           <span className="topbar__divider" aria-hidden="true" />
+          <Button icon={<Palette size={15} />} onClick={() => setShowThemes(true)}>
+            Look
+          </Button>
           <Button icon={<Radar size={15} />} onClick={() => setShowRecorder(true)}>
             Test
           </Button>
@@ -253,6 +260,7 @@ export default function CourseEditor() {
 
       {showPreview && <Preview course={course} onClose={() => setShowPreview(false)} />}
       {showRecorder && <FlightRecorder course={course} onClose={() => setShowRecorder(false)} />}
+      {showThemes && <ThemeBrowser onClose={() => setShowThemes(false)} />}
       {showExport && <ExportDialog course={course} onClose={() => setShowExport(false)} />}
       {showSettings && <SettingsSheet onClose={() => setShowSettings(false)} />}
       {showReviewSetup && (

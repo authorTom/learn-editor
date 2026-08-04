@@ -322,6 +322,7 @@ export default function LessonEditor() {
 
   const selectedId = useUi((s) => s.selectedBlockId)
   const selectBlock = useUi((s) => s.selectBlock)
+  const themePreview = useUi((s) => s.themePreview)
 
   const [showImport, setShowImport] = useState(false)
   const [showStyle, setShowStyle] = useState(false)
@@ -418,6 +419,12 @@ export default function LessonEditor() {
 
   const styled = !!lesson.theme && Object.keys(lesson.theme).length > 0
 
+  // A preset being tried on in the theme browser. Applied here rather than
+  // written to the course, so browsing costs nothing and reverts cleanly.
+  const previewed = themePreview
+    ? { ...course, theme: { ...course.theme, ...themePreview } }
+    : course
+
   return (
     <main
       className="canvas"
@@ -426,8 +433,8 @@ export default function LessonEditor() {
       onClick={() => selectBlock(null)}
       // The course's own theme, from the same derivation the exported player
       // uses. `data-dark` lets editor affordances flip without reading colours.
-      style={lessonVars(course, lesson) as React.CSSProperties}
-      data-dark={lessonIsDark(course, lesson) || undefined}
+      style={lessonVars(previewed, lesson) as React.CSSProperties}
+      data-dark={lessonIsDark(previewed, lesson) || undefined}
     >
       <div className="canvas-inner">
         <div className="lesson-head">

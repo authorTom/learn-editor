@@ -1,4 +1,5 @@
 import { create } from 'zustand'
+import type { PresetPatch } from './themePresets'
 
 /** Panels that share the single right-hand dock. Only one is ever visible, so
     the inspector and the review inbox can't fight over the same column. */
@@ -26,6 +27,12 @@ interface UiState {
 
   /** Block id whose "/" shortcut opened the picker, or null. The canvas renders
       the picker anchored to that block and inserts immediately after it. */
+  /** A theme being tried on. The canvas renders with it, nothing is written to
+      the course, and clearing it restores what was there — so browsing eight
+      presets costs no undo history and leaves no trace if you walk away. */
+  themePreview: PresetPatch | null
+  setThemePreview: (t: PresetPatch | null) => void
+
   slashPickerFor: string | null
   openSlashPicker: (blockId: string) => void
   closeSlashPicker: () => void
@@ -82,6 +89,9 @@ export const useUi = create<UiState>((set, get) => {
     dockTab: saved.dockTab ?? 'inspector',
     selectedBlockId: null,
     recentBlockTypes: saved.recentBlockTypes ?? [],
+
+    themePreview: null,
+    setThemePreview: (t) => set({ themePreview: t }),
 
     slashPickerFor: null,
 
