@@ -1,6 +1,17 @@
 import type { Course } from '../types'
 import { escapeHtml } from '../utils/file'
 
+/**
+ * `<file>` entries for everything in the package besides index.html.
+ *
+ * A resource has to declare every file it depends on. Some LMSs use the listing
+ * to decide what to actually deploy, so media missing from it can be dropped on
+ * import and leave a course full of broken images that worked fine locally.
+ */
+function fileEntries(paths: string[]): string {
+  return paths.map((p) => `\n      <file href="${escapeHtml(p)}"/>`).join('')
+}
+
 /** Passing score of the first quiz found, if any — used for masteryscore. */
 function firstPassingScore(course: Course): number | null {
   for (const l of course.lessons) {
@@ -11,7 +22,7 @@ function firstPassingScore(course: Course): number | null {
   return null
 }
 
-export function buildManifest12(course: Course): string {
+export function buildManifest12(course: Course, mediaPaths: string[] = []): string {
   const title = escapeHtml(course.title)
   const mastery = firstPassingScore(course)
   return `<?xml version="1.0" encoding="UTF-8"?>
@@ -38,13 +49,13 @@ export function buildManifest12(course: Course): string {
   </organizations>
   <resources>
     <resource identifier="RES-1" type="webcontent" adlcp:scormtype="sco" href="index.html">
-      <file href="index.html"/>
+      <file href="index.html"/>${fileEntries(mediaPaths)}
     </resource>
   </resources>
 </manifest>`
 }
 
-export function buildManifest2004(course: Course): string {
+export function buildManifest2004(course: Course, mediaPaths: string[] = []): string {
   const title = escapeHtml(course.title)
   const mastery = firstPassingScore(course)
   return `<?xml version="1.0" encoding="UTF-8"?>
@@ -84,7 +95,7 @@ export function buildManifest2004(course: Course): string {
   </organizations>
   <resources>
     <resource identifier="RES-1" type="webcontent" adlcp:scormType="sco" href="index.html">
-      <file href="index.html"/>
+      <file href="index.html"/>${fileEntries(mediaPaths)}
     </resource>
   </resources>
 </manifest>`
