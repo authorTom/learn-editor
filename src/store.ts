@@ -58,12 +58,20 @@ function normalizeCourse(c: Course): Course {
 }
 
 function toMeta(c: Course): CourseMeta {
+  let blockCount = 0
+  let quizCount = 0
+  for (const l of c.lessons) {
+    blockCount += l.blocks.length
+    for (const b of l.blocks) if (b.type === 'quiz') quizCount++
+  }
   return {
     id: c.id,
     title: c.title,
     description: c.description,
     coverImage: c.coverImage,
     lessonCount: c.lessons.length,
+    blockCount,
+    quizCount,
     updatedAt: c.updatedAt,
   }
 }
