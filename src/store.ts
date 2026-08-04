@@ -2,13 +2,19 @@ import { create } from 'zustand'
 import { get as idbGet, set as idbSet, del as idbDel, keys as idbKeys } from 'idb-keyval'
 import type { Asset, Block, BlockTemplate, Course, CourseMeta, CourseTemplate, Lesson } from './types'
 import { defaultCompletion, defaultTheme, normalizeCompletion, normalizeTheme } from './types'
+import {
+  COURSE_PREFIX,
+  collectAssetGarbage,
+  deleteCourseRecord,
+  loadCourse,
+  saveCourse,
+} from './courseStorage'
 import { cloneBlock } from './blockDefaults'
 import { fetchExampleCourse, fetchSeedTemplates } from './exampleCourse'
 import { assetsForBlock, assetsForLessons, mergeAssets } from './utils/assets'
 import { readFileAsDataURL, readImageFile } from './utils/file'
 import { uid } from './utils/id'
 
-const COURSE_PREFIX = 'course:'
 const BLOCK_TPL_PREFIX = 'btpl:'
 const COURSE_TPL_PREFIX = 'ctpl:'
 // Set once the fresh-install seed has run, so it never repeats (and deleting
@@ -128,6 +134,10 @@ interface EditorState {
 
 let saveTimer: ReturnType<typeof setTimeout> | null = null
 
+/** Media keys already written for the open course, so autosave rewrites only
+    prose. Reset whenever the open course changes — see `adoptCourse`. */
+let persistedAssets = new Set<string>()
+
 const HISTORY_LIMIT = 60
 /** Rapid edits that share a coalesce key (e.g. typing in one block) collapse
     into a single undo step, so ⌘Z doesn't walk back one keystroke at a time. */
@@ -141,12 +151,25 @@ export const useStore = create<EditorState>((set, get) => {
     saveTimer = setTimeout(async () => {
       const c = get().course
       if (!c) return
-      await idbSet(COURSE_PREFIX + c.id, c)
+      await saveCourse(c, persistedAssets)
       set((s) => ({
         saveState: 'saved',
         courses: s.courses.map((m) => (m.id === c.id ? toMeta(c) : m)),
       }))
     }, 400)
+  }
+
+  /** Make a course the open one: fresh history, and a media ledger matching
+      what is already on disk for it, so the first autosave writes only prose. */
+  function adoptCourse(c: Course, persisted: Set<string>) {
+    persistedAssets = persisted
+    set({
+      course: c,
+      lessonId: c.lessons[0]?.id ?? null,
+      saveState: 'saved',
+      past: [],
+      future: [],
+    })
   }
 
   /** Apply a mutation to the open course: push history, then persist (debounced). */
@@ -219,6 +242,8 @@ export const useStore = create<EditorState>((set, get) => {
       for (const k of ks) {
         if (typeof k !== 'string') continue
         if (k.startsWith(COURSE_PREFIX)) {
+          // The stored record has media stripped out (see courseStorage), and
+          // `toMeta` wants none of it, so listing costs kilobytes per course.
           const c = (await idbGet(k)) as Course | undefined
           if (c) metas.push(toMeta(c))
         } else if (k.startsWith(BLOCK_TPL_PREFIX)) {
@@ -261,15 +286,9 @@ export const useStore = create<EditorState>((set, get) => {
 
     createCourse: async (title) => {
       const c = newCourse(title)
-      await idbSet(COURSE_PREFIX + c.id, c)
-      set((s) => ({
-        courses: [toMeta(c), ...s.courses],
-        course: c,
-        lessonId: c.lessons[0].id,
-        saveState: 'saved',
-        past: [],
-        future: [],
-      }))
+      await saveCourse(c)
+      set((s) => ({ courses: [toMeta(c), ...s.courses] }))
+      adoptCourse(c, new Set())
       return c
     },
 
@@ -291,30 +310,25 @@ export const useStore = create<EditorState>((set, get) => {
         createdAt: now,
         updatedAt: now,
       }
-      await idbSet(COURSE_PREFIX + c.id, c)
-      set((s) => ({
-        courses: [toMeta(c), ...s.courses],
-        course: c,
-        lessonId: c.lessons[0].id,
-        saveState: 'saved',
-        past: [],
-        future: [],
-      }))
+      // A template's media is new to this course, so every asset is written.
+      const persisted = new Set<string>()
+      await saveCourse(c, persisted)
+      set((s) => ({ courses: [toMeta(c), ...s.courses] }))
+      adoptCourse(c, persisted)
       return c
     },
 
     openCourse: async (id) => {
-      const raw = (await idbGet(COURSE_PREFIX + id)) as Course | undefined
-      if (raw) {
-        const c = normalizeCourse(raw)
-        set({
-          course: c,
-          lessonId: c.lessons[0]?.id ?? null,
-          saveState: 'saved',
-          past: [],
-          future: [],
-        })
-      }
+      const loaded = await loadCourse(id)
+      if (!loaded) return
+      const c = normalizeCourse(loaded.course)
+      adoptCourse(c, loaded.persisted)
+      // History is empty again, so nothing can restore an asset deleted in an
+      // earlier session — the safe moment to free what it left behind. Awaited
+      // rather than fired off: the editor is already on screen (the state is
+      // set above), and letting it run loose risks it deciding an asset is dead
+      // from a snapshot taken before a concurrent upload added it.
+      await collectAssetGarbage(c)
     },
 
     closeCourse: () => {
@@ -322,8 +336,9 @@ export const useStore = create<EditorState>((set, get) => {
         clearTimeout(saveTimer)
         saveTimer = null
         const c = get().course
-        if (c) idbSet(COURSE_PREFIX + c.id, c)
+        if (c) void saveCourse(c, persistedAssets)
       }
+      persistedAssets = new Set()
       set({ course: null, lessonId: null, saveState: 'idle', past: [], future: [] })
     },
 
@@ -364,7 +379,7 @@ export const useStore = create<EditorState>((set, get) => {
         The review store is pulled in dynamically: it imports this one (to apply
         suggestions), and a static import back would make that a cycle. */
     deleteCourse: async (id) => {
-      await idbDel(COURSE_PREFIX + id)
+      await deleteCourseRecord(id)
       const { purgeCourseReviews } = await import('./review/storage')
       await purgeCourseReviews(id)
       const { purgeCourseVersions } = await import('./versions/storage')
@@ -374,23 +389,25 @@ export const useStore = create<EditorState>((set, get) => {
       set((s) => ({ courses: s.courses.filter((m) => m.id !== id) }))
     },
 
+    /** Loaded hydrated, so the copy owns its own media rather than pointing at
+        the original's — which deleting the original would otherwise take away. */
     duplicateCourse: async (id) => {
-      const c = (await idbGet(COURSE_PREFIX + id)) as Course | undefined
-      if (!c) return
+      const loaded = await loadCourse(id)
+      if (!loaded) return
       const copy: Course = {
-        ...structuredClone(c),
+        ...structuredClone(loaded.course),
         id: uid(),
-        title: c.title + ' (copy)',
+        title: loaded.course.title + ' (copy)',
         createdAt: Date.now(),
         updatedAt: Date.now(),
       }
-      await idbSet(COURSE_PREFIX + copy.id, copy)
+      await saveCourse(copy)
       set((s) => ({ courses: [toMeta(copy), ...s.courses] }))
     },
 
     importCourse: async (data) => {
       const c = normalizeCourse({ ...data, id: uid(), updatedAt: Date.now() })
-      await idbSet(COURSE_PREFIX + c.id, c)
+      await saveCourse(c)
       set((s) => ({ courses: [toMeta(c), ...s.courses] }))
       return c
     },
@@ -489,10 +506,12 @@ export const useStore = create<EditorState>((set, get) => {
       set((s) => ({ courseTemplates: [t, ...s.courseTemplates] }))
     },
 
+    /** Hydrated: a template carries its own copy of the media, so saving one
+        from a course that isn't open still has to load the bytes. */
     saveCourseTemplateById: async (name, description, courseId) => {
-      const c = (await idbGet(COURSE_PREFIX + courseId)) as Course | undefined
-      if (!c) return
-      await get().saveCourseTemplate(name, description, normalizeCourse(c))
+      const loaded = await loadCourse(courseId)
+      if (!loaded) return
+      await get().saveCourseTemplate(name, description, normalizeCourse(loaded.course))
     },
 
     deleteCourseTemplate: async (id) => {

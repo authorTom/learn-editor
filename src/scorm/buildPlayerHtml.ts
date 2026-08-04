@@ -4,6 +4,7 @@ import type { Course, Lesson } from '../types'
 import { FONT_PACKS, SCHEMES, normalizeTheme } from '../types'
 import { courseVars, schemeOf, schemeVars } from '../theme'
 import { escapeHtml } from '../utils/file'
+import type { PackagedMedia } from './media'
 
 export type ScormVersion = '1.2' | '2004' | 'preview'
 
@@ -15,7 +16,7 @@ function themeVars(scheme: (typeof SCHEMES)[number], accent: string) {
 }
 
 /** Only the lessons that actually override something get an entry. */
-function lessonThemes(course: Course) {
+function lessonThemes(course: Course, media?: PackagedMedia) {
   const theme = normalizeTheme(course.theme)
   const baseScheme = schemeOf(theme.scheme)
   const map: Record<string, unknown> = {
@@ -29,24 +30,46 @@ function lessonThemes(course: Course) {
     map[l.id] = {
       ...themeVars(scheme, t.primaryColor ?? theme.primaryColor),
       hero: t.hero ?? theme.hero,
-      // Left as an `asset:` reference: the player resolves it against the
-      // assets it already carries, so the bytes are not duplicated here.
-      heroImage: t.heroImage ?? '',
+      // An `asset:` reference is left alone: the player resolves it against the
+      // assets it already carries, so the bytes are not duplicated here. A raw
+      // data URL is the one case packaging has to rewrite by hand.
+      heroImage: media?.heroImages[l.id] ?? t.heroImage ?? '',
     }
   })
   return map
 }
 
-/** Build the fully self-contained player page (used for preview iframes and SCORM export). */
-export function buildPlayerHtml(course: Course, version: ScormVersion): string {
+/**
+ * Build the player page.
+ *
+ * With no `media` argument every image and sound is inlined as a data URL and
+ * the result is one self-contained document — what preview, the diff view, the
+ * flight recorder and the review build all want. Pass a `PackagedMedia` and the
+ * srcs instead point at the `media/…` files it describes, which the caller is
+ * then responsible for writing alongside this page.
+ */
+export function buildPlayerHtml(
+  course: Course,
+  version: ScormVersion,
+  media?: PackagedMedia
+): string {
   // </script> inside the JSON payload would terminate the script tag early
   const esc = (o: unknown) => JSON.stringify(o).replace(/<\//g, '<\\/')
   const theme = normalizeTheme(course.theme)
   // The player reads layout settings — nav, titlePage, progress, lessonNumbers
   // — straight off COURSE.theme at runtime, so it is the normalised theme that
   // ships, not whatever partial object an older save happens to hold.
-  const courseJson = esc({ ...course, theme })
-  const lessonThemesJson = esc(lessonThemes(course))
+  const courseJson = esc(
+    media
+      ? {
+          ...course,
+          theme: { ...theme, logo: media.logo },
+          coverImage: media.coverImage,
+          assets: media.assets,
+        }
+      : { ...course, theme }
+  )
+  const lessonThemesJson = esc(lessonThemes(course, media))
 
   const pack = FONT_PACKS.find((p) => p.id === theme.fontPack) ?? FONT_PACKS[0]
   const scheme = SCHEMES.find((s) => s.id === theme.scheme) ?? SCHEMES[0]
