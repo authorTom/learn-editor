@@ -5,6 +5,13 @@ dist/
 .DS_Store
 *.log
 
+# Impeccable design skill — local tooling, installed per-machine via `npx impeccable install`
+.claude/skills/impeccable/
+.claude/settings.local.json
+.impeccable/
+PRODUCT.md
+DESIGN.md
+
 # Real environment files — keep .env.example tracked, ignore actual .env
 .env
 .env.*

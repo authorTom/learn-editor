@@ -42,6 +42,27 @@ exists from the initial build; the flow it drives:
    submitted; after finishing all lessons expect `cmi.core.lesson_status` set to
    `passed`/`completed` and `cmi.core.score.raw` set when quizzes exist.
 
+## Always check a dark-scheme course
+
+The canvas wears the *course's* theme while editor furniture must stay chrome
+(the two-palette rule in DESIGN.md). Every regression in this area is invisible
+on a light course, so a light-only pass proves nothing.
+
+Open a lesson with a dark colour scheme — the ECG example course has per-lesson
+theme overrides and lesson 9 is Midnight — and confirm all of these stay legible
+against the dark canvas:
+
+- the `/` block picker (block names and descriptions)
+- block drag handles and the width/spacing handles
+- the selection ring on a selected block, and the keyboard focus ring, which
+  must be visibly different from each other
+- the insert `+` between blocks, hovered
+- the "Add block" button at the end of the lesson
+- the block toolbar and its icons
+
+Anything failing here is almost always an element inside `.canvas` that is
+missing `chrome-island` (see `src/styles/tokens.css`).
+
 ## Gotchas
 
 - Autosave debounces 400ms — wait ~600ms before reloading to test persistence.

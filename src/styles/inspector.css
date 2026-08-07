@@ -110,6 +110,40 @@
   margin-top: var(--space-3);
 }
 
+/* A swatch that fails contrast against this course's ink is marked before it
+   is chosen, not after the conformance report. The mark is a corner notch plus
+   the accessible name, never colour alone. */
+.bg-swatch.fails::after {
+  content: '';
+  position: absolute;
+  right: -1px;
+  bottom: -1px;
+  width: 0;
+  height: 0;
+  border-left: 7px solid transparent;
+  border-bottom: 7px solid var(--danger);
+}
+.bg-swatch {
+  position: relative;
+}
+
+.insp-contrast {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-2);
+  margin: var(--space-3) 0 0;
+  font-size: var(--text-xs);
+  line-height: 1.5;
+  color: var(--text-subtle);
+}
+.insp-contrast.is-fail {
+  color: var(--danger);
+}
+.insp-contrast svg {
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
 /* The emoji-labelled tone control needs a touch more room per option. */
 .insp-row .ui-seg--sm .ui-seg__opt {
   padding: 0 var(--space-1);

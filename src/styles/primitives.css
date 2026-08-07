@@ -165,9 +165,20 @@
 
 /* On coarse pointers, grow the hit area to the 44px AAA target without
    changing the drawn size — WCAG 2.5.8 asks for 24px minimum, and a toolbar
-   of 30px icons is uncomfortable on touch regardless. */
+   of 30px icons is uncomfortable on touch regardless.
+
+   This was scoped to .ui-iconbtn alone, which left every hand-rolled small
+   control in the editor at its drawn size: the block grip, the insert point,
+   the dock tabs and the outline's grip and icon. They are listed here rather
+   than given .ui-iconbtn because their drawn geometry differs; only the hit
+   area is shared. */
 @media (pointer: coarse) {
-  .ui-iconbtn::after {
+  .ui-iconbtn::after,
+  .block__grip::after,
+  .insert-point__btn::after,
+  .dock__tab::after,
+  .outline-item .grip::after,
+  .outline-item .o-icon::after {
     content: '';
     position: absolute;
     inset: 50% auto auto 50%;
@@ -175,7 +186,12 @@
     height: 44px;
     transform: translate(-50%, -50%);
   }
-  .ui-iconbtn {
+  .ui-iconbtn,
+  .block__grip,
+  .insert-point__btn,
+  .dock__tab,
+  .outline-item .grip,
+  .outline-item .o-icon {
     position: relative;
   }
 }

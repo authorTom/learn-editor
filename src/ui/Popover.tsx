@@ -25,6 +25,9 @@ interface Props {
   noAutoFocus?: boolean
   label?: string
   className?: string
+  /** Extra clearance at the top of the viewport, for a panel opening under a
+      fixed band it should not cover — the editor's 52px topbar. */
+  topInset?: number
   onOpenChange?: (open: boolean) => void
 }
 
@@ -46,6 +49,7 @@ export default function Popover({
   noAutoFocus,
   label,
   className = '',
+  topInset = 0,
   onOpenChange,
 }: Props) {
   const [open, setOpen] = useState(false)
@@ -73,11 +77,13 @@ export default function Popover({
       const vw = document.documentElement.clientWidth
       const vh = document.documentElement.clientHeight
 
+      const topLimit = MARGIN + topInset
+
       let top = side === 'bottom' ? a.bottom + GAP : a.top - p.height - GAP
       // Flip to the other side if this one doesn't fit.
-      if (side === 'bottom' && top + p.height > vh - MARGIN && a.top - p.height - GAP > MARGIN) {
+      if (side === 'bottom' && top + p.height > vh - MARGIN && a.top - p.height - GAP > topLimit) {
         top = a.top - p.height - GAP
-      } else if (side === 'top' && top < MARGIN && a.bottom + p.height + GAP < vh - MARGIN) {
+      } else if (side === 'top' && top < topLimit && a.bottom + p.height + GAP < vh - MARGIN) {
         top = a.bottom + GAP
       }
 
@@ -89,7 +95,7 @@ export default function Popover({
             : a.left + a.width / 2 - p.width / 2
       // Clamp inside the viewport rather than letting it hang off the edge.
       left = Math.max(MARGIN, Math.min(left, vw - p.width - MARGIN))
-      top = Math.max(MARGIN, Math.min(top, vh - p.height - MARGIN))
+      top = Math.max(topLimit, Math.min(top, vh - p.height - MARGIN))
 
       setStyle({ top, left, visibility: 'visible' })
     }
@@ -101,7 +107,7 @@ export default function Popover({
       window.removeEventListener('resize', place)
       window.removeEventListener('scroll', place, true)
     }
-  }, [open, side, align])
+  }, [open, side, align, topInset])
 
   const triggerEl = cloneElement(trigger, {
     ref: (node: HTMLElement | null) => {

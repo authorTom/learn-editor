@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import {
   DndContext,
   closestCenter,
@@ -22,7 +22,7 @@ import {
 import { useStore } from '../store'
 import { useUi } from '../uiStore'
 import { lessonIsDark, lessonVars } from '../theme'
-import { Button, IconButton, Popover, useClickOutside, useEscape } from '../ui'
+import { Button, IconButton, Popover, useClickOutside, useEscape, useToast } from '../ui'
 import type { Asset, Block } from '../types'
 import BlockPicker from './BlockPicker'
 import SaveTemplateDialog from './SaveTemplateDialog'
@@ -48,11 +48,34 @@ function blockBg(bg: string | undefined): string | undefined {
   return bg
 }
 
+/**
+ * Delete a block and say so, with the way back attached.
+ *
+ * Deleting a block was one unguarded click on a red icon sitting 13px above the
+ * block, sixth in a row of seven — while deleting a *lesson*, the rarer action,
+ * got a confirm that counted its blocks and named ⌘Z. A confirm on something
+ * done dozens of times an hour would be the wrong trade; an undoable toast is
+ * the register that matches, and it names the recovery for an author who does
+ * not know the app has 60 steps of history.
+ */
+function useDeleteBlock() {
+  const deleteBlock = useStore((s) => s.deleteBlock)
+  const undo = useStore((s) => s.undo)
+  const toast = useToast()
+  return useCallback(
+    (id: string, label: string) => {
+      deleteBlock(id)
+      toast.show(`${label} block deleted.`, { action: { label: 'Undo', onClick: undo } })
+    },
+    [deleteBlock, undo, toast]
+  )
+}
+
 /** The backgrounds worth reaching for without opening the inspector: the two
     theme-relative fills, plus the pastels. Deliberately the same values the
     inspector offers, so the two controls can never disagree — the inspector
-    additionally does custom colour, which needs a picker and a contrast
-    readout and so stays there. */
+    additionally does custom colour and the live contrast readout, and so stays
+    the place where a background is chosen deliberately. */
 const BG_QUICK: { v: string; label: string }[] = [
   { v: '', label: 'No background' },
   { v: 'panel', label: 'Panel' },
@@ -84,7 +107,7 @@ function BlockShell({
   onSelect: () => void
   onSlashInsert: (block: Block, at: number, assets?: Asset[]) => void
 }) {
-  const deleteBlock = useStore((s) => s.deleteBlock)
+  const deleteWithUndo = useDeleteBlock()
   const moveBlock = useStore((s) => s.moveBlock)
   const updateBlock = useStore((s) => s.updateBlock)
   const saveBlockTemplate = useStore((s) => s.saveBlockTemplate)
@@ -125,7 +148,7 @@ function BlockShell({
       }}
       onFocusCapture={onSelect}
     >
-      <div className="block__tools" onClick={(e) => e.stopPropagation()}>
+      <div className="block__tools chrome-island" onClick={(e) => e.stopPropagation()}>
         <button
           className="block__grip"
           aria-label={`Reorder ${label} block`}
@@ -215,7 +238,7 @@ function BlockShell({
           size="sm"
           variant="danger"
           icon={<Trash2 size={14} />}
-          onClick={() => deleteBlock(block.id)}
+          onClick={() => deleteWithUndo(block.id, label)}
         />
       </div>
 
@@ -270,7 +293,9 @@ function SlashPicker({
 
   return (
     <div className="slash-anchor" onClick={(e) => e.stopPropagation()}>
-      <div className="ui-popover slash-pop" ref={ref}>
+      {/* chrome-island: rendered in flow inside .canvas, unlike the portalled
+          insert picker, so it has to re-establish editor chrome explicitly. */}
+      <div className="ui-popover slash-pop chrome-island" ref={ref}>
         <BlockPicker onClose={onClose} onInsert={onInsert} />
       </div>
     </div>
@@ -288,12 +313,13 @@ function InsertPoint({
   onInsert: (block: Block, at: number, assets?: Asset[]) => void
 }) {
   return (
-    <div className="insert-point">
+    <div className="insert-point chrome-island">
       <span className="insert-point__line" aria-hidden="true" />
       <Popover
         label="Add a block"
         align="center"
         className="picker-pop"
+        topInset={52}
         trigger={
           <button
             className="insert-point__btn"
@@ -321,7 +347,7 @@ export default function LessonEditor() {
   const addBlock = useStore((s) => s.addBlock)
   const moveBlock = useStore((s) => s.moveBlock)
   const duplicateBlock = useStore((s) => s.duplicateBlock)
-  const deleteBlock = useStore((s) => s.deleteBlock)
+  const deleteWithUndo = useDeleteBlock()
 
   const selectedId = useUi((s) => s.selectedBlockId)
   const selectBlock = useUi((s) => s.selectBlock)
@@ -389,14 +415,16 @@ export default function LessonEditor() {
         duplicateBlock(blocks[selectedIndex].id)
       } else if (e.key === 'Backspace' || e.key === 'Delete') {
         e.preventDefault()
+        const target = blocks[selectedIndex]
         const next = blocks[selectedIndex + 1]?.id ?? blocks[selectedIndex - 1]?.id ?? null
-        deleteBlock(blocks[selectedIndex].id)
+        const label = blockDefs.find((d) => d.type === target.type)?.label ?? target.type
+        deleteWithUndo(target.id, label)
         selectBlock(next)
       }
     }
     window.addEventListener('keydown', onKeyDown)
     return () => window.removeEventListener('keydown', onKeyDown)
-  }, [blocks, selectedIndex, selectBlock, duplicateBlock, deleteBlock])
+  }, [blocks, selectedIndex, selectBlock, duplicateBlock, deleteWithUndo])
 
   // Keep the selected block in view when it changes by keyboard.
   useEffect(() => {
@@ -438,6 +466,8 @@ export default function LessonEditor() {
   return (
     <main
       className="canvas"
+      id="lesson-canvas"
+      aria-label="Lesson content"
       ref={canvasRef}
       tabIndex={-1}
       onClick={() => selectBlock(null)}
@@ -510,6 +540,7 @@ export default function LessonEditor() {
             label="Add a block"
             align="center"
             className="picker-pop"
+            topInset={52}
             trigger={
               <button className="add-block">
                 <Plus size={17} aria-hidden="true" />

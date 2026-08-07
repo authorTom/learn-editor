@@ -1,7 +1,8 @@
-import { Copy, Link2, Palette, RefreshCw, Trash2, Unlink, Upload } from 'lucide-react'
+import { AlertTriangle, Copy, Link2, Palette, RefreshCw, Trash2, Unlink, Upload } from 'lucide-react'
 import { useStore } from '../store'
 import { useUi } from '../uiStore'
 import { blockDefs } from '../blockDefaults'
+import { contrastRatio, schemeOf } from '../theme'
 import { Button, IconButton, useConfirm, useToast } from '../ui'
 import BlockOptions from './blocks/BlockOptions'
 import { Group, SegRow } from './blocks/inspectorFields'
@@ -140,7 +141,19 @@ function LayoutGroup({ block }: { block: Block }) {
 
 function BackgroundGroup({ block }: { block: Block }) {
   const updateBlock = useStore((s) => s.updateBlock)
+  const course = useStore((s) => s.course)
+  const lessonId = useStore((s) => s.lessonId)
   const isPreset = BG_PRESETS.some((p) => p.v === (block.bg ?? ''))
+
+  /* Custom and pastel fills bypass the theme's contrast pairing entirely — the
+     scheme guarantees --ink against --bg, not against a colour the author
+     typed. The conformance audit already flags this (a11y/audit.ts, 1.4.3),
+     but only after the fact, which on a 40-block course means 40 edits. Same
+     rule, same maths, at the moment of the choice. */
+  const lesson = course?.lessons.find((l) => l.id === lessonId)
+  const scheme = schemeOf(lesson?.theme?.scheme ?? course?.theme.scheme)
+  const swatchRatio = (c: string) => contrastRatio(scheme.ink, c)
+  const activeRatio = block.bg?.startsWith('#') ? swatchRatio(block.bg) : null
 
   return (
     <Group title="Background">
@@ -159,16 +172,20 @@ function BackgroundGroup({ block }: { block: Block }) {
         }}
       />
       <div className="insp-swatches">
-        {BG_SWATCHES.map((c) => (
-          <button
-            key={c}
-            className={'bg-swatch' + (block.bg === c ? ' sel' : '')}
-            style={{ background: c }}
-            aria-label={`Background ${c}`}
-            aria-pressed={block.bg === c}
-            onClick={() => updateBlock(block.id, { bg: c })}
-          />
-        ))}
+        {BG_SWATCHES.map((c) => {
+          const r = swatchRatio(c)
+          const fails = r < 4.5
+          return (
+            <button
+              key={c}
+              className={'bg-swatch' + (block.bg === c ? ' sel' : '') + (fails ? ' fails' : '')}
+              style={{ background: c }}
+              aria-label={`Background ${c}${fails ? ` — fails contrast at ${r.toFixed(1)} to 1` : ''}`}
+              aria-pressed={block.bg === c}
+              onClick={() => updateBlock(block.id, { bg: c })}
+            />
+          )
+        })}
         <input
           type="color"
           className="bg-custom"
@@ -177,6 +194,19 @@ function BackgroundGroup({ block }: { block: Block }) {
           onChange={(e) => updateBlock(block.id, { bg: e.target.value })}
         />
       </div>
+      {activeRatio !== null && (
+        <p className={'insp-contrast' + (activeRatio < 4.5 ? ' is-fail' : '')} role="status">
+          {activeRatio < 4.5 ? (
+            <>
+              <AlertTriangle size={13} aria-hidden="true" />
+              Text on this background contrasts {activeRatio.toFixed(1)}:1 — below the 4.5:1 this
+              course needs. Panel and Tint are paired with the scheme by construction.
+            </>
+          ) : (
+            <>Text on this background contrasts {activeRatio.toFixed(1)}:1.</>
+          )}
+        </p>
+      )}
     </Group>
   )
 }

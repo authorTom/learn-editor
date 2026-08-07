@@ -16,6 +16,13 @@ body {
 button { font-family: inherit; cursor: pointer; }
 input, textarea, select { font-family: inherit; color: inherit; }
 
+/* Every placeholder, not just .ui-input's. The block editors' own inputs
+   (.blk-input-title, .mini-input) are not .ui-input, so they fell through to
+   Chrome's UA default #757575 — 4.03:1 against the course canvas, a 1.4.3
+   failure that moved with the course theme. --text-subtle is course-paired
+   inside .canvas and chrome outside it. opacity:1 normalises Firefox. */
+::placeholder { color: var(--text-subtle); opacity: 1; }
+
 /* One focus treatment for everything, keyboard-only. :focus-visible keeps the
    ring off mouse clicks, which is why the old blanket input:focus rule could
    be dropped rather than widened. */
@@ -132,7 +139,7 @@ input, textarea, select { font-family: inherit; color: inherit; }
 }
 .outline-list > div:first-child .outline-section { padding-top: var(--space-1); }
 .outline-item {
-  display: flex; align-items: center; gap: 8px;
+  display: flex; align-items: center; gap: 6px;
   padding: 9px 10px; border-radius: 9px;
   cursor: pointer; user-select: none;
   border: 1px solid transparent;
@@ -141,17 +148,49 @@ input, textarea, select { font-family: inherit; color: inherit; }
 }
 .outline-item:hover { background: var(--bg); }
 .outline-item.active { background: var(--accent-subtle); border-color: var(--accent-border); }
-.outline-item .grip { color: var(--ink-3); opacity: 0; cursor: grab; display: flex; }
-.outline-item:hover .grip { opacity: 1; }
-.outline-item .o-icon { font-size: 15px; width: 20px; text-align: center; flex-shrink: 0; }
-.outline-item .o-title { flex: 1; font-size: 13.5px; font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+/* The grip is a real control, so it keeps a 24px minimum box (WCAG 2.5.8) and
+   only its glyph fades — hiding it with opacity rather than display keeps it
+   in the accessibility tree and tabbable. */
+.outline-item .grip {
+  color: var(--ink-3); cursor: grab;
+  display: flex; align-items: center; justify-content: center;
+  width: 24px; height: 24px; flex-shrink: 0;
+  border: 0; background: transparent; border-radius: var(--radius-sm);
+  opacity: 0; transition: opacity var(--dur-fast) var(--ease);
+}
+.outline-item:hover .grip,
+.outline-item .grip:focus-visible { opacity: 1; }
+.outline-item .o-icon {
+  font-size: 15px; width: 24px; height: 24px; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  border: 0; background: transparent; border-radius: var(--radius-sm); cursor: pointer;
+}
+.outline-item .o-title {
+  flex: 1; min-width: 0;
+  font-family: inherit; font-size: 13.5px; font-weight: 500;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  border: 0; background: transparent; color: var(--ink);
+  text-align: left; padding: 0; cursor: pointer;
+}
 .outline-item.active .o-title { font-weight: 600; color: var(--accent-text); }
 .outline-item input.o-rename {
   flex: 1; font-size: 13.5px; font-weight: 500;
   border: 1px solid var(--brand); border-radius: 6px; padding: 3px 7px; min-width: 0;
 }
-.outline-item .o-actions { display: none; gap: 1px; }
-.outline-item:hover .o-actions { display: flex; }
+/* opacity, not display:none — Rename, Duplicate and Delete were removed from
+   the accessibility tree entirely until a pointer hovered the row. This is the
+   same pattern picker.css already uses for .picker__del.
+   The width collapses with them so the title keeps the full row at rest: at
+   260px the grip, icon and number already eat ~84px before the title starts,
+   and three permanently-reserved action buttons would truncate every lesson
+   name in the outline. */
+.outline-item .o-actions {
+  display: flex; gap: 1px; flex-shrink: 0;
+  width: 0; overflow: hidden;
+  opacity: 0; transition: opacity var(--dur-fast) var(--ease);
+}
+.outline-item:hover .o-actions,
+.outline-item .o-actions:focus-within { width: auto; overflow: visible; opacity: 1; }
 .outline-foot { padding: 10px; border-top: 1px solid var(--line); }
 
 
@@ -342,6 +381,37 @@ input, textarea, select { font-family: inherit; color: inherit; }
 .qz-q-body { padding: 14px; }
 .qz-choice-row { display: flex; align-items: center; gap: 9px; margin-bottom: 8px; }
 .qz-choice-row input[type='text'] { flex: 1; }
+
+/* One-line rich field (InlineRichInput). Wears the .ui-input shape so a list
+   item still reads as a control, but its content is real inline markup —
+   <strong> renders as bold here instead of showing the author its own tags. */
+.inline-rich-wrap { flex: 1; min-width: 0; }
+.inline-rich {
+  min-height: 34px;
+  padding: 7px var(--space-3);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  color: var(--text);
+  font-size: var(--text-base);
+  line-height: 1.5;
+  transition: border-color var(--dur-fast) var(--ease), box-shadow var(--dur-fast) var(--ease);
+}
+.inline-rich:hover { border-color: var(--text-subtle); }
+.inline-rich:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-subtle);
+}
+.inline-rich p { margin: 0; }
+/* Placeholder for an empty single-line editor, matching ::placeholder. */
+.inline-rich p.is-editor-empty:first-child::before {
+  content: attr(data-placeholder);
+  float: left;
+  height: 0;
+  pointer-events: none;
+  color: var(--text-subtle);
+}
 .qz-choice-row .correct-toggle {
   width: 30px; height: 30px; border-radius: 8px;
   border: 1.5px solid var(--border-strong); background: var(--surface); color: var(--text-subtle);

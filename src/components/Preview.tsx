@@ -46,7 +46,7 @@ export default function Preview({ course, onClose }: { course: Course; onClose: 
           </button>
         </span>
         <span style={{ flex: 1 }} />
-        <span style={{ fontSize: 12, color: '#8a8fb0' }}>
+        <span style={{ fontSize: 'var(--text-xs)', color: 'var(--chrome-text-subtle)' }}>
           Exactly what your learners will see — progress isn’t saved in preview
         </span>
         <button className="btn" onClick={onClose}>
