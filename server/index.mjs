@@ -1,4 +1,4 @@
-// Learn Editor's optional server.
+// Quoin's optional server.
 //
 // "Optional" is the design, not a hedge. The app is local-first and works with
 // no server at all — that is what `npm run dev` and the static image do, and it
@@ -33,7 +33,7 @@ const DIST = path.join(here, '..', 'dist')
  * Read the `script-src` line before changing anything: `'unsafe-inline'` is
  * there deliberately, and removing it breaks four shipped features.
  *
- * Learn Editor previews a course by rendering the *real exported player* into
+ * Quoin previews a course by rendering the *real exported player* into
  * an iframe via `srcdoc` — that shared renderer is the product's central claim,
  * and it is how preview, the SCORM flight recorder, the version diff and the
  * Custom HTML block all work. A `srcdoc` iframe inherits its parent document's
@@ -204,7 +204,7 @@ export function startServer(config) {
   server.keepAliveTimeout = 65_000
 
   server.listen(config.port, config.host, () => {
-    log.info('Learn Editor listening', {
+    log.info('Quoin listening', {
       version: VERSION,
       url: `http://${config.host}:${config.port}`,
       auth: config.authRequired ? 'on' : 'off',

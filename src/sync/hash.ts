@@ -3,7 +3,7 @@
  *
  * The awkward part is `crypto.subtle`: it exists only in a *secure context*.
  * That means https, or localhost — and not `http://192.168.1.20:8080`, which is
- * precisely how a self-hosted Learn Editor gets reached from a colleague's
+ * precisely how a self-hosted Quoin gets reached from a colleague's
  * laptop. Depending on WebCrypto alone would mean media sync silently failing
  * on the most ordinary LAN deployment there is.
  *

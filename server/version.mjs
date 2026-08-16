@@ -1,4 +1,4 @@
-// Which Learn Editor this is.
+// Which Quoin this is.
 //
 // package.json is the single source of the version — the browser bundle gets it
 // baked in by Vite (`__APP_VERSION__`), and this reads the same field at boot so

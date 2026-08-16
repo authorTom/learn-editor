@@ -1,5 +1,5 @@
 {
-  "name": "learn-editor",
+  "name": "quoin",
   "private": true,
   "version": "1.0.0",
   "type": "module",
@@ -8,7 +8,7 @@
     "build": "tsc -b && vite build",
     "preview": "vite preview",
     "serve": "node server/index.mjs",
-    "dev:server": "LE_DATA_DIR=.data LE_LOG_LEVEL=debug node --watch server/index.mjs",
+    "dev:server": "QUOIN_DATA_DIR=.data QUOIN_LOG_LEVEL=debug node --watch server/index.mjs",
     "test": "vitest run",
     "test:watch": "vitest",
     "seed:build": "node scripts/build-seed-templates.mjs",

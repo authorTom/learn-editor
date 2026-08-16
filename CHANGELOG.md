@@ -1,23 +1,57 @@
 # Changelog
 
-All notable changes to Learn Editor are recorded here. The format follows
+All notable changes to Quoin are recorded here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and the project uses
 [semantic versioning](https://semver.org/spec/v2.0.0.html).
 
 `package.json` is the single source of the version. The browser bundle gets it
 baked in by Vite as `__APP_VERSION__`, and the server reads the same field at
-boot, so *About Learn Editor* and `GET /api/version` can never disagree about
+boot, so *About Quoin* and `GET /api/version` can never disagree about
 which build is running.
 
 ## [Unreleased]
 
+### Changed
+
+- **The product is now called Quoin.** It was Learn Editor. A quoin is the
+  tapered wedge a printer drives in to lock a page of type into its frame, so
+  the whole forme can be lifted, carried and printed without a single letter
+  shifting — which is what this tool does to a course before it goes to an LMS.
+
+  The rename reaches the package name, the container image, the environment
+  variables, the session cookie and the API's CSRF header. Consequences worth
+  knowing before upgrading:
+
+  - **Exported packages carry a new SCORM manifest identifier**,
+    `com.quoin.<courseId>` rather than `com.learneditor.<courseId>`. An LMS
+    identifies a package by that string, so **re-uploading an updated export of
+    a course that was already imported will create a second course rather than
+    replacing the first**, and learner history stays attached to the original.
+    Finish anything mid-rollout on the old identifier before upgrading, or plan
+    the re-import deliberately.
+  - **Every environment variable is renamed** from `LE_*` to `QUOIN_*` —
+    `QUOIN_DATA_DIR`, `QUOIN_AUTH`, `QUOIN_PORT` and the rest. The server reads
+    only the new names and will start with defaults if it is handed the old
+    ones, so update `.env` in the same step as the image.
+  - **The image moved** to `ghcr.io/authortom/quoin`. The old path stops
+    receiving builds.
+  - **The session cookie changed name**, so everyone is signed out once on
+    upgrade. No data is affected.
+
+  Nothing an author owns is invalidated. Courses, media, version history and
+  review rounds in IndexedDB are untouched — none of those keys carried the
+  brand. Files that travel *outside* the app keep working too: a template
+  library exported as `learn-editor-templates` still imports, and a review round
+  sent to a subject-matter expert before the rename is still accepted when it
+  comes back. Both are read under either marker and written under the new one.
+
 ## [1.0.0] — 2026-08-16
 
-The first released, versioned build. Learn Editor gains an optional server:
+The first released, versioned build. Quoin gains an optional server:
 accounts, and courses that follow you between machines.
 
 **The app still runs with no server at all.** That is not a fallback — it is the
-default for `npm run dev` and for anyone who sets `LE_AUTH=off`. With no backend
+default for `npm run dev` and for anyone who sets `QUOIN_AUTH=off`. With no backend
 there is no sign-in, nothing is uploaded, and every course lives in the browser
 that made it, exactly as before. The client asks `GET /api/config` what it is
 talking to and behaves accordingly, so one build covers both deployments.
@@ -44,7 +78,7 @@ talking to and behaves accordingly, so one build covers both deployments.
 - **Content-addressed media.** Images and audio are stored by the SHA-256 of
   their bytes, so a photograph used in six courses, or captured in twelve
   snapshots, uploads and stores once.
-- **About Learn Editor**, naming the version, the server's version, and where
+- **About Quoin**, naming the version, the server's version, and where
   your courses are actually being kept.
 - **An error boundary.** A rendering fault used to blank the screen, which on a
   tool whose courses live in the browser reads as lost work. It now says what
@@ -55,7 +89,7 @@ talking to and behaves accordingly, so one build covers both deployments.
 
 ### Changed
 
-- **The image now runs Learn Editor's own Node server instead of nginx**, and
+- **The image now runs Quoin's own Node server instead of nginx**, and
   serves the SPA and the API from one port. `server/static.mjs` reproduces the
   caching and history-fallback rules `nginx.conf` provided. `compose.yaml` gains
   a `/data` volume: with accounts on, there is finally something to persist.
@@ -90,5 +124,5 @@ talking to and behaves accordingly, so one build covers both deployments.
   linked-block staleness check resting on a fallback.
 - Two high-severity advisories in build dependencies.
 
-[Unreleased]: https://github.com/authorTom/learn-editor/compare/v1.0.0...HEAD
-[1.0.0]: https://github.com/authorTom/learn-editor/releases/tag/v1.0.0
+[Unreleased]: https://github.com/authorTom/quoin/compare/v1.0.0...HEAD
+[1.0.0]: https://github.com/authorTom/quoin/releases/tag/v1.0.0

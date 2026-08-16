@@ -86,7 +86,7 @@ export default function UserMenu({ topInset = 0 }: { topInset?: number }) {
               className="usermenu__item"
               onClick={() => { close(); setShowAbout(true) }}
             >
-              <Info size={15} aria-hidden="true" /> About Learn Editor
+              <Info size={15} aria-hidden="true" /> About Quoin
             </button>
 
             <button

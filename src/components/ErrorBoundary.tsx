@@ -38,7 +38,7 @@ export default class ErrorBoundary extends Component<Props, State> {
     // No telemetry to send it to — by design, nothing leaves the machine — so
     // the console is the record. Keep the component stack: it names the block
     // type that failed, which is the first thing a bug report needs.
-    console.error('Learn Editor crashed while rendering.', error, info.componentStack)
+    console.error('Quoin crashed while rendering.', error, info.componentStack)
   }
 
   reset = () => {
@@ -55,7 +55,7 @@ export default class ErrorBoundary extends Component<Props, State> {
         <div className="crash__card">
           <AlertTriangle className="crash__icon" aria-hidden="true" />
           <h1 className="crash__title">
-            {this.props.label ?? 'Learn Editor'} stopped responding
+            {this.props.label ?? 'Quoin'} stopped responding
           </h1>
           <p className="crash__body">
             Your course is safe. Everything you typed was saved to this browser as you

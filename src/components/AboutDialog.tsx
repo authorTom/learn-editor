@@ -3,7 +3,7 @@ import { Dialog } from '../ui'
 import { useAuth } from '../auth/authStore'
 
 /**
- * Which Learn Editor this is, and where the work is being kept.
+ * Which Quoin this is, and where the work is being kept.
  *
  * The second half is the reason this exists rather than being a version number
  * in a corner. The app runs two ways — everything in this browser, or synced to
@@ -38,7 +38,7 @@ export default function AboutDialog({ onClose }: { onClose: () => void }) {
   const mismatch = !!serverVersion && serverVersion !== appVersion
 
   return (
-    <Dialog open onClose={onClose} title="About Learn Editor" size="sm">
+    <Dialog open onClose={onClose} title="About Quoin" size="sm">
       <dl className="about">
         <dt>Version</dt>
         <dd>{appVersion}</dd>

@@ -81,7 +81,7 @@ const courseTemplates = [
 ]
 
 const library = {
-  kind: 'learn-editor-templates',
+  kind: 'quoin-templates',
   version: 1,
   blockTemplates,
   courseTemplates,

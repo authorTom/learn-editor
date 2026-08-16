@@ -8,7 +8,7 @@ import { createRouter, HttpError } from './routes.mjs'
  * The security primitives, tested directly.
  *
  * These are the pieces where a quiet regression is worst: a password check that
- * accepts anything, a config parse that reads LE_AUTH=flase as "off", a router
+ * accepts anything, a config parse that reads QUOIN_AUTH=flase as "off", a router
  * that matches one path against another's handler. None of them would show up
  * as a broken screen.
  */
@@ -77,7 +77,7 @@ describe('password and email rules', () => {
 })
 
 describe('config', () => {
-  const base = { LE_DATA_DIR: '/tmp/le-test' }
+  const base = { QUOIN_DATA_DIR: '/tmp/le-test' }
 
   it('defaults to accounts on — the safe direction for a server', () => {
     expect(loadConfig(base).authRequired).toBe(true)
@@ -85,43 +85,43 @@ describe('config', () => {
 
   it('accepts the usual spellings of a boolean', () => {
     for (const v of ['off', 'false', '0', 'no']) {
-      expect(loadConfig({ ...base, LE_AUTH: v }).authRequired, v).toBe(false)
+      expect(loadConfig({ ...base, QUOIN_AUTH: v }).authRequired, v).toBe(false)
     }
     for (const v of ['on', 'true', '1', 'yes', 'ON']) {
-      expect(loadConfig({ ...base, LE_AUTH: v }).authRequired, v).toBe(true)
+      expect(loadConfig({ ...base, QUOIN_AUTH: v }).authRequired, v).toBe(true)
     }
   })
 
   it('refuses to start on a typo rather than guessing', () => {
-    // The bug this prevents: LE_AUTH=flase silently meaning "off", which is an
+    // The bug this prevents: QUOIN_AUTH=flase silently meaning "off", which is an
     // unauthenticated course library on a public port.
-    expect(() => loadConfig({ ...base, LE_AUTH: 'flase' })).toThrow(ConfigError)
-    expect(() => loadConfig({ ...base, LE_PORT: 'eighty' })).toThrow(ConfigError)
-    expect(() => loadConfig({ ...base, LE_PORT: '70000' })).toThrow(ConfigError)
-    expect(() => loadConfig({ ...base, LE_LOG_LEVEL: 'chatty' })).toThrow(ConfigError)
+    expect(() => loadConfig({ ...base, QUOIN_AUTH: 'flase' })).toThrow(ConfigError)
+    expect(() => loadConfig({ ...base, QUOIN_PORT: 'eighty' })).toThrow(ConfigError)
+    expect(() => loadConfig({ ...base, QUOIN_PORT: '70000' })).toThrow(ConfigError)
+    expect(() => loadConfig({ ...base, QUOIN_LOG_LEVEL: 'chatty' })).toThrow(ConfigError)
   })
 
   it('reports every problem at once, not one per restart', () => {
     try {
-      loadConfig({ ...base, LE_AUTH: 'flase', LE_PORT: '0', LE_LOG_LEVEL: 'chatty' })
+      loadConfig({ ...base, QUOIN_AUTH: 'flase', QUOIN_PORT: '0', QUOIN_LOG_LEVEL: 'chatty' })
       throw new Error('expected it to throw')
     } catch (err) {
       expect(err).toBeInstanceOf(ConfigError)
-      expect(err.message).toMatch(/LE_AUTH/)
-      expect(err.message).toMatch(/LE_PORT/)
-      expect(err.message).toMatch(/LE_LOG_LEVEL/)
+      expect(err.message).toMatch(/QUOIN_AUTH/)
+      expect(err.message).toMatch(/QUOIN_PORT/)
+      expect(err.message).toMatch(/QUOIN_LOG_LEVEL/)
     }
   })
 
   it('ties secure cookies to the proxy setting by default', () => {
     expect(loadConfig(base).secureCookies).toBe(false)
-    expect(loadConfig({ ...base, LE_TRUST_PROXY: 'on' }).secureCookies).toBe(true)
+    expect(loadConfig({ ...base, QUOIN_TRUST_PROXY: 'on' }).secureCookies).toBe(true)
     // ...but lets it be overridden either way.
-    expect(loadConfig({ ...base, LE_TRUST_PROXY: 'on', LE_SECURE_COOKIES: 'off' }).secureCookies).toBe(false)
+    expect(loadConfig({ ...base, QUOIN_TRUST_PROXY: 'on', QUOIN_SECURE_COOKIES: 'off' }).secureCookies).toBe(false)
   })
 
   it('turns the day and megabyte knobs into the units the code uses', () => {
-    const c = loadConfig({ ...base, LE_SESSION_TTL_DAYS: '7', LE_MAX_BODY_MB: '4' })
+    const c = loadConfig({ ...base, QUOIN_SESSION_TTL_DAYS: '7', QUOIN_MAX_BODY_MB: '4' })
     expect(c.sessionTtlMs).toBe(7 * 86_400_000)
     expect(c.maxBodyBytes).toBe(4 * 1024 * 1024)
   })

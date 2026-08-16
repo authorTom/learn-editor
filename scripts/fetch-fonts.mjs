@@ -6,7 +6,7 @@
 //     Google on every page view. A German court has held that doing so without
 //     consent breaches the GDPR, and this tool's users are in-house L&D teams
 //     inside organisations that have to answer that question.
-//   • Deployment. Learn Editor is self-hosted, routinely on an internal network
+//   • Deployment. Quoin is self-hosted, routinely on an internal network
 //     with no route to the outside. A third-party stylesheet turns "the fonts
 //     are wrong" into a support ticket nobody can act on.
 //   • Performance. It was two extra connections and a render-blocking request

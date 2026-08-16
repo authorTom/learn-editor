@@ -1,4 +1,4 @@
-/* Learn Editor review layer.
+/* Quoin review layer.
 
    Runs on top of the normal course player inside a review build. Lets a reviewer
    highlight text in the real rendered course, comment on it, suggest a rewrite,
@@ -511,7 +511,7 @@
 
   function bundle() {
     return {
-      kind: 'learn-editor-review',
+      kind: 'quoin-review',
       version: 1,
       reviewId: REVIEW.reviewId,
       courseId: REVIEW.courseId,

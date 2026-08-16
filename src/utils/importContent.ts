@@ -111,7 +111,7 @@ function parseMarkdown(text: string): Block[] {
 /**
  * Strip executable content from a fragment of imported markup.
  *
- * Learn Editor is perfectly happy to run an author's script — that is what the
+ * Quoin is perfectly happy to run an author's script — that is what the
  * Custom HTML block is *for*, and it is a deliberate, visible choice made block
  * by block. Import is the one path where markup arrives from somewhere else:
  * pasted out of a Word export, a Confluence page, an intranet article. Content

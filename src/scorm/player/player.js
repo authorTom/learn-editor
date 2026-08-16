@@ -1,4 +1,4 @@
-/* Learn Editor course player. Expects window.COURSE (course JSON),
+/* Quoin course player. Expects window.COURSE (course JSON),
    window.SCORM_VERSION ('1.2' | '2004' | 'preview') and window.LESSON_THEMES
    (lessonId -> CSS custom properties, for per-lesson style overrides). */
 (function () {

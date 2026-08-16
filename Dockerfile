@@ -20,7 +20,7 @@ RUN node scripts/build-seed-templates.mjs && npm run build
 
 # --- Stage 2: serve dist/ and the API with Node ------------------------------
 #
-# This used to be nginx. The image now runs Learn Editor's own server, which
+# This used to be nginx. The image now runs Quoin's own server, which
 # serves the same static bundle *and* the accounts/sync API from one port —
 # static.mjs reproduces nginx's caching and history-fallback rules exactly.
 #
@@ -52,8 +52,8 @@ RUN mkdir -p /data && chown -R node:node /data /app
 # writing into the image layer.
 VOLUME ["/data"]
 
-ENV LE_DATA_DIR=/data
-ENV LE_PORT=8080
+ENV QUOIN_DATA_DIR=/data
+ENV QUOIN_PORT=8080
 
 USER node
 

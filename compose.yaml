@@ -1,4 +1,4 @@
-# Learn Editor — SPA plus its optional accounts/sync API, served by one Node
+# Quoin — SPA plus its optional accounts/sync API, served by one Node
 # process from one port.
 #
 # Default: pull the prebuilt image published to GHCR by GitHub Actions.
@@ -8,9 +8,9 @@
 # (not `authorTom`).
 
 services:
-  learn-editor:
+  quoin:
     # --- Deploy option A (default): pull the published image ----------------
-    image: ghcr.io/authortom/learn-editor:${IMAGE_TAG:-latest}
+    image: ghcr.io/authortom/quoin:${IMAGE_TAG:-latest}
 
     # --- Deploy option B: build from source ---------------------------------
     # Comment out the `image:` line above and uncomment this block, then run
@@ -19,7 +19,7 @@ services:
     #   context: .
     #   dockerfile: Dockerfile
 
-    container_name: learn-editor
+    container_name: quoin
     init: true                 # PID 1 that reaps zombies + forwards signals
     restart: unless-stopped
 
@@ -30,24 +30,24 @@ services:
       # Accounts. Leave on for a multi-user install; set to `off` to run the
       # old behaviour — a plain static host, everything local to the browser,
       # no sign-in and no sync.
-      LE_AUTH: ${LE_AUTH:-on}
+      QUOIN_AUTH: ${QUOIN_AUTH:-on}
       # How long a sign-in lasts.
-      LE_SESSION_TTL_DAYS: ${LE_SESSION_TTL_DAYS:-30}
+      QUOIN_SESSION_TTL_DAYS: ${QUOIN_SESSION_TTL_DAYS:-30}
       # Set both of these when a TLS-terminating reverse proxy sits in front.
-      # LE_TRUST_PROXY makes rate limiting read X-Forwarded-For — without a
+      # QUOIN_TRUST_PROXY makes rate limiting read X-Forwarded-For — without a
       # proxy actually setting it, that would let a client forge its own
       # address, so it stays off by default.
-      LE_TRUST_PROXY: ${LE_TRUST_PROXY:-off}
-      LE_SECURE_COOKIES: ${LE_SECURE_COOKIES:-off}
+      QUOIN_TRUST_PROXY: ${QUOIN_TRUST_PROXY:-off}
+      QUOIN_SECURE_COOKIES: ${QUOIN_SECURE_COOKIES:-off}
       # Optional: fix the first-run setup token instead of having one generated
       # and printed to the log. Only useful before the first account exists.
-      LE_SETUP_TOKEN: ${LE_SETUP_TOKEN:-}
-      LE_LOG_LEVEL: ${LE_LOG_LEVEL:-info}
+      QUOIN_SETUP_TOKEN: ${QUOIN_SETUP_TOKEN:-}
+      QUOIN_LOG_LEVEL: ${QUOIN_LOG_LEVEL:-info}
 
     volumes:
       # Accounts, courses and uploaded media. This is the one thing to back up:
       # lose it and every synced course goes with it.
-      - learn-editor-data:/data
+      - quoin-data:/data
 
     healthcheck:
       # /healthz reads the database, so an instance that is up but cannot open
@@ -64,4 +64,4 @@ services:
       start_period: 10s
 
 volumes:
-  learn-editor-data:
+  quoin-data:

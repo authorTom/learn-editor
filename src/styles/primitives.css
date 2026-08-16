@@ -1,4 +1,4 @@
-/* ===== Learn Editor — UI primitives =====
+/* ===== Quoin — UI primitives =====
    Styles for src/ui/*. Semantic tokens only: nothing in here may reference a
    raw ramp value or a literal colour, so every primitive follows the appearance
    mode automatically. */
