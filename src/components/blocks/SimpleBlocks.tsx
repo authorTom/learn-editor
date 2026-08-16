@@ -9,6 +9,7 @@ import type {
 import { uid } from '../../utils/id'
 import { Button, IconButton, Input } from '../../ui'
 import RichText from '../RichText'
+import InlineRichInput from './InlineRichInput'
 import { CheckRow, Group, NoOptions, NumberRow, SegRow, TextRow } from './inspectorFields'
 
 function usePatch<T extends Block>(block: T) {
@@ -177,17 +178,15 @@ export function ListEditor({ block }: { block: ListBlock }) {
           <span className="list-marker" aria-hidden="true">
             {block.style === 'number' ? `${i + 1}.` : block.style === 'check' ? '✓' : '•'}
           </span>
-          <Input
+          <InlineRichInput
             value={item}
-            aria-label={`List item ${i + 1}`}
+            ariaLabel={`List item ${i + 1}`}
             placeholder={`Item ${i + 1}`}
-            onChange={(e) => setItem(i, e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter') {
-                const items = [...block.items]
-                items.splice(i + 1, 0, '')
-                patch({ items })
-              }
+            onChange={(html) => setItem(i, html)}
+            onEnter={() => {
+              const items = [...block.items]
+              items.splice(i + 1, 0, '')
+              patch({ items })
             }}
           />
           <IconButton

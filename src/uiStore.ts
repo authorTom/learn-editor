@@ -77,6 +77,12 @@ function writePrefs(prefs: Persisted) {
 
 const saved = readPrefs()
 
+/** Matches shell.css's 1023px breakpoint, where the rails stop being columns
+    and become overlays over the canvas. */
+function isNarrow(): boolean {
+  return typeof window !== 'undefined' && window.matchMedia('(max-width: 1023px)').matches
+}
+
 export const useUi = create<UiState>((set, get) => {
   function persist() {
     const { outlineOpen, dockOpen, dockTab, recentBlockTypes } = get()
@@ -84,8 +90,13 @@ export const useUi = create<UiState>((set, get) => {
   }
 
   return {
-    outlineOpen: saved.outlineOpen ?? true,
-    dockOpen: saved.dockOpen ?? false,
+    /* Below 1024px both rails are overlays with a scrim, so restoring a saved
+       "open" put first contact behind a greyed-out drawer — on a docked laptop
+       window, which is the modal case for this audience, not an edge case. The
+       preference is still written; it just does not apply where the rail is not
+       a column. */
+    outlineOpen: isNarrow() ? false : (saved.outlineOpen ?? true),
+    dockOpen: isNarrow() ? false : (saved.dockOpen ?? false),
     dockTab: saved.dockTab ?? 'inspector',
     selectedBlockId: null,
     recentBlockTypes: saved.recentBlockTypes ?? [],

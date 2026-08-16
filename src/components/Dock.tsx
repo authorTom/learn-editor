@@ -1,4 +1,4 @@
-import { useEffect, useRef, type ReactNode } from 'react'
+import { useEffect, useMemo, useRef, type ReactNode } from 'react'
 import {
   Accessibility, History, Images, LayoutTemplate, MessageSquare, PanelRight,
   SlidersHorizontal, X,
@@ -40,14 +40,19 @@ export default function Dock({
   const closeDock = useUi((s) => s.closeDock)
   const tablistRef = useRef<HTMLDivElement>(null)
 
-  const tabs: TabDef[] = [
-    { id: 'inspector', label: 'Inspector', Icon: SlidersHorizontal },
-    { id: 'media', label: 'Media', Icon: Images },
-    { id: 'templates', label: 'Templates', Icon: LayoutTemplate },
-    { id: 'review', label: 'Review', Icon: MessageSquare, badge: openComments || undefined },
-    { id: 'a11y', label: 'Accessibility', Icon: Accessibility, badge: a11yErrors || undefined },
-    { id: 'versions', label: 'Versions', Icon: History },
-  ]
+  // Memoised because the effect below depends on it: rebuilt every render, the
+  // identity changed every render and the effect ran every render.
+  const tabs = useMemo<TabDef[]>(
+    () => [
+      { id: 'inspector', label: 'Inspector', Icon: SlidersHorizontal },
+      { id: 'media', label: 'Media', Icon: Images },
+      { id: 'templates', label: 'Templates', Icon: LayoutTemplate },
+      { id: 'review', label: 'Review', Icon: MessageSquare, badge: openComments || undefined },
+      { id: 'a11y', label: 'Accessibility', Icon: Accessibility, badge: a11yErrors || undefined },
+      { id: 'versions', label: 'Versions', Icon: History },
+    ],
+    [openComments, a11yErrors]
+  )
 
   // Keep the active tab reachable if the dock is reopened on a tab that no
   // longer makes sense.

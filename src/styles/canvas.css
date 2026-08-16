@@ -37,7 +37,12 @@
   --border: var(--line);
   --border-strong: color-mix(in srgb, var(--ink) 35%, var(--bg));
   --accent-subtle: var(--accent-soft);
-  --focus: var(--accent);
+
+  /* --focus is deliberately NOT remapped. A focus ring is the editor telling
+     the author where they are, so it belongs to chrome even when it lands on
+     course-coloured content; remapping it made every ring inside the canvas
+     the same colour as the selection border it sat on. The halo below is what
+     keeps it visible on a dark scheme. */
 
   /* legacy aliases used by the block editors still in styles.css.
      --bg / --ink / --line are already supplied as inline custom properties by
@@ -51,6 +56,18 @@
 }
 .canvas:focus {
   outline: none;
+}
+
+/* Two-tone focus ring, canvas only.
+   The global ring in styles.css is a single violet outline, which is right on
+   chrome's white but drops to ~2.4:1 on a Midnight or Forest canvas. Adding a
+   halo in the chrome surface colour means one of the two rings always contrasts
+   with whatever it lands on: the halo carries a dark course, the violet carries
+   a light one. Applied to the same element set as the global rule so the two
+   never disagree about what counts as focusable. */
+.canvas :where(a, button, input, textarea, select, [tabindex]):focus-visible {
+  outline-color: var(--chrome-focus);
+  box-shadow: 0 0 0 2px var(--chrome-focus-halo);
 }
 
 .canvas-inner {
@@ -90,10 +107,11 @@
 .lesson-title:hover {
   border-color: var(--line);
 }
+/* The title's text is the course's; the ring around it is the editor's. */
 .lesson-title:focus {
   outline: none;
-  border-color: var(--focus);
-  box-shadow: 0 0 0 3px var(--accent-subtle);
+  border-color: var(--chrome-focus);
+  box-shadow: 0 0 0 3px var(--chrome-accent-subtle);
 }
 .lesson-head__actions {
   display: flex;
@@ -122,9 +140,12 @@
 .block:hover > .block__body {
   border-color: var(--line);
 }
+/* Chrome, not course: the selection ring is the editor marking your place. It
+   used to read --focus/--accent-subtle, which the canvas remapped, so on a
+   dark scheme it became the course accent on its own tint. */
 .block.is-selected > .block__body {
-  border-color: var(--focus);
-  box-shadow: 0 0 0 3px var(--accent-subtle);
+  border-color: var(--chrome-focus);
+  box-shadow: 0 0 0 3px var(--chrome-accent-subtle);
 }
 .block.is-dragging {
   opacity: 0.5;
@@ -149,10 +170,10 @@
   margin-bottom: var(--space-6);
 }
 
-/* Toolbar floats above the content rather than sitting in it, so it uses the
-   never-remapped --chrome-* copies: it should read as editor furniture, not as
-   part of the course. Its own tokens are re-pointed locally so the IconButtons
-   inside it inherit chrome colours too. */
+/* Toolbar floats above the content rather than sitting in it, so it reads as
+   editor furniture, not as part of the course. It carries .chrome-island (see
+   tokens.css), which re-points the whole semantic layer at the chrome copies
+   so the IconButtons inside it come back to chrome too. */
 .block__tools {
   position: absolute;
   top: -13px;
@@ -163,20 +184,13 @@
   align-items: center;
   gap: 1px;
   padding: 2px;
-  border: 1px solid var(--chrome-border);
+  border: 1px solid var(--border);
   border-radius: var(--radius-sm);
-  background: var(--chrome-surface);
+  background: var(--surface);
   box-shadow: var(--shadow-md);
   opacity: 0;
   pointer-events: none;
   transition: opacity var(--dur-fast) var(--ease);
-
-  --surface: var(--chrome-surface);
-  --surface-hover: var(--chrome-surface-hover);
-  --text: var(--chrome-text);
-  --text-muted: var(--chrome-text-muted);
-  --text-subtle: var(--chrome-text-subtle);
-  --border: var(--chrome-border);
 }
 .block:hover > .block__tools,
 .block.is-selected > .block__tools,
@@ -229,8 +243,8 @@
   left: 0;
   right: 0;
   height: 2px;
-  border-radius: 1px;
-  background: var(--focus);
+  border-radius: var(--radius-full);
+  background: var(--chrome-focus);
   opacity: 0;
   transition: opacity var(--dur-fast) var(--ease);
 }
@@ -260,6 +274,9 @@
 .insert-point__btn:focus-visible {
   opacity: 1;
 }
+/* Carries .chrome-island, so --accent/--accent-contrast here are the chrome
+   pair and are contrast-guaranteed. Before that they were the course accent
+   under a hardcoded white, which is white-on-pale-yellow for a light accent. */
 .insert-point__btn:hover {
   background: var(--accent);
   border-color: var(--accent);
@@ -267,7 +284,13 @@
   transform: scale(1.1);
 }
 
-/* ---------- add block ---------- */
+/* ---------- add block ----------
+   Deliberately NOT a chrome island, despite being editor furniture. It is
+   transparent and sits in the content flow, so it has no chrome surface of its
+   own to read against — chrome ink on a Midnight canvas measures 2.8:1. Course
+   tokens are contrast-paired with --bg by construction, which is exactly the
+   guarantee a transparent element needs. Chrome is for things that bring their
+   own background; this brings none. */
 .add-block {
   display: flex;
   align-items: center;
@@ -280,7 +303,7 @@
   border-radius: var(--radius-md);
   background: transparent;
   color: var(--ink-soft);
-  font-family: inherit;
+  font-family: var(--font-ui);
   font-size: var(--text-base);
   font-weight: var(--weight-medium);
   cursor: pointer;
@@ -338,7 +361,9 @@
   position: absolute;
   z-index: 6;
   border-radius: var(--radius-full);
-  background: var(--focus);
+  /* Chrome, not course: at 0.34 over a dark canvas the course accent measured
+     1.75:1, and DESIGN.md names the drag handle in the must-be-chrome list. */
+  background: var(--chrome-focus);
   opacity: 0;
   transition: opacity var(--dur-fast) var(--ease), transform var(--dur-fast) var(--ease);
   touch-action: none;
@@ -347,10 +372,11 @@
 .blk-handle:hover,
 .blk-handle:focus-visible,
 .blk-handle.is-dragging { opacity: 1; }
-.blk-handle:focus-visible {
-  outline: 2px solid var(--focus);
-  outline-offset: 3px;
-}
+
+/* The 5px handles are deliberately below the 24px of WCAG 2.5.8, under its
+   Equivalent exception: width and spacing are both named radio groups in the
+   inspector, which is the discoverable and precise path. These are the fast
+   path on a selected block, not the only path. */
 
 /* Edge grips: pull outward to break out of the reading column. */
 .blk-handle--w {

@@ -15,7 +15,7 @@ import {
   verticalListSortingStrategy,
 } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
-import { GripVertical, Plus, Copy, Trash2 } from 'lucide-react'
+import { GripVertical, Plus, Copy, Trash2, Pencil } from 'lucide-react'
 import { useStore } from '../store'
 import { Button, IconButton, useConfirm } from '../ui'
 import { dragInstructions, makeAnnouncements } from '../dndA11y'
@@ -77,6 +77,7 @@ function OutlineItem({ lesson, index }: { lesson: Lesson; index: number }) {
           className="o-rename"
           autoFocus
           defaultValue={lesson.title}
+          aria-label={`Rename ${lesson.title}`}
           onClick={(e) => e.stopPropagation()}
           onBlur={(e) => {
             updateLesson(lesson.id, { title: e.target.value.trim() || 'Untitled lesson' })
@@ -88,11 +89,36 @@ function OutlineItem({ lesson, index }: { lesson: Lesson; index: number }) {
           }}
         />
       ) : (
-        <span className="o-title" onDoubleClick={() => setRenaming(true)} title={lesson.title}>
+        /* The title is the control that selects the lesson. It used to be a
+           <span> on a <div onClick>, which made the outline — the editor's
+           primary navigation — reachable by pointer only. F2 renames, matching
+           the double-click, and the Rename action below makes that
+           discoverable without having to know the key. */
+        <button
+          type="button"
+          className="o-title"
+          aria-current={lesson.id === lessonId ? 'true' : undefined}
+          aria-keyshortcuts="F2"
+          title={lesson.title}
+          onClick={() => selectLesson(lesson.id)}
+          onDoubleClick={() => setRenaming(true)}
+          onKeyDown={(e) => {
+            if (e.key === 'F2') {
+              e.preventDefault()
+              setRenaming(true)
+            }
+          }}
+        >
           {index + 1}. {lesson.title}
-        </span>
+        </button>
       )}
       <span className="o-actions" onClick={(e) => e.stopPropagation()}>
+        <IconButton
+          label={`Rename ${lesson.title}`}
+          size="sm"
+          icon={<Pencil size={13} />}
+          onClick={() => setRenaming(true)}
+        />
         <IconButton
           label={`Duplicate ${lesson.title}`}
           size="sm"

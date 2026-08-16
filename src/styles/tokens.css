@@ -144,11 +144,72 @@
      editor furniture (the block toolbar) still needs true chrome, so it reads
      from these instead — they are never remapped. */
   --chrome-surface: var(--n-0);
+  --chrome-surface-raised: var(--n-0);
+  --chrome-surface-sunken: var(--n-2);
   --chrome-surface-hover: var(--n-3);
+  --chrome-surface-active: var(--n-4);
   --chrome-text: var(--n-12);
   --chrome-text-muted: var(--n-9);
   --chrome-text-subtle: var(--n-8);
   --chrome-border: var(--n-4);
+  --chrome-border-strong: var(--n-7);
+  --chrome-accent: var(--a-fill);
+  --chrome-accent-hover: var(--a-fill-hover);
+  --chrome-accent-text: var(--a-text);
+  --chrome-accent-contrast: #ffffff;
+  --chrome-accent-subtle: color-mix(in srgb, var(--a-fill) 8%, var(--n-0));
+
+  /* A focus ring is always the editor speaking, never the course, so it is
+     never remapped — see .chrome-island below. The halo is what keeps the
+     violet ring visible on a dark-scheme course, where #5654d8 alone would
+     sit at roughly 2.4:1 against the canvas: one of the two rings always
+     contrasts, whichever background the ring lands on. */
+  --chrome-focus: var(--a-fill);
+  --chrome-focus-halo: var(--n-0);
+}
+
+/* ---------- chrome island ----------
+
+   The structural half of the two-palette rule. `.canvas` remaps the semantic
+   names onto the course's own theme so inline editing widgets are
+   contrast-paired with the content they sit in. Anything that exists only for
+   the author — a popover, a toolbar, an insert affordance — must re-establish
+   chrome, or it inherits the course and disappears on a dark scheme.
+
+   Put this class on any such element rendered *inside* `.canvas` and the whole
+   semantic layer points back at the chrome copies, so the primitives inside it
+   (Button, IconButton, Field, Segmented) come back to chrome with it. Elements
+   portalled to <body> are already outside the remap and do not need it. */
+.chrome-island {
+  --surface: var(--chrome-surface);
+  --surface-raised: var(--chrome-surface-raised);
+  --surface-sunken: var(--chrome-surface-sunken);
+  --surface-hover: var(--chrome-surface-hover);
+  --surface-active: var(--chrome-surface-active);
+  --text: var(--chrome-text);
+  --text-muted: var(--chrome-text-muted);
+  --text-subtle: var(--chrome-text-subtle);
+  --border: var(--chrome-border);
+  --border-strong: var(--chrome-border-strong);
+  --accent: var(--chrome-accent);
+  --accent-hover: var(--chrome-accent-hover);
+  --accent-text: var(--chrome-accent-text);
+  --accent-contrast: var(--chrome-accent-contrast);
+  --accent-subtle: var(--chrome-accent-subtle);
+  --focus: var(--chrome-focus);
+
+  /* legacy aliases, for the block editors still written against styles.css */
+  --panel: var(--chrome-surface);
+  --bg: var(--chrome-surface-sunken);
+  --ink: var(--chrome-text);
+  --ink-2: var(--chrome-text-muted);
+  --ink-3: var(--chrome-text-subtle);
+  --line: var(--chrome-border);
+  --line-2: var(--chrome-border-strong);
+  --brand: var(--chrome-accent);
+  --brand-soft: var(--chrome-accent-subtle);
+
+  color: var(--chrome-text);
 }
 
 /* ---------- legacy aliases ----------

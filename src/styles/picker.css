@@ -7,16 +7,15 @@
   width: min(380px, calc(100vw - 24px));
   padding: 0;
   overflow: hidden;
-
-  /* Floats over the course canvas, so it opts back out of the canvas's
-     course-colour remap and uses editor chrome. */
-  --surface: var(--chrome-surface);
-  --surface-hover: var(--chrome-surface-hover);
-  --text: var(--chrome-text);
-  --text-muted: var(--chrome-text-muted);
-  --text-subtle: var(--chrome-text-subtle);
-  --border: var(--chrome-border);
+  font-family: var(--font-ui);
 }
+
+/* .picker-pop is portalled to <body> and so never sees the canvas remap.
+   .slash-pop renders in normal flow under its block, inside .canvas, and so
+   carries .chrome-island (tokens.css). The partial opt-out that used to live
+   here listed --surface but not --surface-raised, which .ui-popover paints
+   from — so on a dark course the panel took the course's near-black background
+   while the labels stayed chrome ink, at roughly 1.5:1. */
 
 /* The slash picker is positioned in normal flow under its block rather than
    portalled, so it follows the block if the canvas scrolls. */

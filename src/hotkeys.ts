@@ -16,6 +16,10 @@ export interface Command {
   group: 'Course' | 'Edit' | 'Insert' | 'View' | 'Navigate'
   /** Canonical binding, e.g. "mod+k", "mod+shift+z". `mod` is ⌘ on Apple, Ctrl elsewhere. */
   keys?: string
+  /** Synonyms the palette also matches on: the word on the button, the word the
+      user's LMS admin uses, the word they'd have typed in another tool. Never
+      outranks a match on the label itself. */
+  keywords?: string[]
   run: () => void
   /** Hidden from the palette (still bound, still listed in the shortcut sheet). */
   paletteHidden?: boolean

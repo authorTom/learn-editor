@@ -1,11 +1,12 @@
 import { useEffect, useMemo, useState } from 'react'
 import {
   ArrowLeft, Eye, Settings, Share, PanelLeft, Undo2, Redo2, Search, Keyboard, Radar, Palette, LayoutGrid,
+  MoreHorizontal,
 } from 'lucide-react'
 import { useStore } from '../store'
 import { useUi } from '../uiStore'
 import { openCommentCount, useReviews } from '../review/reviewStore'
-import { Button, IconButton } from '../ui'
+import { Button, IconButton, Popover } from '../ui'
 import OutlineSidebar from './OutlineSidebar'
 import LessonEditor from './LessonEditor'
 import Preview from './Preview'
@@ -56,6 +57,7 @@ export default function CourseEditor() {
   const [showRecorder, setShowRecorder] = useState(false)
 
   const selectedBlockId = useUi((s) => s.selectedBlockId)
+  const selectBlock = useUi((s) => s.selectBlock)
   const addLesson = useStore((s) => s.addLesson)
   const lessonId = useStore((s) => s.lessonId)
   const lesson = course.lessons.find((l) => l.id === lessonId)
@@ -86,18 +88,25 @@ export default function CourseEditor() {
       { id: 'shortcuts', label: 'Keyboard shortcuts', group: 'View', keys: 'mod+/',
         run: () => setShowShortcuts(true) },
       { id: 'preview', label: 'Preview course', group: 'Course', keys: 'mod+p',
+        keywords: ['play', 'learner', 'phone', 'tablet', 'device'],
         run: () => setShowPreview(true) },
       { id: 'export', label: 'Export course', group: 'Course', keys: 'mod+e',
+        keywords: ['scorm', 'package', 'zip', 'download', 'publish', 'ship'],
         run: () => setShowExport(true) },
       { id: 'themes', label: 'Try a design preset', group: 'Course',
+        keywords: ['design', 'look', 'theme', 'colour', 'color', 'palette', 'font', 'style'],
         run: () => setShowThemes(true) },
       { id: 'board', label: 'Open the course board', group: 'Course', keys: 'mod+shift+b',
+        keywords: ['board', 'overview', 'all lessons', 'storyboard', 'map'],
         run: () => setShowBoard(true) },
       { id: 'flight', label: 'Test in a simulated LMS', group: 'Course', keys: 'mod+shift+t',
+        keywords: ['lms', 'scorm', 'flight recorder', 'runtime', 'suspend data', 'debug'],
         run: () => setShowRecorder(true) },
       { id: 'settings', label: 'Course settings', group: 'Course',
+        keywords: ['completion', 'navigation', 'title page', 'modules', 'progress'],
         run: () => setShowSettings(true) },
       { id: 'review', label: 'Send for review', group: 'Course',
+        keywords: ['comment', 'feedback', 'sme', 'reviewer', 'approval'],
         run: () => setShowReviewSetup(true) },
       { id: 'back', label: 'Back to all courses', group: 'Course', run: closeCourse },
       { id: 'undo', label: 'Undo', group: 'Edit', keys: 'mod+z', disabled: !canUndo, run: undo },
@@ -111,11 +120,16 @@ export default function CourseEditor() {
         run: () => (dockOpen ? closeDock() : openDock('inspector')) },
       { id: 'dock-inspector', label: 'Show block inspector', group: 'View',
         run: () => openDock('inspector') },
-      { id: 'dock-media', label: 'Show media library', group: 'View', run: () => openDock('media') },
-      { id: 'dock-templates', label: 'Show templates', group: 'View', run: () => openDock('templates') },
-      { id: 'dock-review', label: 'Show review feedback', group: 'View', run: () => openDock('review') },
-      { id: 'dock-a11y', label: 'Show accessibility check', group: 'View', run: () => openDock('a11y') },
-      { id: 'dock-versions', label: 'Show version history', group: 'View', run: () => openDock('versions') },
+      { id: 'dock-media', label: 'Show media library', group: 'View',
+        keywords: ['image', 'photo', 'upload', 'asset', 'audio'], run: () => openDock('media') },
+      { id: 'dock-templates', label: 'Show templates', group: 'View',
+        keywords: ['saved blocks', 'library', 'reuse'], run: () => openDock('templates') },
+      { id: 'dock-review', label: 'Show review feedback', group: 'View',
+        keywords: ['comments', 'inbox', 'suggestions'], run: () => openDock('review') },
+      { id: 'dock-a11y', label: 'Show accessibility check', group: 'View',
+        keywords: ['wcag', 'a11y', 'contrast', 'alt text', 'conformance'], run: () => openDock('a11y') },
+      { id: 'dock-versions', label: 'Show version history', group: 'View',
+        keywords: ['snapshot', 'diff', 'restore', 'undo history'], run: () => openDock('versions') },
     ],
     [
       canUndo, canRedo, undo, redo, closeCourse, addLesson, toggleOutline, dockOpen,
@@ -143,6 +157,13 @@ export default function CourseEditor() {
         'shell' + (outlineOpen ? ' shell--outline' : '') + (dockOpen ? ' shell--dock' : '')
       }
     >
+      {/* 42 tab stops separated the topbar from the first block, 19 of them the
+          outline's per-lesson controls. The canvas is tabIndex={-1}, so this
+          lands focus on it and the next Tab is the lesson's own content. */}
+      <a className="skip-link" href="#lesson-canvas">
+        Skip to lesson content
+      </a>
+
       <header className="topbar">
         <div className="topbar__left">
           <IconButton
@@ -214,15 +235,53 @@ export default function CourseEditor() {
           />
           <DockToggle />
           <span className="topbar__divider" aria-hidden="true" />
-          <Button icon={<LayoutGrid size={15} />} onClick={() => setShowBoard(true)}>
-            Board
-          </Button>
-          <Button icon={<Palette size={15} />} onClick={() => setShowThemes(true)}>
-            Look
-          </Button>
-          <Button icon={<Radar size={15} />} onClick={() => setShowRecorder(true)}>
-            Test
-          </Button>
+          {/* Board, design presets and the LMS test are course-level things you
+              do a handful of times, not hourly. As four equal secondary buttons
+              they taught that nothing in the topbar mattered more than anything
+              else — and "Test" reads as *quiz* to an L&D author, while "Look"
+              was a word the palette could not find. They keep their full names
+              here and in the palette. */}
+          <Popover
+            label="More course tools"
+            align="end"
+            className="menu-pop"
+            trigger={<IconButton label="More course tools" icon={<MoreHorizontal size={17} />} />}
+          >
+            {({ close }) => (
+              <>
+                <button
+                  className="menu-item"
+                  onClick={() => {
+                    close()
+                    setShowBoard(true)
+                  }}
+                >
+                  <LayoutGrid size={15} aria-hidden="true" />
+                  Course board
+                </button>
+                <button
+                  className="menu-item"
+                  onClick={() => {
+                    close()
+                    setShowThemes(true)
+                  }}
+                >
+                  <Palette size={15} aria-hidden="true" />
+                  Design presets
+                </button>
+                <button
+                  className="menu-item"
+                  onClick={() => {
+                    close()
+                    setShowRecorder(true)
+                  }}
+                >
+                  <Radar size={15} aria-hidden="true" />
+                  Test in a simulated LMS
+                </button>
+              </>
+            )}
+          </Popover>
           <Button icon={<Eye size={15} />} onClick={() => setShowPreview(true)}>
             Preview
           </Button>
@@ -243,6 +302,22 @@ export default function CourseEditor() {
           onClick={() => setOutlineOpen(false)}
         />
         <LessonEditor />
+        {/* The dock overlay had neither scrim nor click-outside, so at 1000px it
+            covered 36% of the canvas — often the very block whose selection
+            opened it — with no way out but the close button. Same affordance as
+            the outline, same breakpoint.
+            Clearing the selection is part of the dismissal, not a side effect:
+            the effect above reopens the inspector while a block is selected, so
+            closing alone would reopen on the next tick and the scrim would be a
+            promise the app cannot keep. */}
+        <div
+          className="shell__scrim shell__scrim--dock"
+          aria-hidden="true"
+          onClick={() => {
+            selectBlock(null)
+            closeDock()
+          }}
+        />
         <Dock
           openComments={openComments}
           a11yErrors={a11yErrors}

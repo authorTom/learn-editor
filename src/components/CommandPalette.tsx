@@ -9,8 +9,18 @@ interface Item {
   key: string
   label: string
   group: string
+  keywords?: string[]
   hint?: string
   run: () => void
+}
+
+/** With no query the palette used to show commands in declaration order, which
+    put "Keyboard shortcuts" first and made a bare ⌘K↵ open the help sheet.
+    Group order is what a first-time reader would expect to scan. */
+const GROUP_ORDER = ['Course', 'Insert', 'Edit', 'View', 'Navigate', 'Go to lesson']
+const groupRank = (g: string) => {
+  const i = GROUP_ORDER.indexOf(g)
+  return i === -1 ? GROUP_ORDER.length : i
 }
 
 /**
@@ -25,7 +35,13 @@ function score(needle: string, haystack: string): number | null {
   const n = needle.toLowerCase()
   const h = haystack.toLowerCase()
   const direct = h.indexOf(n)
-  if (direct >= 0) return direct === 0 ? 1000 : 500 - direct
+  if (direct >= 0) {
+    // A match that starts a word beats one buried inside one. Without this,
+    // "board" ranked "Keyboard shortcuts" (hit at 3) above "Open the course
+    // board" (hit at 16), so Enter opened the wrong dialog.
+    if (direct === 0) return 1000
+    return /[\s\-/(]/.test(h[direct - 1]) ? 800 - direct : 500 - direct
+  }
   let i = 0
   let hits = 0
   let last = -1
@@ -39,6 +55,17 @@ function score(needle: string, haystack: string): number | null {
     }
   }
   return i === n.length ? 200 - gaps + hits : null
+}
+
+/** Best of the label and the item's synonyms. A keyword hit is docked one point
+    so a real label match always wins a tie. */
+function best(needle: string, item: Item): number | null {
+  let out = score(needle, item.label)
+  for (const k of item.keywords ?? []) {
+    const s = score(needle, k)
+    if (s !== null) out = out === null ? s - 1 : Math.max(out, s - 1)
+  }
+  return out
 }
 
 export default function CommandPalette({
@@ -66,6 +93,7 @@ export default function CommandPalette({
         key: 'cmd:' + c.id,
         label: c.label,
         group: c.group,
+        keywords: c.keywords,
         hint: c.keys ? formatKeys(c.keys) : undefined,
         run: c.run,
       }))
@@ -80,6 +108,7 @@ export default function CommandPalette({
         run: () => selectLesson(l.id),
       })
     }
+    out.sort((a, b) => groupRank(a.group) - groupRank(b.group))
     return out
   }, [commands, course, selectLesson])
 
@@ -87,7 +116,7 @@ export default function CommandPalette({
     const q = query.trim()
     if (!q) return all
     return all
-      .map((it) => ({ it, s: score(q, it.label) }))
+      .map((it) => ({ it, s: best(q, it) }))
       .filter((r): r is { it: Item; s: number } => r.s !== null)
       .sort((a, b) => b.s - a.s)
       .map((r) => r.it)
