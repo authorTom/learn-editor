@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react'
 import { X, Monitor, Tablet, Smartphone } from 'lucide-react'
 import type { Course } from '../types'
+import { APP_FONTS_HREF } from '../scorm/fonts'
 import { buildPlayerHtml } from '../scorm/buildPlayerHtml'
 
 type Device = 'desktop' | 'tablet' | 'phone'
@@ -15,7 +16,7 @@ export default function Preview({ course, onClose }: { course: Course; onClose: 
   const [device, setDevice] = useState<Device>('desktop')
 
   // The preview is the real exported player, running in 'preview' SCORM mode.
-  const html = useMemo(() => buildPlayerHtml(course, 'preview'), [course])
+  const html = useMemo(() => buildPlayerHtml(course, 'preview', undefined, { fontsHref: APP_FONTS_HREF }), [course])
   const size = SIZES[device]
 
   return (

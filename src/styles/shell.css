@@ -452,3 +452,66 @@
   .topbar__cmdk kbd { display: none; }
   .topbar__cmdk { padding: 0 var(--space-2); }
 }
+
+/* ---------- crash screen ----------
+   Chrome tokens only, and `chrome-island` on the root: this can render on top
+   of a dark-scheme course canvas, and a failure message that is itself
+   unreadable is not a failure message. */
+.crash {
+  display: grid;
+  place-items: center;
+  min-height: 100vh;
+  min-height: 100dvh;
+  padding: var(--space-5);
+  background: var(--surface-sunken);
+  color: var(--text);
+}
+.crash__card {
+  width: min(520px, 100%);
+  padding: var(--space-6);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  background: var(--surface);
+  box-shadow: var(--shadow-md);
+  text-align: left;
+}
+.crash__icon {
+  width: 28px;
+  height: 28px;
+  color: var(--text-muted);
+}
+.crash__title {
+  margin: var(--space-4) 0 var(--space-2);
+  font-size: var(--text-lg);
+  font-weight: var(--weight-semibold);
+  line-height: 1.25;
+}
+.crash__body {
+  margin: 0 0 var(--space-4);
+  color: var(--text-muted);
+}
+/* The message is diagnostic, not prose: keep it monospaced, scrollable and
+   visibly secondary so it never competes with the reassurance above it. */
+.crash__detail {
+  margin: 0 0 var(--space-5);
+  padding: var(--space-3);
+  max-height: 160px;
+  overflow: auto;
+  border-radius: var(--radius-sm);
+  background: var(--surface-sunken);
+  color: var(--text-subtle);
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+.crash__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+.crash__hint {
+  margin: var(--space-4) 0 0;
+  color: var(--text-subtle);
+  font-size: var(--text-sm);
+}

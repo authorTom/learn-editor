@@ -47,11 +47,24 @@ function lessonThemes(course: Course, media?: PackagedMedia) {
  * flight recorder and the review build all want. Pass a `PackagedMedia` and the
  * srcs instead point at the `media/…` files it describes, which the caller is
  * then responsible for writing alongside this page.
+ *
+ * `fontsHref` decides where the page gets its type. It exists because the same
+ * function serves two audiences with opposite needs:
+ *
+ *   • Rendered *inside the app* — preview, the flight recorder, the version
+ *     diff — the page is a `srcdoc` iframe, so it inherits the editor's CSP.
+ *     That policy allows no third-party stylesheet, and rightly so. These
+ *     callers pass the app's own `/fonts/fonts.css`, which is the same set of
+ *     faces, so preview still matches the export exactly.
+ *   • Written to a *file* — a SCORM package, a web zip, a review round — the
+ *     page is opened from an LMS or a colleague's downloads folder, where no
+ *     such path exists. Those callers pass nothing and get the CDN link.
  */
 export function buildPlayerHtml(
   course: Course,
   version: ScormVersion,
-  media?: PackagedMedia
+  media?: PackagedMedia,
+  opts?: { fontsHref?: string }
 ): string {
   // </script> inside the JSON payload would terminate the script tag early
   const esc = (o: unknown) => JSON.stringify(o).replace(/<\//g, '<\\/')
@@ -73,11 +86,13 @@ export function buildPlayerHtml(
 
   const pack = FONT_PACKS.find((p) => p.id === theme.fontPack) ?? FONT_PACKS[0]
   const scheme = SCHEMES.find((s) => s.id === theme.scheme) ?? SCHEMES[0]
-  const fontsLink = pack.google
-    ? `<link rel="preconnect" href="https://fonts.googleapis.com">
+  const fontsLink = opts?.fontsHref
+    ? `<link href="${opts.fontsHref}" rel="stylesheet">`
+    : pack.google
+      ? `<link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?${pack.google}&display=swap" rel="stylesheet">`
-    : ''
+      : ''
   // Same derivation the editor canvas uses, serialised. Key order is fixed so
   // the emitted stylesheet stays stable across builds.
   const vars = courseVars(course)

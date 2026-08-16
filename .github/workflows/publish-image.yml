@@ -50,6 +50,64 @@ jobs:
       - name: Set up Buildx
         uses: docker/setup-buildx-action@v3
 
+      # Build once, load it locally, and prove it actually starts before any
+      # tag is pushed. Now that builds are released under a version number, a
+      # broken image is not something the next push quietly replaces — it is a
+      # published 1.x that someone may already have pulled.
+      - name: Build for testing
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          load: true
+          tags: learn-editor:smoke-test
+          cache-from: type=gha
+
+      - name: Smoke-test the image
+        run: |
+          set -euo pipefail
+          docker run -d --name smoke -p 8080:8080 \
+            -e LE_DATA_DIR=/data -e LE_LOG_LEVEL=debug learn-editor:smoke-test
+
+          # Wait for it to answer, rather than sleeping and hoping.
+          for i in $(seq 1 30); do
+            if curl -fsS http://127.0.0.1:8080/healthz >/dev/null 2>&1; then break; fi
+            if [ "$i" = "30" ]; then
+              echo "::error::the container never became healthy"
+              docker logs smoke
+              exit 1
+            fi
+            sleep 1
+          done
+
+          echo "--- health ---"
+          curl -fsS http://127.0.0.1:8080/healthz
+
+          # The API reports the version the image was built from...
+          echo "--- version ---"
+          version=$(curl -fsS http://127.0.0.1:8080/api/version | sed 's/.*"version":"\([^"]*\)".*/\1/')
+          expected=$(node -p "require('./package.json').version")
+          echo "api=$version package.json=$expected"
+          [ "$version" = "$expected" ] || {
+            echo "::error::the image reports $version but this commit is $expected"
+            exit 1
+          }
+
+          # ...it serves the built SPA, not just the API...
+          echo "--- app shell ---"
+          curl -fsS http://127.0.0.1:8080/ | grep -q '<div id="root">' || {
+            echo "::error::the app shell was not served"
+            exit 1
+          }
+
+          # ...and it starts locked, with no accounts yet.
+          echo "--- config ---"
+          curl -fsS http://127.0.0.1:8080/api/config | grep -q '"required":true' || {
+            echo "::error::the image did not start with authentication required"
+            exit 1
+          }
+
+          docker rm -f smoke
+
       - name: Build and push
         uses: docker/build-push-action@v6
         with:

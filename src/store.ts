@@ -93,7 +93,9 @@ interface EditorState {
   createCourseFromTemplate: (title: string, templateId: string) => Promise<Course | undefined>
   openCourse: (id: string) => Promise<void>
   closeCourse: () => void
-  deleteCourse: (id: string) => Promise<void>
+  /** `remote: false` deletes only the local copy — used by sync when the course
+      is already gone on the server, where telling it again would deadlock. */
+  deleteCourse: (id: string, opts?: { remote?: boolean }) => Promise<void>
   duplicateCourse: (id: string) => Promise<void>
   importCourse: (data: Course) => Promise<Course>
 
@@ -157,6 +159,10 @@ export const useStore = create<EditorState>((set, get) => {
   function schedulePersist() {
     if (saveTimer) clearTimeout(saveTimer)
     saveTimer = setTimeout(async () => {
+      // Clear the handle *before* awaiting. It used to be left set for the life
+      // of the process, so `closeCourse` believed a save was always pending and
+      // wrote the course again on every close.
+      saveTimer = null
       const c = get().course
       if (!c) return
       await saveCourse(c, persistedAssets)
@@ -167,9 +173,26 @@ export const useStore = create<EditorState>((set, get) => {
     }, 400)
   }
 
+  /** Write the open course now, cancelling any debounced save. Returns once the
+      bytes are down, so a caller can safely change what `get().course` is. */
+  async function flushPendingSave() {
+    if (!saveTimer) return
+    clearTimeout(saveTimer)
+    saveTimer = null
+    const c = get().course
+    if (c) await saveCourse(c, persistedAssets)
+  }
+
   /** Make a course the open one: fresh history, and a media ledger matching
-      what is already on disk for it, so the first autosave writes only prose. */
-  function adoptCourse(c: Course, persisted: Set<string>) {
+      what is already on disk for it, so the first autosave writes only prose.
+   *
+   *  The queued save is flushed first, and this is the whole reason the function
+   *  is async. A pending autosave reads `get().course` when it fires — swapping
+   *  the open course out from under it meant the timer wrote the *new* course
+   *  and the last 400ms of edits to the old one were dropped, silently, with the
+   *  editor still showing "Saved". */
+  async function adoptCourse(c: Course, persisted: Set<string>) {
+    await flushPendingSave()
     persistedAssets = persisted
     set({
       course: c,
@@ -296,7 +319,7 @@ export const useStore = create<EditorState>((set, get) => {
       const c = newCourse(title)
       await saveCourse(c)
       set((s) => ({ courses: [toMeta(c), ...s.courses] }))
-      adoptCourse(c, new Set())
+      await adoptCourse(c, new Set())
       return c
     },
 
@@ -322,7 +345,7 @@ export const useStore = create<EditorState>((set, get) => {
       const persisted = new Set<string>()
       await saveCourse(c, persisted)
       set((s) => ({ courses: [toMeta(c), ...s.courses] }))
-      adoptCourse(c, persisted)
+      await adoptCourse(c, persisted)
       return c
     },
 
@@ -330,7 +353,7 @@ export const useStore = create<EditorState>((set, get) => {
       const loaded = await loadCourse(id)
       if (!loaded) return
       const c = normalizeCourse(loaded.course)
-      adoptCourse(c, loaded.persisted)
+      await adoptCourse(c, loaded.persisted)
       // History is empty again, so nothing can restore an asset deleted in an
       // earlier session — the safe moment to free what it left behind. Awaited
       // rather than fired off: the editor is already on screen (the state is
@@ -340,12 +363,9 @@ export const useStore = create<EditorState>((set, get) => {
     },
 
     closeCourse: () => {
-      if (saveTimer) {
-        clearTimeout(saveTimer)
-        saveTimer = null
-        const c = get().course
-        if (c) void saveCourse(c, persistedAssets)
-      }
+      // Not awaited: closing must feel instant, and the write is already
+      // in flight against the course object captured before the state clears.
+      void flushPendingSave()
       persistedAssets = new Set()
       set({ course: null, lessonId: null, saveState: 'idle', past: [], future: [] })
     },
@@ -386,7 +406,7 @@ export const useStore = create<EditorState>((set, get) => {
 
         The review store is pulled in dynamically: it imports this one (to apply
         suggestions), and a static import back would make that a cycle. */
-    deleteCourse: async (id) => {
+    deleteCourse: async (id, opts) => {
       await deleteCourseRecord(id)
       const { purgeCourseReviews } = await import('./review/storage')
       await purgeCourseReviews(id)
@@ -394,6 +414,17 @@ export const useStore = create<EditorState>((set, get) => {
       await purgeCourseVersions(id)
       const { useReviews } = await import('./review/reviewStore')
       useReviews.getState().forgetCourse(id)
+      // Tell the server too, when there is one. Dynamically imported for the
+      // same reason as the others: the sync store imports this one.
+      //
+      // `remote: false` is how sync itself deletes a course that was already
+      // removed on another device. Without it the call re-enters the sync
+      // queue from inside a running sync task and waits for it to finish —
+      // a deadlock that stops the client syncing at all, permanently.
+      if (opts?.remote !== false) {
+        const { useSync } = await import('./sync/syncStore')
+        await useSync.getState().syncDelete(id)
+      }
       set((s) => ({ courses: s.courses.filter((m) => m.id !== id) }))
     },
 
@@ -541,6 +572,11 @@ export const useStore = create<EditorState>((set, get) => {
           blockType: b.block.type,
           block: cloneBlock(b.block),
           assets: b.assets ?? [],
+          // Imported entries used to arrive with no `rev` at all, leaving the
+          // staleness check in `syncAllLinked` resting entirely on its `?? 1`
+          // fallback. Start them where `saveBlockTemplate` starts, so a library
+          // behaves the same however it got here.
+          rev: b.rev ?? 1,
           createdAt: b.createdAt ?? now,
         }
         await idbSet(BLOCK_TPL_PREFIX + t.id, t)
