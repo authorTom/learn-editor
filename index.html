@@ -3,13 +3,19 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <!-- Inter for the editor UI, plus the font-pack families so theme previews render -->
-    <link
-      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Playfair+Display:wght@700;800&family=Source+Sans+3:wght@400;600&family=Nunito:wght@400;700;800&family=Space+Grotesk:wght@500;700&family=IBM+Plex+Sans:wght@400;600&display=swap"
-      rel="stylesheet"
-    />
+    <!--
+      Inter for the editor UI, plus every font-pack family so theme previews
+      render in the type they promise. Served from this origin rather than
+      fonts.googleapis.com: no visitor IP goes to a third party, the app works
+      on an internal network with no route out, and style-src can stay strict.
+      Regenerate with `npm run fonts:fetch` — see scripts/fetch-fonts.mjs.
+
+      Preloaded: Inter 400/500 are the editor's own interface, needed for the
+      first paint. The rest are fetched on demand by the faces that use them.
+    -->
+    <link rel="preload" href="/fonts/inter-400-normal.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href="/fonts/inter-500-normal.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="stylesheet" href="/fonts/fonts.css" />
     <title>Learn Editor — SCORM Course Authoring</title>
   </head>
   <body>

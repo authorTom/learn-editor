@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { Suspense, lazy, useEffect, useMemo, useState } from 'react'
 import {
   ArrowLeft, Eye, Settings, Share, PanelLeft, Undo2, Redo2, Search, Keyboard, Radar, Palette, LayoutGrid,
   MoreHorizontal,
@@ -9,8 +9,6 @@ import { openCommentCount, useReviews } from '../review/reviewStore'
 import { Button, IconButton, Popover } from '../ui'
 import OutlineSidebar from './OutlineSidebar'
 import LessonEditor from './LessonEditor'
-import Preview from './Preview'
-import ExportDialog from './ExportDialog'
 import SettingsSheet from './SettingsSheet'
 import MediaLibrary from './MediaLibrary'
 import TemplateLibrary from './TemplateLibrary'
@@ -21,12 +19,23 @@ import Inspector from './Inspector'
 import LessonStyleDialog from './LessonStyleDialog'
 import CommandPalette from './CommandPalette'
 import ThemeBrowser from './ThemeBrowser'
-import CourseBoard from './CourseBoard'
 import ShortcutSheet from './ShortcutSheet'
-import FlightRecorder from './FlightRecorder'
 import AccessibilityPanel, { useA11yErrorCount } from './AccessibilityPanel'
 import VersionPanel from './VersionPanel'
+import UserMenu from './auth/UserMenu'
+import SyncStatus from './SyncStatus'
 import { formatKeys, useHotkeys, type Command } from '../hotkeys'
+
+/**
+ * Split out of the main bundle. Each of these is opened a handful of times in a
+ * session, and between them they carry the SCORM exporter (JSZip), the whole
+ * inlined player, and the simulated LMS runtime — none of which an author needs
+ * downloaded before the first lesson can be typed into.
+ */
+const Preview = lazy(() => import('./Preview'))
+const ExportDialog = lazy(() => import('./ExportDialog'))
+const FlightRecorder = lazy(() => import('./FlightRecorder'))
+const CourseBoard = lazy(() => import('./CourseBoard'))
 
 export default function CourseEditor() {
   const course = useStore((s) => s.course)!
@@ -288,6 +297,9 @@ export default function CourseEditor() {
           <Button variant="primary" icon={<Share size={15} />} onClick={() => setShowExport(true)}>
             Export
           </Button>
+          <SyncStatus />
+          {/* Renders nothing at all in local mode — no server, no account. */}
+          <UserMenu topInset={52} />
         </div>
       </header>
 
@@ -340,11 +352,16 @@ export default function CourseEditor() {
         />
       </div>
 
-      {showPreview && <Preview course={course} onClose={() => setShowPreview(false)} />}
-      {showRecorder && <FlightRecorder course={course} onClose={() => setShowRecorder(false)} />}
-      {showBoard && <CourseBoard onClose={() => setShowBoard(false)} />}
+      {/* No fallback UI: these chunks are small and local, and a flash of a
+          spinner where a dialog is about to appear reads worse than the few
+          milliseconds it replaces. */}
+      <Suspense fallback={null}>
+        {showPreview && <Preview course={course} onClose={() => setShowPreview(false)} />}
+        {showRecorder && <FlightRecorder course={course} onClose={() => setShowRecorder(false)} />}
+        {showBoard && <CourseBoard onClose={() => setShowBoard(false)} />}
+        {showExport && <ExportDialog course={course} onClose={() => setShowExport(false)} />}
+      </Suspense>
       {showThemes && <ThemeBrowser onClose={() => setShowThemes(false)} />}
-      {showExport && <ExportDialog course={course} onClose={() => setShowExport(false)} />}
       {showSettings && <SettingsSheet onClose={() => setShowSettings(false)} />}
       {showReviewSetup && (
         <ReviewDialog

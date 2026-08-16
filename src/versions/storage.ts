@@ -75,6 +75,20 @@ export function getVersionCourse(id: string): Promise<Course | undefined> {
   return idbGet(VERSION_DATA_PREFIX + id) as Promise<Course | undefined>
 }
 
+/**
+ * Write a snapshot that already has an id — the one the server gave it.
+ *
+ * Sync needs this and `saveVersion` cannot serve: it mints a fresh id, so
+ * pulling the same snapshot twice would leave two copies of one moment in the
+ * history. Snapshots are immutable, so an id that already exists is a no-op
+ * rather than an overwrite.
+ */
+export async function upsertVersion(v: CourseVersion, course: Course): Promise<void> {
+  if (await idbGet(VERSION_PREFIX + v.id)) return
+  await idbSet(VERSION_DATA_PREFIX + v.id, course)
+  await idbSet(VERSION_PREFIX + v.id, v)
+}
+
 export async function deleteVersion(id: string): Promise<void> {
   await idbDel(VERSION_PREFIX + id)
   await idbDel(VERSION_DATA_PREFIX + id)

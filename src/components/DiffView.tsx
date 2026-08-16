@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react'
 import { ArrowRight, Columns2, List, X } from 'lucide-react'
 import type { Course } from '../types'
+import { APP_FONTS_HREF } from '../scorm/fonts'
 import { buildPlayerHtml } from '../scorm/buildPlayerHtml'
 import { diffCourses, highlightMap, type ChangeKind } from '../versions/diff'
 import { Button, Segmented } from '../ui'
@@ -126,11 +127,11 @@ export default function DiffView({
   const map = useMemo(() => highlightMap(diff), [diff])
   const focus = diff.firstChangedLessonId
   const beforeHtml = useMemo(
-    () => withHighlights(buildPlayerHtml(before, 'preview'), map, 'before', focus),
+    () => withHighlights(buildPlayerHtml(before, 'preview', undefined, { fontsHref: APP_FONTS_HREF }), map, 'before', focus),
     [before, map, focus]
   )
   const afterHtml = useMemo(
-    () => withHighlights(buildPlayerHtml(after, 'preview'), map, 'after', focus),
+    () => withHighlights(buildPlayerHtml(after, 'preview', undefined, { fontsHref: APP_FONTS_HREF }), map, 'after', focus),
     [after, map, focus]
   )
 

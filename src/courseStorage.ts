@@ -90,6 +90,30 @@ export async function loadCourse(id: string): Promise<LoadedCourse | undefined> 
 }
 
 /**
+ * The stored record as it sits on disk: every field of the course, with the
+ * asset bytes stripped out.
+ *
+ * This is exactly the document sync sends to the server, which is the point of
+ * exposing it. Sync could hydrate a course and strip it again, but that would
+ * mean reading every image off disk in order to throw it away — on a debounce,
+ * for a change to a sentence. The split this module already maintains is the
+ * same split the protocol wants, so it is reused rather than recreated.
+ */
+export function loadCourseRecord(id: string): Promise<Course | undefined> {
+  return idbGet(COURSE_PREFIX + id) as Promise<Course | undefined>
+}
+
+/** One asset's bytes, as the data URL they were stored as. */
+export function loadAssetMedia(courseId: string, assetId: string): Promise<string | undefined> {
+  return idbGet(mediaKey(courseId, assetId)) as Promise<string | undefined>
+}
+
+/** Write one asset's bytes — used when sync pulls media down from the server. */
+export async function saveAssetMedia(courseId: string, assetId: string, src: string): Promise<void> {
+  await idbSet(mediaKey(courseId, assetId), src)
+}
+
+/**
  * Drop media belonging to assets the course no longer has.
  *
  * Deleting an asset can't free its bytes there and then, because undo can bring

@@ -1,0 +1,440 @@
+/* ===== Accounts: sign-in, account sheet, people, user menu, about =====
+
+   Chrome tokens only, and the roots carry `chrome-island`. All of this is
+   editor furniture: the account sheet can open over a Midnight course canvas,
+   and a panel that inherited the course's palette would be unreadable there —
+   the two-palette rule in DESIGN.md. */
+
+/* ---------- the pre-sign-in screen ---------- */
+
+.auth {
+  display: grid;
+  place-items: center;
+  min-height: 100vh;
+  min-height: 100dvh;
+  padding: var(--space-5);
+  background: var(--surface-sunken);
+  color: var(--text);
+}
+
+.auth__card {
+  width: min(420px, 100%);
+  padding: var(--space-6);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  background: var(--surface);
+  box-shadow: var(--shadow-md);
+}
+
+.auth__mark {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  margin-bottom: var(--space-4);
+  border-radius: var(--radius-md);
+  background: var(--accent);
+  color: var(--accent-contrast);
+}
+.auth__mark svg { width: 22px; height: 22px; }
+
+.auth__title {
+  margin: 0 0 var(--space-2);
+  font-size: var(--text-lg);
+  font-weight: var(--weight-semibold);
+  line-height: 1.25;
+}
+
+.auth__blurb {
+  margin: 0 0 var(--space-5);
+  color: var(--text-muted);
+  font-size: var(--text-sm);
+}
+
+.auth__form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+/* role="alert", so it must be legible the instant it appears rather than
+   relying on colour alone to be noticed. */
+.auth__error {
+  margin: 0;
+  padding: var(--space-3);
+  border: 1px solid var(--danger-border, var(--border));
+  border-radius: var(--radius-sm);
+  background: var(--danger-surface, var(--surface-sunken));
+  color: var(--danger-text, var(--text));
+  font-size: var(--text-sm);
+}
+
+.auth__foot {
+  margin: var(--space-5) 0 0;
+  color: var(--text-subtle);
+  font-size: var(--text-sm);
+  text-align: center;
+}
+
+.auth__spinner {
+  display: inline-block;
+  vertical-align: -2px;
+  animation: le-spin 900ms linear infinite;
+}
+@keyframes le-spin { to { transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) {
+  .auth__spinner { animation: none; }
+}
+
+/* ---------- account sheet ---------- */
+
+.account {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+}
+
+.account__section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  align-items: flex-start;
+}
+
+.account__heading {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin: 0;
+  font-size: var(--text-base);
+  font-weight: var(--weight-semibold);
+}
+
+.account__meta {
+  margin: 0;
+  color: var(--text-muted);
+  font-size: var(--text-sm);
+}
+
+.account__badge {
+  display: inline-block;
+  margin-left: var(--space-2);
+  padding: 1px var(--space-2);
+  border-radius: var(--radius-full);
+  background: var(--surface-sunken);
+  color: var(--text-muted);
+  font-size: var(--text-2xs);
+  font-weight: var(--weight-medium);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.account__badge--warn {
+  background: var(--warning-surface, var(--surface-active));
+  color: var(--warning-text, var(--text));
+}
+
+.account__sessions {
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.account__session {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-3);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--surface);
+}
+.account__session-icon { flex: 0 0 auto; color: var(--text-muted); }
+.account__session-body { flex: 1 1 auto; min-width: 0; }
+.account__session-name {
+  margin: 0 0 2px;
+  font-size: var(--text-sm);
+  font-weight: var(--weight-medium);
+}
+
+/* ---------- people (admin) ---------- */
+
+.users {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+}
+
+.users__add {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  align-items: flex-start;
+  padding: var(--space-4);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--surface-sunken);
+}
+
+.users__add-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: var(--space-3);
+  width: 100%;
+}
+
+/* The one-time invitation link. Deliberately loud: it cannot be shown again,
+   and an admin who scrolls past it has to reissue. */
+.users__invite {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  align-items: flex-start;
+  padding: var(--space-4);
+  border: 1px solid var(--accent);
+  border-radius: var(--radius-md);
+  background: var(--accent-subtle, var(--surface-sunken));
+}
+.users__invite-title {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin: 0;
+  font-weight: var(--weight-semibold);
+}
+.users__invite-note {
+  margin: 0;
+  color: var(--text-muted);
+  font-size: var(--text-sm);
+}
+.users__invite-row {
+  display: flex;
+  gap: var(--space-2);
+  width: 100%;
+}
+.users__invite-url {
+  flex: 1 1 auto;
+  min-width: 0;
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+}
+
+.users__list {
+  margin: var(--space-3) 0 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.users__row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+  padding: var(--space-3);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--surface);
+}
+.users__row.is-suspended { opacity: 0.65; }
+
+.users__identity { flex: 1 1 220px; min-width: 0; }
+.users__name {
+  margin: 0 0 2px;
+  font-size: var(--text-sm);
+  font-weight: var(--weight-medium);
+}
+
+.users__actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+}
+.users__actions .ui-select {
+  width: auto;
+  min-width: 130px;
+  font-size: var(--text-sm);
+}
+
+/* ---------- user menu ---------- */
+
+.usermenu__trigger {
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  padding: 0;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-full);
+  background: var(--surface-sunken);
+  color: var(--text);
+  font-size: var(--text-xs);
+  font-weight: var(--weight-semibold);
+  letter-spacing: 0.02em;
+}
+.usermenu__trigger:hover { background: var(--surface-hover); }
+.usermenu__trigger:focus-visible {
+  outline: 2px solid var(--focus, var(--accent));
+  outline-offset: 2px;
+}
+
+.usermenu { min-width: 220px; padding: var(--space-1); }
+
+.usermenu__head {
+  padding: var(--space-3);
+  border-bottom: 1px solid var(--border);
+  margin-bottom: var(--space-1);
+}
+.usermenu__name {
+  margin: 0;
+  font-size: var(--text-sm);
+  font-weight: var(--weight-semibold);
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.usermenu__email,
+.usermenu__role {
+  margin: 2px 0 0;
+  color: var(--text-muted);
+  font-size: var(--text-xs);
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.usermenu__item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  width: 100%;
+  padding: var(--space-2) var(--space-3);
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: none;
+  color: var(--text);
+  font-size: var(--text-sm);
+  text-align: left;
+}
+.usermenu__item:hover { background: var(--surface-hover); }
+.usermenu__item:focus-visible {
+  outline: 2px solid var(--focus, var(--accent));
+  outline-offset: -2px;
+}
+.usermenu__item--danger { color: var(--danger-text, var(--text)); }
+
+/* ---------- about ---------- */
+
+.about {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: var(--space-2) var(--space-4);
+  margin: 0;
+  font-size: var(--text-sm);
+}
+.about dt { color: var(--text-muted); }
+.about dd { margin: 0; }
+.about__warn { color: var(--warning-text, var(--text-muted)); }
+.about__foot {
+  margin: var(--space-5) 0 0;
+  color: var(--text-subtle);
+  font-size: var(--text-sm);
+}
+
+/* Boot: the one frame before we know whether this deployment has accounts.
+   Deliberately blank rather than a spinner — it resolves in a single request,
+   and a spinner that flashes for 40ms reads as jank, not as progress. */
+.boot {
+  min-height: 100vh;
+  min-height: 100dvh;
+  background: var(--surface-sunken);
+}
+
+/* ---------- sync status + conflict ---------- */
+
+.syncstatus {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  padding: 2px var(--space-2);
+  border: 0;
+  border-radius: var(--radius-full);
+  background: none;
+  color: var(--text-muted);
+  font-size: var(--text-xs);
+  /* The topbar is tight; "Synced just now" must not wrap to two lines. */
+  white-space: nowrap;
+}
+.syncstatus:hover { background: var(--surface-hover); color: var(--text); }
+.syncstatus:focus-visible {
+  outline: 2px solid var(--focus, var(--accent));
+  outline-offset: 1px;
+}
+.syncstatus.is-warn { color: var(--warning-text, var(--text)); }
+.syncstatus__spin { animation: le-spin 900ms linear infinite; }
+@media (prefers-reduced-motion: reduce) {
+  .syncstatus__spin { animation: none; }
+}
+
+.conflict {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  align-items: flex-start;
+}
+.conflict__lede { margin: 0; }
+.conflict__count {
+  margin: 0;
+  color: var(--text-muted);
+  font-size: var(--text-sm);
+}
+
+.conflict__choices {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  width: 100%;
+}
+
+/* Each option is a full statement of what will happen, including what is lost.
+   A row of three equal buttons labelled Mine/Theirs/Both would make the
+   destructive choices as easy to pick by reflex as the safe one. */
+.conflict__choice {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  padding: var(--space-3) var(--space-4);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--surface);
+  color: var(--text);
+  text-align: left;
+}
+.conflict__choice:hover:not(:disabled) {
+  border-color: var(--border-strong);
+  background: var(--surface-hover);
+}
+.conflict__choice:focus-visible {
+  outline: 2px solid var(--focus, var(--accent));
+  outline-offset: 2px;
+}
+.conflict__choice:disabled { opacity: 0.6; }
+.conflict__choice-title {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-weight: var(--weight-semibold);
+  font-size: var(--text-sm);
+}
+.conflict__choice-body {
+  color: var(--text-muted);
+  font-size: var(--text-sm);
+}
+.conflict__working {
+  color: var(--text-subtle);
+  font-size: var(--text-xs);
+}

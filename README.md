@@ -3,8 +3,9 @@
 **A modern, web-based SCORM course authoring tool.**
 
 Build block-based, fully responsive e-learning in the browser and export it as a
-SCORM package for any LMS. No backend, no account, and your content stays on
-your machine.
+SCORM package for any LMS. Runs with no backend and no account, with your
+content on your own machine — or, self-hosted with its optional server, with
+accounts and courses that follow you between machines.
 
 <!-- TODO: add a hero screenshot of the block editor at docs/screenshots/editor.png
      and a two-column table of the review inbox and the theming panel, to match
@@ -18,7 +19,14 @@ alternative is hand-writing HTML against a twenty-year-old specification.
 
 Learn Editor is a browser app that produces standards-compliant SCORM 1.2 and
 2004 packages, with the course stored in your own browser and exported as JSON
-you can keep. Nothing is uploaded anywhere: there is no server to send it to.
+you can keep.
+
+**How much of a backend you want is your decision, and it is one setting.** Run
+the app with no server at all and nothing is uploaded anywhere, because there is
+nowhere to send it — the original promise, still the default for `npm run dev`.
+Run the bundled server and you get accounts and sync: the courses stay in your
+browser as the working copy, and are mirrored to a machine you own. Not to us;
+there is no hosted Learn Editor to sign up for.
 
 Two decisions follow from that and are worth knowing up front. **The in-app
 preview and the exported package share the same player code**, so what you
@@ -234,9 +242,10 @@ and all text clears 4.5:1 (3:1 for large text and control boundaries).
 
 ### With Docker (recommended)
 
-Learn Editor ships as a prebuilt image (a multi-stage build serving the static
-site with nginx), published to GitHub Container Registry on every push to
-`main`. The image is public, so no login is needed to pull it.
+Learn Editor ships as a prebuilt image — a multi-stage build that serves the app
+and its API from one Node process — published to GitHub Container Registry on
+every push to `main` and on every `v*` tag. The image is public, so no login is
+needed to pull it.
 
 ```bash
 mkdir -p learn-editor && cd learn-editor
@@ -251,6 +260,23 @@ docker compose ps             # STATUS should show "Up (healthy)"
 ```
 
 Open **`http://<server>:8080`** (or whatever `PORT` you set).
+
+**On first run, the app asks you to create an administrator.** It needs a setup
+token, which the server prints to its log when it starts with no accounts yet:
+
+```bash
+docker compose logs learn-editor | grep setupToken
+```
+
+That token is the thing standing between an exposed port and a stranger claiming
+your instance, so it is deliberately not skippable. From then on, invite
+colleagues from **People** in the account menu — there is no public sign-up, and
+no email to configure: you create the account and send them the link it gives
+you.
+
+To run the app the way it worked before there was a server — no sign-in, nothing
+uploaded, every course living only in the browser that made it — set `LE_AUTH=off`
+in `.env`.
 
 **Pre-seeded content.** The Docker image ships with the dashboard pre-populated
 on first visit: the *Recording a 12-Lead ECG* exemplar course, plus a starter
@@ -268,27 +294,92 @@ then run `docker compose up -d --build`.
 
 ```bash
 npm install
-npm run dev      # open the printed localhost URL
+npm run dev          # the app, local-only, at the printed URL
 ```
 
-Production build: `npm run build`, output in `dist/`, hostable as any static
-site. Plain `npm run dev` and `npm run build` never seed the example content —
-that is opt-in via the `VITE_SEED_EXAMPLES` build flag the image sets.
+That is a complete Learn Editor: no server, no sign-in, courses in your browser.
+To work on the accounts and sync side as well, run the server alongside it —
+Vite proxies `/api` to it, so cookies and CSRF behave exactly as in production:
+
+```bash
+npm run dev:server   # in a second terminal; writes to ./.data
+```
+
+Production build: `npm run build`, output in `dist/`. `npm run serve` runs the
+server over it. `dist/` is still hostable as a plain static site if you want the
+local-only app and no backend at all. Plain `npm run dev` and `npm run build`
+never seed the example content — that is opt-in via the `VITE_SEED_EXAMPLES`
+build flag the image sets.
+
+Tests: `npm test`.
 
 ## Configuration
 
+Copy [`.env.example`](.env.example) to `.env` and adjust.
+
 | Variable | Default | What it does |
 | --- | --- | --- |
-| `PORT` | `8080` | Host port to expose (the container listens on 80) |
+| `PORT` | `8080` | Host port to expose (the container listens on 8080) |
 | `IMAGE_TAG` | `latest` | Which published tag to run; pin to `sha-…` for reproducible deploys |
-
-Copy [`.env.example`](.env.example) to `.env` and adjust. This is a
-**stateless** static site — every course lives in the browser's IndexedDB — so
-there is no server-side volume to persist, and nothing to back up on the server.
-Use the dashboard's JSON export to back up a course.
+| `LE_AUTH` | `on` | `off` runs the original local-only app: no sign-in, no sync, nothing uploaded |
+| `LE_SESSION_TTL_DAYS` | `30` | How long a sign-in lasts |
+| `LE_SETUP_TOKEN` | *generated* | Fix the first-run token instead of reading it from the log |
+| `LE_TRUST_PROXY` | `off` | Read `X-Forwarded-For` for rate limiting. **Only** with a proxy in front — otherwise a client can forge its own address and get unlimited password guesses |
+| `LE_SECURE_COOKIES` | follows `LE_TRUST_PROXY` | Mark the session cookie `Secure`. Correct over https; over plain http nobody can stay signed in |
+| `LE_MAX_BODY_MB` | `32` | Largest request the API accepts. Courses carry embedded media |
+| `LE_LOG_LEVEL` | `info` | `debug`, `info`, `warn`, `error`, `silent` |
 
 Everything else — themes, completion rules, block content — is edited in the app
 itself.
+
+### Behind a reverse proxy
+
+Terminate TLS at the proxy, pass everything through to port 8080, and set both
+`LE_TRUST_PROXY=on` and `LE_SECURE_COOKIES=on`. Getting the first wrong is a
+security hole rather than an inconvenience: with it on and no proxy actually
+rewriting `X-Forwarded-For`, the login rate limiter can be bypassed by anyone
+who sets the header themselves.
+
+## Backups
+
+With `LE_AUTH=off` there is nothing server-side to back up — every course is in
+somebody's browser, and the dashboard's JSON export is the backup.
+
+With accounts on, **the `/data` volume is the thing to keep.** It holds the
+accounts, every synced course, their version history and all uploaded media.
+
+```bash
+# A consistent copy while the server keeps running (SQLite is in WAL mode).
+docker compose exec learn-editor \
+  node -e "const {DatabaseSync}=require('node:sqlite'); \
+           new DatabaseSync('/data/learn-editor.db').exec(\"VACUUM INTO '/data/backup.db'\")"
+
+docker compose cp learn-editor:/data/backup.db ./learn-editor-backup.db
+docker compose cp learn-editor:/data/blobs ./blobs-backup
+```
+
+`learn-editor.db` without `blobs/` restores the courses with their images
+missing, so keep the pair together. Restoring is the reverse: stop the
+container, put both back under the volume, start it.
+
+Note that a course's *authoritative* copy is still the one in the author's
+browser. Losing the server loses the sync, not the work.
+
+## Releasing
+
+`package.json` is the single source of the version: Vite bakes it into the
+bundle and the server reads the same field at boot, so *About Learn Editor* and
+`GET /api/version` can never disagree.
+
+1. Update `CHANGELOG.md` and bump `version` in `package.json`.
+2. Merge to `main` — CI builds, type-checks and tests every pull request.
+3. Tag it: `git tag v1.2.0 && git push --tags`.
+
+The **Publish container image** workflow builds the image, runs it, and checks
+that it becomes healthy, reports the expected version, serves the app shell and
+starts with authentication required — and only then publishes `:latest`,
+`:1.2.0` and an immutable `:sha-<commit>`. Pin the `sha-` tag for a deploy you
+can roll back to a known image.
 
 ## SCORM behaviour
 
@@ -339,7 +430,21 @@ six markers), the sequence and matching interactions, and the artefact gallery.
 
 ## How it's built
 
+The front end is a React/TypeScript SPA. The server is optional, written against
+Node's standard library with **no runtime dependencies at all** — its whole
+runtime is Node, the built assets and about 1,500 lines of `.mjs`.
+
 ```
+server/                  optional: accounts, sync, and serving the built app
+  index.mjs              http server, routing, security headers, graceful shutdown
+  config.mjs             environment parsing, validated at boot; fails fast
+  db.mjs                 node:sqlite, schema migrations via PRAGMA user_version
+  auth.mjs               scrypt passwords, revocable sessions, CSRF, rate limiting
+  users.mjs              administration, invitations, the last-administrator rule
+  courses.mjs            sync: list / pull / push, revision conflicts
+  assets.mjs             content-addressed media blobs, reference-counted
+  static.mjs             serves dist/ with the rules nginx.conf used to provide
+
 src/
   types.ts               course → lessons → blocks data model, themes, completion
   theme.ts               course theme → CSS custom properties, shared by the
@@ -350,7 +455,12 @@ src/
   dndA11y.ts             screen-reader announcements for keyboard drag-and-drop
   blockDefaults.ts       block registry + factories + deep clone
   utils/assets.ts        media asset refs: one visitor teaches every block about media
-  utils/importContent.ts Markdown/HTML → blocks (bulk import)
+  utils/importContent.ts Markdown/HTML → blocks (bulk import), sanitised on the way in
+  auth/api.ts            the only place the app talks to a server
+  auth/authStore.ts      local vs server mode, who is signed in
+  sync/syncStore.ts      push/pull, conflict detection, the offline story
+  sync/hash.ts           SHA-256 for content-addressed media (WebCrypto, with a
+                         fallback for the http LAN deployments it is missing on)
   ui/                    design-system primitives — Button, IconButton, Dialog,
                          Sheet, Popover, Field, Segmented, Toast, Confirm
   styles/                tokens.css (two-layer design tokens) and one
@@ -401,6 +511,21 @@ style the editor. Widgets sitting inline in the content adopt the course palette
 — the scheme guarantees they are contrast-paired with it — while editor
 furniture floating above the content reads `--chrome-*` copies that are never
 remapped.
+
+Sync reuses a split the app already had. `courseStorage.ts` keeps a course's
+prose and its media in separate IndexedDB records, because media never changes
+and prose is what autosave rewrites every 400ms. That stored record — media
+already stripped — is exactly the document pushed to the server, and the media
+travels separately under the SHA-256 of its bytes. So the protocol did not have
+to invent a representation; it inherited one that was already the right shape.
+
+Conflicts are surfaced rather than resolved. Every accepted push bumps a server
+revision; a client sends the revision it last agreed with, and if the server has
+moved on the push is refused. The author is then shown the difference through
+`DiffView` — the same rendered comparison the version panel uses — and chooses.
+Last-write-wins would be less code and would quietly discard an afternoon of
+someone else's work, which for regulated training is the worst thing the
+software could do.
 
 The review build is the same player again, with an annotation layer appended:
 the player renders the course, and `review.js` decorates the DOM it produced.

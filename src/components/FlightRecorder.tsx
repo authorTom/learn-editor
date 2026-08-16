@@ -3,6 +3,7 @@ import {
   AlertTriangle, ChevronRight, Download, Gauge, RotateCcw, ScrollText, Table2, X,
 } from 'lucide-react'
 import type { Course } from '../types'
+import { APP_FONTS_HREF } from '../scorm/fonts'
 import { buildPlayerHtml } from '../scorm/buildPlayerHtml'
 import { FakeLms, formatTranscript, type LmsSnapshot } from '../scorm/lms/fakeLms'
 import { LMS_PROFILES, limitsFor, profileById, type ScormRuntimeVersion } from '../scorm/lms/profiles'
@@ -86,7 +87,7 @@ export default function FlightRecorder({ course, onClose }: { course: Course; on
   const toast = useToast()
 
   const profile = profileById(profileId)
-  const html = useMemo(() => buildPlayerHtml(course, version), [course, version])
+  const html = useMemo(() => buildPlayerHtml(course, version, undefined, { fontsHref: APP_FONTS_HREF }), [course, version])
 
   /**
    * Install the runtime on `window` before the frame loads.

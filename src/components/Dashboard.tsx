@@ -9,6 +9,8 @@ import { openCommentCount, useReviews } from '../review/reviewStore'
 import { Button, Dialog, Field, IconButton, Input, Popover, Segmented, useConfirm, useToast } from '../ui'
 import SaveTemplateDialog from './SaveTemplateDialog'
 import TemplateLibrary from './TemplateLibrary'
+import UserMenu from './auth/UserMenu'
+import SyncStatus from './SyncStatus'
 import { EXAMPLE_COURSE, fetchExampleCourse } from '../exampleCourse'
 import type { Course, CourseMeta } from '../types'
 
@@ -189,11 +191,15 @@ export default function Dashboard() {
             <p className="dash-brand__sub">
               Author responsive SCORM e-learning courses
               {storage && (
-                <span className="dash-storage" title="Everything is stored in this browser">
+                <span className="dash-storage" title="Held in this browser's storage">
                   <Database size={11} aria-hidden="true" />
-                  {formatBytes(storage.usage)} used in this browser
+                  {formatBytes(storage.usage)} in this browser
                 </span>
               )}
+              {/* Says the other half of the truth when there is a server:
+                  where the work exists besides this machine, and when it
+                  last got there. Renders nothing in local mode. */}
+              <SyncStatus />
             </p>
           </div>
         </div>
@@ -210,6 +216,8 @@ export default function Dashboard() {
           <Button variant="primary" icon={<Plus size={15} />} onClick={() => openNew()}>
             New course
           </Button>
+          {/* Renders nothing at all in local mode — no server, no account. */}
+          <UserMenu />
           <input
             ref={fileRef}
             type="file"

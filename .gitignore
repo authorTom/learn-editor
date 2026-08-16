@@ -16,3 +16,7 @@ DESIGN.md
 .env
 .env.*
 !.env.example
+
+# The local server's data directory (`npm run dev:server`): accounts, synced
+# courses and uploaded media. Never something to commit.
+.data/

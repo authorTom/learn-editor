@@ -1,7 +1,8 @@
-# Learn Editor - static SPA (Vite/React) served by nginx.
+# Learn Editor — SPA plus its optional accounts/sync API, served by one Node
+# process from one port.
 #
 # Default: pull the prebuilt image published to GHCR by GitHub Actions.
-# Compose auto-reads a sibling `.env` file - copy `.env.example` to `.env` first.
+# Compose auto-reads a sibling `.env` file — copy `.env.example` to `.env` first.
 #
 # NOTE: GHCR forces owner/repo to lowercase, so the path is `authortom`
 # (not `authorTom`).
@@ -23,20 +24,44 @@ services:
     restart: unless-stopped
 
     ports:
-      - "${PORT:-8080}:80"     # host:container - quoted so YAML keeps it a string
+      - "${PORT:-8080}:8080"   # host:container — quoted so YAML keeps it a string
+
+    environment:
+      # Accounts. Leave on for a multi-user install; set to `off` to run the
+      # old behaviour — a plain static host, everything local to the browser,
+      # no sign-in and no sync.
+      LE_AUTH: ${LE_AUTH:-on}
+      # How long a sign-in lasts.
+      LE_SESSION_TTL_DAYS: ${LE_SESSION_TTL_DAYS:-30}
+      # Set both of these when a TLS-terminating reverse proxy sits in front.
+      # LE_TRUST_PROXY makes rate limiting read X-Forwarded-For — without a
+      # proxy actually setting it, that would let a client forge its own
+      # address, so it stays off by default.
+      LE_TRUST_PROXY: ${LE_TRUST_PROXY:-off}
+      LE_SECURE_COOKIES: ${LE_SECURE_COOKIES:-off}
+      # Optional: fix the first-run setup token instead of having one generated
+      # and printed to the log. Only useful before the first account exists.
+      LE_SETUP_TOKEN: ${LE_SETUP_TOKEN:-}
+      LE_LOG_LEVEL: ${LE_LOG_LEVEL:-info}
+
+    volumes:
+      # Accounts, courses and uploaded media. This is the one thing to back up:
+      # lose it and every synced course goes with it.
+      - learn-editor-data:/data
 
     healthcheck:
-      # nginx:alpine has BusyBox wget (-q --spider) but no curl.
-      # Use 127.0.0.1, not localhost: nginx listens on IPv4 only, and
-      # localhost resolves to IPv6 [::1] first -> "connection refused".
-      # Exec-array form avoids the colon-space YAML mapping gotcha.
-      test: ["CMD", "wget", "-q", "--spider", "http://127.0.0.1:80/"]
+      # /healthz reads the database, so an instance that is up but cannot open
+      # its own library reports unhealthy rather than pretending to be fine.
+      # node:alpine has no curl or wget, but it does have node.
+      test:
+        - CMD
+        - node
+        - -e
+        - "fetch('http://127.0.0.1:8080/healthz').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"
       interval: 30s
       timeout: 5s
       retries: 3
       start_period: 10s
 
-# No named volume is defined on purpose: this is a stateless static site.
-# All learner/course data lives in the browser's IndexedDB, so there is
-# nothing server-side to persist. Add a volume only if you later introduce
-# server state.
+volumes:
+  learn-editor-data:
