@@ -5,9 +5,11 @@ dist/
 .DS_Store
 *.log
 
-# Impeccable design skill — local tooling, installed per-machine via `npx impeccable install`
-.claude/skills/impeccable/
-.claude/settings.local.json
+# Claude Code's working directory: agent skills, hooks and per-machine
+# settings. Local tooling rather than part of the product — installed per
+# machine (e.g. `npx impeccable install`), and not something a clone of Quoin
+# needs in order to build, test or run it.
+.claude/
 .impeccable/
 PRODUCT.md
 DESIGN.md
