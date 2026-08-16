@@ -170,7 +170,7 @@ export default function UsersPanel({ onClose }: { onClose: () => void }) {
             <UserPlus size={16} aria-hidden="true" /> Invite someone
           </h3>
           <p className="account__meta">
-            Learn Editor has no public sign-up. Create the account here and send them the link.
+            Quoin has no public sign-up. Create the account here and send them the link.
           </p>
           <div className="users__add-grid">
             <Field label="Email" required>

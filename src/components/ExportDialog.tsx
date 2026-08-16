@@ -29,7 +29,7 @@ const OPTIONS: { v: Format; icon: typeof Package; title: string; desc: string }[
     v: 'json',
     icon: FileJson,
     title: 'Course backup (.json)',
-    desc: 'Editable source file you can re-import into Learn Editor on any machine.',
+    desc: 'Editable source file you can re-import into Quoin on any machine.',
   },
 ]
 

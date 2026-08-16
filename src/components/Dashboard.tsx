@@ -125,7 +125,7 @@ export default function Dashboard() {
       const course = await importCourse(data)
       toast.success(`Imported “${course.title || 'Untitled course'}”.`)
     } catch {
-      toast.error('That file isn’t a Learn Editor course export. Look for the JSON file you saved from Export → JSON backup.')
+      toast.error('That file isn’t a Quoin course export. Look for the JSON file you saved from Export → JSON backup.')
     }
   }
 
@@ -187,7 +187,7 @@ export default function Dashboard() {
             <GraduationCap size={22} />
           </div>
           <div>
-            <h1>Learn Editor</h1>
+            <h1>Quoin</h1>
             <p className="dash-brand__sub">
               Author responsive SCORM e-learning courses
               {storage && (

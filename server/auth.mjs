@@ -1,7 +1,7 @@
 // Accounts, sessions, and the checks that guard every other endpoint.
 //
 // Deckle gets away with a stateless signed token because it has one shared
-// password and no users. Learn Editor has real accounts, and that changes the
+// password and no users. Quoin has real accounts, and that changes the
 // requirement: suspending or deleting someone has to end their session *now*,
 // and an author needs to be able to sign out a laptop they no longer have. Both
 // need a session the server can revoke, so sessions are rows.
@@ -13,7 +13,7 @@
 //   • Passwords are scrypt with a per-user salt. It is what Node ships, so the
 //     server keeps its zero-dependency promise; argon2id would mean a native
 //     build in the image.
-//   • Mutating requests must carry `X-Learn-Editor`. A browser will not attach
+//   • Mutating requests must carry `X-Quoin`. A browser will not attach
 //     a custom header cross-origin without a successful preflight, and we send
 //     no permissive CORS headers, so this plus SameSite=Lax is the CSRF story.
 
@@ -25,8 +25,8 @@ import { log } from './log.mjs'
 
 const scrypt = promisify(crypto.scrypt)
 
-const COOKIE = 'le_session'
-const APP_HEADER = 'x-learn-editor'
+const COOKIE = 'quoin_session'
+const APP_HEADER = 'x-quoin'
 
 // scrypt parameters. N=2^15 costs roughly 100ms per hash on a modern server —
 // slow enough to make offline guessing expensive, fast enough that a sign-in

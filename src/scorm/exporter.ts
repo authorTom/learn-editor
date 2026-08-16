@@ -54,8 +54,8 @@ export async function exportWeb(course: Course): Promise<void> {
   downloadBlob(blob, `${slugify(course.title)}-web.zip`)
 }
 
-/** JSON backup that can be re-imported into Learn Editor. */
+/** JSON backup that can be re-imported into Quoin. */
 export function exportJson(course: Course): void {
   const blob = new Blob([JSON.stringify(course, null, 2)], { type: 'application/json' })
-  downloadBlob(blob, `${slugify(course.title)}.learneditor.json`)
+  downloadBlob(blob, `${slugify(course.title)}.quoin.json`)
 }

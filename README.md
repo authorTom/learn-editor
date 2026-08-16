@@ -1,4 +1,4 @@
-# Learn Editor
+# Quoin
 
 **A modern, web-based SCORM course authoring tool.**
 
@@ -11,13 +11,24 @@ accounts and courses that follow you between machines.
      and a two-column table of the review inbox and the theming panel, to match
      the other projects. -->
 
+## The name
+
+A **quoin** (say "coin") is the tapered wedge a printer drives into the frame
+around a page of set type, locking every letter in place so the whole forme can
+be lifted, carried to the press and printed without a character shifting out of
+line. It is the thing that makes loose type into something you can move.
+
+That is the job here: a course is assembled block by block, then locked into a
+package that travels to someone else's LMS and renders exactly as it did on the
+screen it was built on.
+
 ## Why it exists
 
 Authoring tools for SCORM tend to be desktop software with a per-seat licence, a
 Windows-only installer, and a file format only that tool can open. The
 alternative is hand-writing HTML against a twenty-year-old specification.
 
-Learn Editor is a browser app that produces standards-compliant SCORM 1.2 and
+Quoin is a browser app that produces standards-compliant SCORM 1.2 and
 2004 packages, with the course stored in your own browser and exported as JSON
 you can keep.
 
@@ -26,7 +37,7 @@ the app with no server at all and nothing is uploaded anywhere, because there is
 nowhere to send it — the original promise, still the default for `npm run dev`.
 Run the bundled server and you get accounts and sync: the courses stay in your
 browser as the working copy, and are mirrored to a machine you own. Not to us;
-there is no hosted Learn Editor to sign up for.
+there is no hosted Quoin to sign up for.
 
 Two decisions follow from that and are worth knowing up front. **The in-app
 preview and the exported package share the same player code**, so what you
@@ -242,16 +253,16 @@ and all text clears 4.5:1 (3:1 for large text and control boundaries).
 
 ### With Docker (recommended)
 
-Learn Editor ships as a prebuilt image — a multi-stage build that serves the app
+Quoin ships as a prebuilt image — a multi-stage build that serves the app
 and its API from one Node process — published to GitHub Container Registry on
 every push to `main` and on every `v*` tag. The image is public, so no login is
 needed to pull it.
 
 ```bash
-mkdir -p learn-editor && cd learn-editor
+mkdir -p quoin && cd quoin
 
-curl -fsSL -o compose.yaml https://raw.githubusercontent.com/authorTom/learn-editor/main/compose.yaml
-curl -fsSL -o .env.example https://raw.githubusercontent.com/authorTom/learn-editor/main/.env.example
+curl -fsSL -o compose.yaml https://raw.githubusercontent.com/authorTom/quoin/main/compose.yaml
+curl -fsSL -o .env.example https://raw.githubusercontent.com/authorTom/quoin/main/.env.example
 cp .env.example .env          # edit if you want a different host port
 
 docker compose pull
@@ -265,7 +276,7 @@ Open **`http://<server>:8080`** (or whatever `PORT` you set).
 token, which the server prints to its log when it starts with no accounts yet:
 
 ```bash
-docker compose logs learn-editor | grep setupToken
+docker compose logs quoin | grep setupToken
 ```
 
 That token is the thing standing between an exposed port and a stranger claiming
@@ -275,7 +286,7 @@ no email to configure: you create the account and send them the link it gives
 you.
 
 To run the app the way it worked before there was a server — no sign-in, nothing
-uploaded, every course living only in the browser that made it — set `LE_AUTH=off`
+uploaded, every course living only in the browser that made it — set `QUOIN_AUTH=off`
 in `.env`.
 
 **Pre-seeded content.** The Docker image ships with the dashboard pre-populated
@@ -297,7 +308,7 @@ npm install
 npm run dev          # the app, local-only, at the printed URL
 ```
 
-That is a complete Learn Editor: no server, no sign-in, courses in your browser.
+That is a complete Quoin: no server, no sign-in, courses in your browser.
 To work on the accounts and sync side as well, run the server alongside it —
 Vite proxies `/api` to it, so cookies and CSRF behave exactly as in production:
 
@@ -321,13 +332,13 @@ Copy [`.env.example`](.env.example) to `.env` and adjust.
 | --- | --- | --- |
 | `PORT` | `8080` | Host port to expose (the container listens on 8080) |
 | `IMAGE_TAG` | `latest` | Which published tag to run; pin to `sha-…` for reproducible deploys |
-| `LE_AUTH` | `on` | `off` runs the original local-only app: no sign-in, no sync, nothing uploaded |
-| `LE_SESSION_TTL_DAYS` | `30` | How long a sign-in lasts |
-| `LE_SETUP_TOKEN` | *generated* | Fix the first-run token instead of reading it from the log |
-| `LE_TRUST_PROXY` | `off` | Read `X-Forwarded-For` for rate limiting. **Only** with a proxy in front — otherwise a client can forge its own address and get unlimited password guesses |
-| `LE_SECURE_COOKIES` | follows `LE_TRUST_PROXY` | Mark the session cookie `Secure`. Correct over https; over plain http nobody can stay signed in |
-| `LE_MAX_BODY_MB` | `32` | Largest request the API accepts. Courses carry embedded media |
-| `LE_LOG_LEVEL` | `info` | `debug`, `info`, `warn`, `error`, `silent` |
+| `QUOIN_AUTH` | `on` | `off` runs the original local-only app: no sign-in, no sync, nothing uploaded |
+| `QUOIN_SESSION_TTL_DAYS` | `30` | How long a sign-in lasts |
+| `QUOIN_SETUP_TOKEN` | *generated* | Fix the first-run token instead of reading it from the log |
+| `QUOIN_TRUST_PROXY` | `off` | Read `X-Forwarded-For` for rate limiting. **Only** with a proxy in front — otherwise a client can forge its own address and get unlimited password guesses |
+| `QUOIN_SECURE_COOKIES` | follows `QUOIN_TRUST_PROXY` | Mark the session cookie `Secure`. Correct over https; over plain http nobody can stay signed in |
+| `QUOIN_MAX_BODY_MB` | `32` | Largest request the API accepts. Courses carry embedded media |
+| `QUOIN_LOG_LEVEL` | `info` | `debug`, `info`, `warn`, `error`, `silent` |
 
 Everything else — themes, completion rules, block content — is edited in the app
 itself.
@@ -335,14 +346,14 @@ itself.
 ### Behind a reverse proxy
 
 Terminate TLS at the proxy, pass everything through to port 8080, and set both
-`LE_TRUST_PROXY=on` and `LE_SECURE_COOKIES=on`. Getting the first wrong is a
+`QUOIN_TRUST_PROXY=on` and `QUOIN_SECURE_COOKIES=on`. Getting the first wrong is a
 security hole rather than an inconvenience: with it on and no proxy actually
 rewriting `X-Forwarded-For`, the login rate limiter can be bypassed by anyone
 who sets the header themselves.
 
 ## Backups
 
-With `LE_AUTH=off` there is nothing server-side to back up — every course is in
+With `QUOIN_AUTH=off` there is nothing server-side to back up — every course is in
 somebody's browser, and the dashboard's JSON export is the backup.
 
 With accounts on, **the `/data` volume is the thing to keep.** It holds the
@@ -350,15 +361,15 @@ accounts, every synced course, their version history and all uploaded media.
 
 ```bash
 # A consistent copy while the server keeps running (SQLite is in WAL mode).
-docker compose exec learn-editor \
+docker compose exec quoin \
   node -e "const {DatabaseSync}=require('node:sqlite'); \
-           new DatabaseSync('/data/learn-editor.db').exec(\"VACUUM INTO '/data/backup.db'\")"
+           new DatabaseSync('/data/quoin.db').exec(\"VACUUM INTO '/data/backup.db'\")"
 
-docker compose cp learn-editor:/data/backup.db ./learn-editor-backup.db
-docker compose cp learn-editor:/data/blobs ./blobs-backup
+docker compose cp quoin:/data/backup.db ./quoin-backup.db
+docker compose cp quoin:/data/blobs ./blobs-backup
 ```
 
-`learn-editor.db` without `blobs/` restores the courses with their images
+`quoin.db` without `blobs/` restores the courses with their images
 missing, so keep the pair together. Restoring is the reverse: stop the
 container, put both back under the volume, start it.
 
@@ -368,7 +379,7 @@ browser. Losing the server loses the sync, not the work.
 ## Releasing
 
 `package.json` is the single source of the version: Vite bakes it into the
-bundle and the server reads the same field at boot, so *About Learn Editor* and
+bundle and the server reads the same field at boot, so *About Quoin* and
 `GET /api/version` can never disagree.
 
 1. Update `CHANGELOG.md` and bump `version` in `package.json`.

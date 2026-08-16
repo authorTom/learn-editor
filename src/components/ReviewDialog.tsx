@@ -112,7 +112,7 @@ export default function ReviewDialog({
               the live course meanwhile — comments stay attached to the right blocks.
             </p>
             <p className="muted">
-              Learn Editor has no server, so nothing is uploaded. Put the file anywhere your
+              Quoin has no server, so nothing is uploaded. Put the file anywhere your
               reviewers can reach it — SharePoint, Google Drive, Dropbox, a static host — and
               send that link, or just email the file. They send back a small feedback file that
               you import below.

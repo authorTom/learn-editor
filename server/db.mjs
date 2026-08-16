@@ -138,7 +138,7 @@ function migrate(db) {
   if (current > MIGRATIONS.length) {
     throw new Error(
       `The database is at schema version ${current}, but this build only knows ${MIGRATIONS.length}. ` +
-        `It was written by a newer Learn Editor — upgrade the image rather than downgrading the data.`
+        `It was written by a newer Quoin — upgrade the image rather than downgrading the data.`
     )
   }
   if (current === MIGRATIONS.length) return

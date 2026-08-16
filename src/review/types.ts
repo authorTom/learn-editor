@@ -75,7 +75,7 @@ export type ReviewSnapshot = Course
 
 /** What a reviewer sends back. Deliberately tiny: no course, no media. */
 export interface ReviewBundle {
-  kind: 'learn-editor-review'
+  kind: 'quoin-review'
   version: 1
   reviewId: string
   courseId: string
@@ -85,7 +85,16 @@ export interface ReviewBundle {
   comments: ReviewComment[]
 }
 
-export const REVIEW_BUNDLE_KIND = 'learn-editor-review'
+export const REVIEW_BUNDLE_KIND = 'quoin-review'
+
+/** What the marker was before the product was renamed from Learn Editor.
+ *
+ *  A review round can be in flight for weeks — the reviewer has the HTML file
+ *  and returns it whenever they get to it. Refusing their feedback because the
+ *  tool changed its name in the meantime would lose real work that no one can
+ *  reproduce, so both markers are accepted on the way in. Only the new one is
+ *  ever written. */
+export const LEGACY_REVIEW_BUNDLE_KIND = 'learn-editor-review'
 
 /** A bundle that has been checked comment by comment. `skipped` counts entries
     that were dropped as malformed. */
@@ -163,7 +172,7 @@ function safeComment(x: unknown, reviewId: string, reviewer: string): ReviewComm
 export function sanitizeBundle(x: unknown): SafeBundle | null {
   if (!x || typeof x !== 'object') return null
   const b = x as Record<string, unknown>
-  if (b.kind !== REVIEW_BUNDLE_KIND) return null
+  if (b.kind !== REVIEW_BUNDLE_KIND && b.kind !== LEGACY_REVIEW_BUNDLE_KIND) return null
   if (typeof b.reviewId !== 'string' || !b.reviewId) return null
   if (typeof b.courseId !== 'string') return null
   if (!Array.isArray(b.comments)) return null

@@ -26,7 +26,7 @@ export function buildManifest12(course: Course, mediaPaths: string[] = []): stri
   const title = escapeHtml(course.title)
   const mastery = firstPassingScore(course)
   return `<?xml version="1.0" encoding="UTF-8"?>
-<manifest identifier="com.learneditor.${course.id}" version="1.2"
+<manifest identifier="com.quoin.${course.id}" version="1.2"
   xmlns="http://www.imsproject.org/xsd/imscp_rootv1p1p2"
   xmlns:adlcp="http://www.adlnet.org/xsd/adlcp_rootv1p2"
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
@@ -59,7 +59,7 @@ export function buildManifest2004(course: Course, mediaPaths: string[] = []): st
   const title = escapeHtml(course.title)
   const mastery = firstPassingScore(course)
   return `<?xml version="1.0" encoding="UTF-8"?>
-<manifest identifier="com.learneditor.${course.id}" version="1"
+<manifest identifier="com.quoin.${course.id}" version="1"
   xmlns="http://www.imsglobal.org/xsd/imscp_v1p1"
   xmlns:adlcp="http://www.adlnet.org/xsd/adlcp_v1p3"
   xmlns:adlseq="http://www.adlnet.org/xsd/adlseq_v1p3"

@@ -1,6 +1,7 @@
-# Verify Learn Editor
+# Verify Quoin
 
-Build/launch/drive recipe for this repo (Vite + React SCORM authoring app, no backend).
+Build/launch/drive recipe for this repo (Vite + React SCORM authoring app, with an
+optional Node server for accounts and sync — see `server/`).
 
 ## Build & launch
 

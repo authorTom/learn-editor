@@ -8,7 +8,7 @@
  *
  * Two rules for every call:
  *   • `credentials: 'same-origin'` so the session cookie travels.
- *   • the `X-Learn-Editor` header on writes, which is what the server's CSRF
+ *   • the `X-Quoin` header on writes, which is what the server's CSRF
  *     check looks for. A cross-site form post cannot set it.
  */
 
@@ -66,7 +66,7 @@ export class OfflineError extends Error {
   }
 }
 
-const APP_HEADER = 'X-Learn-Editor'
+const APP_HEADER = 'X-Quoin'
 
 async function request<T>(
   path: string,

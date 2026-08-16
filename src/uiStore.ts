@@ -45,7 +45,11 @@ interface UiState {
   openDock: (tab: DockTab) => void
 }
 
-const KEY = 'learn-editor:ui'
+const KEY = 'quoin:ui'
+/** The same preferences under the product's previous name. Read once, if the
+    new key holds nothing, so the rename does not silently reset an author's
+    sidebar, dock and recent-block choices. Never written. */
+const LEGACY_KEY = 'learn-editor:ui'
 
 interface Persisted {
   outlineOpen: boolean
@@ -60,7 +64,7 @@ const MAX_RECENT = 5
     third-party storage both raise on access. Every touch is guarded. */
 function readPrefs(): Partial<Persisted> {
   try {
-    const raw = localStorage.getItem(KEY)
+    const raw = localStorage.getItem(KEY) ?? localStorage.getItem(LEGACY_KEY)
     return raw ? (JSON.parse(raw) as Partial<Persisted>) : {}
   } catch {
     return {}

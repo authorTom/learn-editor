@@ -580,9 +580,13 @@ export interface CourseTemplate {
   createdAt: number
 }
 
+/** What the template library marker was before the rename from Learn Editor.
+    Accepted on import, never written — see `TemplateLibrary.importLibrary`. */
+export const LEGACY_TEMPLATE_LIBRARY_KIND = 'learn-editor-templates'
+
 /** Shape of an exported/imported template library file. */
 export interface TemplateLibraryFile {
-  kind: 'learn-editor-templates'
+  kind: 'quoin-templates' | typeof LEGACY_TEMPLATE_LIBRARY_KIND
   version: 1
   blockTemplates: BlockTemplate[]
   courseTemplates: CourseTemplate[]

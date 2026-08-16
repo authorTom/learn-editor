@@ -4,6 +4,7 @@ import { useStore } from '../store'
 import { Button, Surface, useConfirm, useToast } from '../ui'
 import { blockDefs } from '../blockDefaults'
 import { downloadBlob } from '../utils/file'
+import { LEGACY_TEMPLATE_LIBRARY_KIND } from '../types'
 import type { BlockType, TemplateLibraryFile } from '../types'
 
 function typeLabel(type: BlockType): string {
@@ -35,26 +36,32 @@ export default function TemplateLibrary({
 
   function exportLibrary() {
     const data: TemplateLibraryFile = {
-      kind: 'learn-editor-templates',
+      kind: 'quoin-templates',
       version: 1,
       blockTemplates,
       courseTemplates,
     }
     downloadBlob(
       new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' }),
-      'learn-editor-templates.json'
+      'quoin-templates.json'
     )
   }
 
   async function importLibrary(file: File) {
     try {
       const data = JSON.parse(await file.text()) as TemplateLibraryFile
-      if (data.kind !== 'learn-editor-templates') throw new Error('bad format')
+      // `learn-editor-templates` is what this file was called before the
+      // rename. A template library is something an author builds up over
+      // months and keeps outside the app; refusing to read one because the
+      // product changed its name would throw that away for no reason.
+      if (data.kind !== 'quoin-templates' && data.kind !== LEGACY_TEMPLATE_LIBRARY_KIND) {
+        throw new Error('bad format')
+      }
       const n = await importTemplates(data.blockTemplates ?? [], data.courseTemplates ?? [])
       if (n === 0) toast.show('That library file was empty — nothing to import.')
       else toast.success(`Imported ${n} template${n === 1 ? '' : 's'}.`)
     } catch {
-      toast.error('That file isn’t a Learn Editor template library. Use the JSON file saved by Export library.')
+      toast.error('That file isn’t a Quoin template library. Use the JSON file saved by Export library.')
     }
   }
 

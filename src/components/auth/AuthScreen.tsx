@@ -114,13 +114,13 @@ export default function AuthScreen() {
   const copy = {
     signin: {
       icon: <GraduationCap aria-hidden="true" />,
-      title: 'Sign in to Learn Editor',
+      title: 'Sign in to Quoin',
       blurb: 'Your courses are waiting where you left them.',
       action: 'Sign in',
     },
     setup: {
       icon: <ShieldCheck aria-hidden="true" />,
-      title: 'Set up Learn Editor',
+      title: 'Set up Quoin',
       blurb:
         'Nobody has an account on this instance yet. Create the first administrator — they can invite everyone else.',
       action: 'Create administrator',
@@ -128,7 +128,7 @@ export default function AuthScreen() {
     invite: {
       icon: <KeyRound aria-hidden="true" />,
       title: 'Choose a password',
-      blurb: 'You have been invited to Learn Editor. Pick a password and you are in.',
+      blurb: 'You have been invited to Quoin. Pick a password and you are in.',
       action: 'Set password and sign in',
     },
   }[mode]
@@ -223,7 +223,7 @@ export default function AuthScreen() {
 
         {mode === 'signin' && (
           <p className="auth__foot">
-            No account? Learn Editor has no public sign-up — ask an administrator of this instance
+            No account? Quoin has no public sign-up — ask an administrator of this instance
             to invite you.
           </p>
         )}

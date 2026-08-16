@@ -178,7 +178,7 @@ export function readBuffer(req, maxBytes) {
  * The client's address, for rate limiting.
  *
  * X-Forwarded-For is only consulted when the operator has said a proxy is in
- * front (LE_TRUST_PROXY). Otherwise any client could set the header itself and
+ * front (QUOIN_TRUST_PROXY). Otherwise any client could set the header itself and
  * give every failed login attempt a fresh identity.
  */
 export function clientIp(req, trustProxy) {

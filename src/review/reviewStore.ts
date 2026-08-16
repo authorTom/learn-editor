@@ -130,7 +130,7 @@ export const useReviews = create<ReviewState>((set, get) => {
         validated and anything malformed is dropped rather than trusted. */
     importBundle: async (raw) => {
       const bundle = sanitizeBundle(raw)
-      if (!bundle) throw new Error('That file is not Learn Editor review feedback.')
+      if (!bundle) throw new Error('That file is not Quoin review feedback.')
 
       const review = get().reviews.find((r) => r.id === bundle.reviewId)
       if (!review) {

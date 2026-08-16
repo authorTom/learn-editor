@@ -1,7 +1,7 @@
 name: Publish container image
 
 # Builds the Docker image and publishes it to GHCR
-# (ghcr.io/authortom/learn-editor) so it can be pulled by compose.
+# (ghcr.io/authortom/quoin) so it can be pulled by compose.
 
 on:
   push:
@@ -59,14 +59,14 @@ jobs:
         with:
           context: .
           load: true
-          tags: learn-editor:smoke-test
+          tags: quoin:smoke-test
           cache-from: type=gha
 
       - name: Smoke-test the image
         run: |
           set -euo pipefail
           docker run -d --name smoke -p 8080:8080 \
-            -e LE_DATA_DIR=/data -e LE_LOG_LEVEL=debug learn-editor:smoke-test
+            -e QUOIN_DATA_DIR=/data -e QUOIN_LOG_LEVEL=debug quoin:smoke-test
 
           # Wait for it to answer, rather than sleeping and hoping.
           for i in $(seq 1 30); do
