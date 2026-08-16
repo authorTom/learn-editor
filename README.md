@@ -7,9 +7,26 @@ SCORM package for any LMS. Runs with no backend and no account, with your
 content on your own machine — or, self-hosted with its optional server, with
 accounts and courses that follow you between machines.
 
-<!-- TODO: add a hero screenshot of the block editor at docs/screenshots/editor.png
-     and a two-column table of the review inbox and the theming panel, to match
-     the other projects. -->
+![The Quoin editor: the course outline on the left, a lesson on the canvas with an image-hotspot block selected, and the block inspector on the right](docs/screenshots/editor.png)
+
+*Three columns: the course outline, the lesson canvas, and a dock holding one
+panel at a time. Content lives on the canvas; how a block looks and behaves
+lives in the inspector — so the middle column reads as the course rather than
+as a column of forms.*
+
+| The learner's view — desktop, tablet and phone | A SCORM flight recorder |
+| --- | --- |
+| [![The preview, showing the exported player with lesson navigation and a progress bar](docs/screenshots/preview.png)](docs/screenshots/preview.png) | [![The flight recorder running the course against a simulated LMS, with a live log of SCORM API calls](docs/screenshots/flight-recorder.png)](docs/screenshots/flight-recorder.png) |
+| Preview runs the **same player code the export ships**, so this is not an approximation of the LMS — it is the package, minus the LMS. | Run the course against a conformant, simulated LMS and watch every `LMSSetValue` as it happens. Switch between SCORM 1.2 and 2004, and pick how strict the LMS should be. |
+| **25 block types, five categories** | **Accessibility, audited as you author** |
+| [![The block picker, scrolled to the interactive and assessment blocks](docs/screenshots/block-picker.png)](docs/screenshots/block-picker.png) | [![The accessibility panel showing WCAG 2.2 findings with a conformance report button](docs/screenshots/accessibility.png)](docs/screenshots/accessibility.png) |
+| Text, media, layout, interactive and assessment — flashcards, sequencing, matching, image hotspots and graded quizzes. Your own saved blocks come first. | Every finding cites its WCAG 2.2 criterion and points at the block to fix. The conformance report is per-criterion, for procurement or the audit file. |
+| **The canvas wears the course's colours** | **Design presets, tried on the real lesson** |
+| [![A lesson with a Midnight colour scheme on the canvas while the editor chrome stays light](docs/screenshots/dark-scheme.png)](docs/screenshots/dark-scheme.png) | [![The design preset strip showing eight presets below the lesson](docs/screenshots/themes.png)](docs/screenshots/themes.png) |
+| A Midnight lesson looks like itself while you author it — and the editor's own furniture stays chrome, so handles and focus rings never disappear into the page. | Arrow through eight presets and watch them land on the lesson behind, before committing to one. |
+| **What changed since the approved version** | **Your library** |
+| [![A side-by-side diff between a saved version and the course now, with the edited block highlighted](docs/screenshots/versions.png)](docs/screenshots/versions.png) | [![The course dashboard with a resume banner and a course card](docs/screenshots/dashboard.png)](docs/screenshots/dashboard.png) |
+| Named snapshots, compared as **rendered pages rather than JSON** — the question a compliance file has to answer, in a form a subject-matter expert can read. | Search, sort, duplicate, import and export. Everything autosaves to your browser as you work. |
 
 ## The name
 
@@ -323,6 +340,17 @@ never seed the example content — that is opt-in via the `VITE_SEED_EXAMPLES`
 build flag the image sets.
 
 Tests: `npm test`.
+
+**Screenshots.** The images in this README are captured from the running app
+rather than cropped by hand, so refreshing them after a UI change is one
+command. They always use the seeded ECG exemplar, which means a diff between
+two runs is a real interface change and not different content:
+
+```bash
+VITE_SEED_EXAMPLES=true npm run build
+QUOIN_DATA_DIR=/tmp/shots QUOIN_PORT=8123 QUOIN_AUTH=off npm run serve &
+npm run shots        # writes docs/screenshots/*.png
+```
 
 ## Configuration
 

@@ -11,6 +11,7 @@
     "dev:server": "QUOIN_DATA_DIR=.data QUOIN_LOG_LEVEL=debug node --watch server/index.mjs",
     "test": "vitest run",
     "test:watch": "vitest",
+    "shots": "node scripts/capture-screenshots.mjs",
     "seed:build": "node scripts/build-seed-templates.mjs",
     "fonts:fetch": "node scripts/fetch-fonts.mjs"
   },
